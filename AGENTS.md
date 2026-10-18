@@ -1,14 +1,14 @@
 # AGENTS.md
-# Visedin — Visual Education Interactive
+# IVE — Visual Education Interactive
 # AI Agent Engineering & Development Constitution
 
-> **Purpose:** This file is the persistent engineering contract for every AI coding agent working on Visedin.
+> **Purpose:** This file is the persistent engineering contract for every AI coding agent working on IVE.
 >
-> **Product name:** Visedin — Visual Education Interactive
+> **Product name:** IVE — Visual Education Interactive
 >
-> **Primary reference:** `EduSpark_TAD_Phase_1.md` and the original product requirements supplied with this project.
+> **Primary reference:** `IVE_TAD_Phase_1.md` and the original product requirements supplied with this project.
 >
-> **Important:** The product name has changed from EduSpark to Visedin. Existing architecture and requirements remain the baseline unless a newer project decision explicitly supersedes them.
+> **Important:** The product name has changed from EduSpark to IVE. Existing architecture and requirements remain the baseline unless a newer project decision explicitly supersedes them.
 
 ---
 
@@ -17,7 +17,7 @@
 Before modifying any code, every agent MUST:
 
 1. Read this `AGENTS.md`.
-2. Read `EduSpark_TAD_Phase_1.md` if present.
+2. Read `IVE_TAD_Phase_1.md` if present.
 3. Inspect the existing repository structure.
 4. Inspect the relevant implementation before creating new files.
 5. Search for existing components, services, hooks, utilities, schemas, routes, and database models that solve the same problem.
@@ -41,9 +41,8 @@ If they conflict because the codebase has intentionally evolved, preserve the cu
 
 ## 1.1 Product
 
-**Visedin — Visual Education Interactive**
-
-Visedin is an Indonesian interactive education platform designed to make learning:
+* IVE — Visual Education Interactive**
+ IVE is an Indonesian interactive education platform designed to make learning:
 
 - visual
 - interactive
@@ -136,7 +135,7 @@ Learn from general UX principles only.
 The default architecture is:
 
 ```text
-                    Visedin
+                   IVE
                        │
                   Next.js App
                        │
@@ -1468,8 +1467,7 @@ Never blindly force old architecture onto evolved code.
 ---
 
 # 47. PHASE MODEL
-
-Visedin should evolve in phases.
+ IVE should evolve in phases.
 
 ## Phase 1 — Foundation
 
@@ -2364,7 +2362,7 @@ Before saying "done", the agent MUST verify:
 
 # 81. THE MOST IMPORTANT RULE
 
-**Do not optimize for generating code. Optimize for improving the Visedin codebase.**
+**Do not optimize for generating code. Optimize for improving the IVE codebase.**
 
 An agent is successful when its changes:
 
@@ -2384,7 +2382,7 @@ A smaller, correct change is better than a larger, impressive-looking change.
 
 ---
 
-# 82. Visedin Engineering Mantra
+# 82. IVE Engineering Mantra
 
 ```text
 Understand before changing.
@@ -2398,3 +2396,16 @@ Scale when needed, not when imagined.
 ```
 
 # END OF AGENTS.md
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- Dirty graphify-out/ files are expected after hooks or incremental updates; dirty graph files are not a reason to skip graphify. Only skip graphify if the task is about stale or incorrect graph output, or the user explicitly says not to use it.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).

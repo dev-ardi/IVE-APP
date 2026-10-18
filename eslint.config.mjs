@@ -12,6 +12,13 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Non-app tooling bundled into the repo (agent skills, knowledge graph):
+    ".opencode/**",
+    ".claude/**",
+    ".cursor/**",
+    ".agents/**",
+    ".devin/**",
+    "graphify-out/**",
   ]),
 ]);
 

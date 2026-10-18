@@ -1,17 +1,17 @@
 # TECHNICAL ARCHITECTURE DOCUMENT (TAD)
-## visedin — Phase 1 Foundation / Production-Ready MVP
+## IVE-APP — Phase 1 Foundation / Production-Ready MVP
 
 **Document status:** Draft for implementation
 **Version:** 1.0
 **Date:** 2026-09-16
 **Audience:** AI coding agents, full-stack engineers, technical leads
-**Source basis:** visedin Master Prompt / PRD supplied for this project
+**Source basis:** ive Master Prompt / PRD supplied for this project
 
 ---
 
 ## 0. EXECUTIVE DECISION
 
-Build visedin as a **modular monolith** first.
+Build IVE-APP as a **modular monolith** first.
 
 Do NOT start with microservices, Kubernetes, Kafka, or a distributed event architecture.
 
@@ -53,7 +53,7 @@ This makes later service extraction possible without rewriting the product.
 
 # 1. PRODUCT SCOPE
 
-visedin is an Indonesian interactive education platform supporting:
+ive is an Indonesian interactive education platform supporting:
 
 - Umum
 - SD
@@ -1026,9 +1026,9 @@ localStorage
 Keys:
 
 ```text
-visedin_progress
-visedin_favorites
-visedin_quiz_attempts
+ive_progress
+ive_favorites
+ive_quiz_attempts
 ```
 
 Do not store sensitive data.
@@ -1631,7 +1631,7 @@ Implement metadata for:
 Lesson example:
 
 Title:
-Gerak Parabola — Fisika SMA | visedin
+Gerak Parabola — Fisika SMA | ive
 
 Description:
 Pelajari konsep gerak parabola melalui penjelasan, visualisasi interaktif, dan latihan soal.
