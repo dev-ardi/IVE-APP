@@ -1,11 +1,11 @@
 # TECHNICAL ARCHITECTURE DOCUMENT (TAD)
-## IVE-APP — Phase 1 Foundation / Production-Ready MVP
+## IVE-APP — Phase 1: General-Purpose Interactive Learning + Content CMS
 
 **Document status:** Draft for implementation
-**Version:** 1.0
-**Date:** 2026-09-16
+**Version:** 2.0 (supersedes 1.0 dated 2026-09-16)
+**Date:** 2026-10-19
 **Audience:** AI coding agents, full-stack engineers, technical leads
-**Source basis:** ive Master Prompt / PRD supplied for this project
+**Source basis:** IVE 5W1H product definition (WHY / WHAT / WHEN / WHERE / HOW) + TAD v1.0
 
 ---
 
@@ -15,7 +15,7 @@ Build IVE-APP as a **modular monolith** first.
 
 Do NOT start with microservices, Kubernetes, Kafka, or a distributed event architecture.
 
-### Phase 1 stack
+### Phase 1 stack (unchanged from v1.0)
 
 - Frontend: Next.js + React + TypeScript
 - Styling: Tailwind CSS + shadcn/ui
@@ -29,137 +29,214 @@ Do NOT start with microservices, Kubernetes, Kafka, or a distributed event archi
 - Queue foundation: BullMQ, only where asynchronous work is actually needed
 - Object storage: S3-compatible storage / Cloudflare R2 / Supabase Storage
 - AI: provider-agnostic OpenAI-compatible server-side adapter
-- Vector search: pgvector when RAG is introduced
+- Vector search: pgvector when RAG is introduced (not required in Phase 1)
 - Math rendering: KaTeX
 - Testing: Vitest + React Testing Library + Playwright
 - Observability: Sentry-compatible error monitoring
 - Analytics: PostHog-compatible event analytics, optional in Phase 1
 
+No new infrastructure is introduced by v2.0. Any new package (for example a rich-text editor library or a math-expression parser) MUST be justified in writing per Agent Rules 10–12.
+
 ### Core architecture rule
 
 Business logic MUST live in domain/application modules, not inside React components or route handlers.
 
-Target dependency direction:
-
+```text
 UI -> Application Service -> Repository -> Prisma -> PostgreSQL
-
-External integrations MUST be behind adapters:
-
 Application Service -> Adapter Interface -> Provider
+```
 
 This makes later service extraction possible without rewriting the product.
 
----
+### What changed from v1.0
 
-# 1. PRODUCT SCOPE
-
-ive is an Indonesian interactive education platform supporting:
-
-- Umum
-- SD
-- SMP
-- SMA
-
-Core hierarchy:
-
-Education Level
--> Subject
--> Topic
--> Lesson
--> Content Blocks
--> Practice Questions
-
-Core learning loop:
-
-DISCOVER -> LEARN -> INTERACT -> PRACTICE -> ASK AI -> COMPLETE -> CONTINUE
-
-Phase 1 must implement the functional MVP described by the PRD, with the student-facing learning experience prioritized over CMS complexity.
+| Area | v1.0 | v2.0 (this document) |
+|---|---|---|
+| Product framing | Four education levels from day one | Phase 1 = general-purpose ("Umum") content only; SD/SMP/SMA kept in schema but inactive |
+| Users | USER, ADMIN | Unchanged roles; architecture made ready for a TEACHER role in Phase 2 (not built) |
+| Content | Blocks: text, image, video, formula, callout, example | Adds real-world-practice block, illustration metadata, and mandatory source references |
+| Source validity | Not modelled | `Source` + `LessonSource`; at least one source required to publish |
+| CMS | One block editor | Two explicit tracks: (1) content authoring, (2) interactive composition |
+| Interactive | Fixed registry of 5 components | Registry + per-component config schema + admin config form + live preview; optional no-code Formula Sandbox |
+| Question bank | Questions belong to a lesson only | Questions belong to a topic (optionally pinned to a lesson); practice and quiz modes |
+| Evaluation | Score and result only | Per-question review, difficulty breakdown, rule-based "review these lessons", attempt history |
+| Navigation | Basic routes | Explicit hierarchy navigation spec (mega menu, outline tree, breadcrumbs) |
+| Experiments | Not modelled | `Lesson.kind = EXPERIMENT` powers a standalone `/lab` for quick simulations |
+| Access-code question bank (teacher ↔ student) | Out of scope, not discussed | Explicitly deferred to Phase 2, extension points documented |
 
 ---
 
-# 2. PHASE 1 ACCEPTANCE SCOPE
+# 1. PRODUCT DEFINITION (5W1H)
+
+## WHY
+
+- Contribute to the Indonesia Emas 2045 goal by improving the quality of learning.
+- Help teaching and learning between students and teachers through interactive visual elements, so learning is more immersive and students understand a topic more deeply.
+
+## WHAT
+
+IVE-APP is an interactive education web application. Its purpose is to give students a more immersive learning experience.
+
+Core features (product level):
+
+1. Subject selection.
+2. Interaction with elements inside a subject (sandbox-style): students change values in a formula (for example a physics formula) and immediately see the result visually.
+3. A user-friendly navigation system with a clear menu hierarchy, because there will be many subjects.
+4. Learning material with a **verifiable source**.
+5. Practice questions / question bank. The two-way teacher-student bank via teacher-issued access code is a **Phase 2** capability.
+
+Additional features the architecture adds to support the above:
+
+- Standalone **Lab** for quick simulations (curious users, "just let me try it").
+- **Classroom-friendly display** (fullscreen interactive, large readable type) for teachers projecting content.
+- Per-lesson **source references** and a visible "Sumber" section.
+- Evaluation history and per-question review.
+
+## WHERE
+
+- In the classroom during teaching and learning (teacher projects or students open on their own devices).
+- General public access: self-study at home, tutoring centers (bimbel).
+- Low-bandwidth and mid-range mobile devices must be treated as first-class targets. Phase 1 therefore enforces lazy loading, small client bundles, and text fallbacks for every interactive component.
+
+## WHEN
+
+Usage moments:
+
+- Whenever someone wants to learn or is simply curious about a topic.
+- Whenever someone wants to run a quick experiment/simulation; IVE acts as a first visual reference for the material.
+
+Delivery phases:
+
+| Phase | Definition | Status in this TAD |
+|---|---|---|
+| **Phase 1** | App + CMS for **general-purpose** material, with its interactive components | **Implement now** |
+| Phase 2 | CMS usable by other users (teachers / education staff) so IVE can be a classroom reference | Extension points only |
+| Phase 3 | General material for Indonesian compulsory education levels: SD, SMP, SMA, UMUM | Schema-ready, content not built |
+
+## HOW
+
+### How the app works — four core pillars
+
+| # | Pillar | Phase 1 deliverable |
+|---|---|---|
+| 1 | User chooses a learning material from the web app | Subject → Topic → Lesson catalog, search, favorites, progress |
+| 2 | Material is presented as text, illustration, formula (when formula-based), explanation video, real-world practice/implementation example, and interactive components as needed | Content block engine + interactive engine |
+| 3 | Practice questions, quizzes, and evaluation of the user's work | Question bank, practice mode, quiz mode, result review, attempt history |
+| 4 | "Tanya AI" as learning assistant | Lesson-aware AI tutor with streaming |
+
+### How learning material is provided
+
+Through the **Admin CMS**. Material is curated from sources spread across the internet and from learning books. Every published lesson MUST carry its source references (see Section 13).
+
+### How CMS content is created
+
+Two distinct tracks, both managed from the CMS but authored differently:
+
+1. **Content authoring** — create/update text, images, formulas, videos, and questions through an editor.
+2. **Interactive composition** — assemble interactive experiences (for example a projectile-motion simulation or a parameter experiment). Interaction requires **pre-programmed components** or a **purpose-built interaction tool**. Phase 1 supports both: a registry of coded components configured from the CMS, plus an optional config-driven Formula Sandbox.
+
+---
+
+# 2. PHASE 1 SCOPE
+
+## Learning loop
+
+```text
+DISCOVER -> LEARN -> INTERACT -> PRACTICE -> ASK AI -> EVALUATE -> CONTINUE
+```
 
 ## P0 — MUST WORK
 
 ### Public
 
-- Homepage
-- Education-level selection
-- Level dashboard
-- Subject page
-- Topic page
-- Lesson page
-- Content block renderer
-- Formula rendering
-- YouTube video block
-- Projectile Simulator
-- Trigonometry Visualizer
-- Cell Explorer
-- Atom Explorer
-- History Timeline
-- Quiz engine
-- Quiz scoring and feedback
+- Homepage with subject catalog for the active level (Umum)
+- Subject page, Topic page, Lesson page
+- Hierarchy navigation (mega menu, outline tree, breadcrumbs, prev/next)
+- Content block renderer (text, illustration, formula, video, real-world example, interactive)
+- Source references displayed on each lesson
+- Interactive components: Projectile Simulator, Trigonometry Visualizer, Cell Explorer, Atom Explorer, History Timeline
+- Lab page listing standalone experiments
+- Practice mode and Quiz mode, server-side scoring, evaluation review
 - AI Assistant when configured
-- Guest local progress
-- Authenticated progress
+- Guest local progress and authenticated progress
 - Search
 - Favorites
 - Responsive mobile/tablet/desktop experience
 
 ### Admin
 
-- Admin authentication
-- Admin authorization
+- Admin authentication and server-side authorization
 - Dashboard
-- Subject CRUD
-- Topic CRUD
-- Lesson CRUD
-- Question CRUD
-- Block editor
-- Interactive component selection
-- Preview
-- Draft/publish/unpublish
+- Subject, Topic, Lesson CRUD
+- Question CRUD (question bank)
+- Source CRUD and lesson-source linking
+- Block editor (content authoring track)
+- Interactive component selection + config form + live preview (interaction track)
+- Preview using the public renderer
+- Draft / publish / unpublish / archive
 
 ### Technical
 
-- Prisma schema
-- Migration
-- Seed script
-- .env.example
-- Zod validation
+- Prisma schema, migration, seed script, `.env.example`
+- Zod validation at all boundaries
 - Server-side AI key handling
-- Error/loading states
+- Error/loading/empty states
 - No production secrets in source control
-- Primary end-to-end journey tested
+- Primary end-to-end journeys tested
+
+## P1 — SHOULD HAVE (cut first if time is short)
+
+- Formula Sandbox: config-driven, no-code interactive builder (Section 11.6)
+- Shareable interactive state via URL query parameters
+- AI context that includes current simulator parameter values
+- Analytics events
+- Fallback FAQ for AI on seeded lessons
 
 ---
 
-# 3. NON-GOALS
+# 3. NON-GOALS (PHASE 1)
 
 Do NOT implement in Phase 1:
 
-- Global leaderboard
-- XP economy
-- Coins
-- Rewards store
-- Certificates
-- Teacher marketplace
-- Advanced teacher tools
+- **Teacher accounts, teacher CMS access, classrooms, or teacher-issued access codes** (Phase 2)
+- **Two-way teacher ↔ student question bank via access code** (Phase 2)
+- **Active SD / SMP / SMA content and level-based curriculum mapping** (Phase 3)
+- Global leaderboard, XP economy, coins, rewards store, certificates
+- Teacher marketplace and advanced teacher tools
 - Machine-learning recommendations
-- Full video hosting
+- Full video hosting (YouTube embeds only)
 - Real-time collaborative classrooms
 - Complex analytics warehouse
-- Microservices
-- Kubernetes
-- Kafka
-- Service mesh
+- Arbitrary code authored in the CMS (HTML/JS injection, user-defined components)
+- Microservices, Kubernetes, Kafka, service mesh
 - Dedicated vector database unless PostgreSQL/pgvector proves insufficient
 
-Architecture may leave extension points for these features, but they are not implementation requirements.
+Architecture MAY leave extension points for these (Section 34) but they are not implementation requirements.
 
 ---
 
-# 4. HIGH-LEVEL ARCHITECTURE
+# 4. DOMAIN MODEL AND HIERARCHY
+
+```text
+Education Level   (Phase 1: only "umum" active)
+-> Subject
+-> Topic
+-> Lesson          (kind: LESSON | EXPERIMENT)
+   -> Content Blocks (JSON)
+   -> Sources        (many-to-many)
+Topic
+-> Questions       (question bank; optionally pinned to a lesson)
+```
+
+Key decisions:
+
+1. **Level stays in the model and URL, but only `umum` is active.** Public URLs are `/learn/umum/...`. When Phase 3 activates SD/SMP/SMA, no URL changes are needed.
+2. **Question bank belongs to a Topic**, optionally pinned to a Lesson. Practice and quiz sets can be built for a lesson (pinned questions) or for a whole topic (all published questions in the topic).
+3. **Experiments are lessons.** A `LESSON` is a full learning unit. An `EXPERIMENT` is a lightweight lesson built mostly around one interactive block, listed in `/lab`. They reuse the same CMS, renderer, sources, search, and progress logic.
+
+---
+
+# 5. HIGH-LEVEL ARCHITECTURE
 
 ```text
                          CDN / Edge
@@ -174,11 +251,11 @@ Architecture may leave extension points for these features, but they are not imp
                              |
                     Application Modules
                              |
-       +---------+-----------+-----------+---------+
-       |         |           |           |         |
-    Learning   Quiz       Progress      AI       Search
-       |         |           |           |         |
-       +---------+-----------+-----------+---------+
+   +--------+--------+-------+-------+--------+--------+
+   |        |        |       |       |        |        |
+Learning Content  Interactive Quiz  Progress   AI    Search
+   |        |        |       |       |        |        |
+   +--------+--------+-------+-------+--------+--------+
                              |
                     Repository / Adapters
                              |
@@ -186,35 +263,28 @@ Architecture may leave extension points for these features, but they are not imp
           |                  |                  |
       PostgreSQL           Redis          Object Storage
           |
-       pgvector
+       pgvector (later)
 ```
 
 ### Important
 
-The Next.js process should remain stateless.
-
-Never rely on process memory for durable state.
-
-Durable state belongs in PostgreSQL.
-
-Cache/temporary coordination belongs in Redis.
-
-Files belong in object storage.
+- The Next.js process stays stateless; never rely on process memory for durable state.
+- Durable state → PostgreSQL. Cache/temporary coordination → Redis. Files → object storage.
 
 ---
 
-# 5. REPOSITORY STRUCTURE
-
-Recommended App Router structure:
+# 6. REPOSITORY STRUCTURE
 
 ```text
 src/
 ├── app/
 │   ├── (public)/
-│   │   ├── page.tsx
+│   │   ├── page.tsx                       # homepage = subject catalog (Umum)
 │   │   ├── explore/
+│   │   ├── lab/                           # standalone experiments
+│   │   │   └── [slug]/
 │   │   ├── search/
-│   │   ├── my-learning/
+│   │   ├── my-learning/                   # progress, favorites, attempt history
 │   │   ├── login/
 │   │   └── learn/
 │   │       └── [level]/
@@ -223,7 +293,7 @@ src/
 │   │                   └── [lesson]/
 │   │
 │   ├── quiz/
-│   │   └── [lesson]/
+│   │   └── [lesson]/                      # practice/quiz runner
 │   │
 │   ├── admin/
 │   │   ├── page.tsx
@@ -232,85 +302,49 @@ src/
 │   │   ├── topics/
 │   │   ├── lessons/
 │   │   ├── questions/
-│   │   └── interactive/
+│   │   ├── sources/
+│   │   └── interactive/                   # interaction track: library + config + preview
 │   │
 │   └── api/
-│       ├── levels/
-│       ├── subjects/
-│       ├── topics/
-│       ├── lessons/
-│       ├── quiz/
-│       ├── progress/
-│       ├── favorites/
-│       ├── search/
-│       ├── ai/
-│       └── admin/
+│       ├── levels/  subjects/  topics/  lessons/
+│       ├── quiz/    progress/  favorites/ search/
+│       ├── ai/      admin/
 │
 ├── components/
-│   ├── ui/
-│   ├── layout/
-│   ├── learning/
-│   ├── lesson/
-│   ├── quiz/
-│   ├── ai/
-│   ├── search/
+│   ├── ui/  layout/  navigation/  learning/  lesson/  quiz/  ai/  search/
 │   └── interactive/
 │       ├── registry.ts
 │       ├── projectile-simulator/
 │       ├── trigonometry-visualizer/
 │       ├── cell-explorer/
 │       ├── atom-explorer/
-│       └── history-timeline/
+│       ├── history-timeline/
+│       └── formula-sandbox/               # P1
 │
 ├── modules/
-│   ├── levels/
-│   ├── subjects/
-│   ├── topics/
-│   ├── lessons/
-│   ├── content/
-│   ├── quiz/
-│   ├── progress/
-│   ├── favorites/
-│   ├── search/
-│   ├── ai/
-│   ├── recommendations/
-│   └── analytics/
+│   ├── levels/  subjects/  topics/  lessons/
+│   ├── content/        # block schemas, sanitization, publish validation
+│   ├── interactive/    # registry metadata, config schemas, expression evaluator (P1)
+│   ├── sources/
+│   ├── quiz/           # question bank, scoring, evaluation
+│   ├── progress/  favorites/  search/  ai/
+│   ├── navigation/     # menu tree, outline, breadcrumbs
+│   ├── recommendations/  analytics/  authz/
 │
-├── lib/
-│   ├── db/
-│   ├── auth/
-│   ├── cache/
-│   ├── storage/
-│   ├── validation/
-│   ├── rate-limit/
-│   └── utils/
-│
-├── server/
-│   ├── auth/
-│   ├── services/
-│   └── adapters/
-│
-├── prisma/
-│   ├── schema.prisma
-│   ├── migrations/
-│   └── seed.ts
-│
-├── styles/
-│   └── globals.css
-│
-└── tests/
-    ├── unit/
-    ├── integration/
-    └── e2e/
+├── lib/       (db, auth, cache, storage, validation, rate-limit, utils)
+├── server/    (auth, services, adapters)
+├── prisma/    (schema.prisma, migrations/, seed.ts)
+├── styles/    (globals.css)
+└── tests/     (unit, integration, e2e)
 ```
 
 Agents may adjust exact folders, but MUST preserve module boundaries.
 
 ---
 
-# 6. DOMAIN MODULES
+# 7. DOMAIN MODULES
 
-Each domain module should follow this pattern where useful:
+Pattern, where useful:
 
 ```text
 modules/<domain>/
@@ -323,509 +357,314 @@ modules/<domain>/
 
 Do not force empty files solely to satisfy the pattern.
 
-### Responsibilities
-
-#### levels
-Education-level retrieval.
-
-#### subjects
-Subject listing, lookup, CRUD.
-
-#### topics
-Topic listing, lookup, CRUD.
-
-#### lessons
-Lesson retrieval, publishing, ordering, metadata.
-
-#### content
-Content block validation, rendering metadata, sanitization.
-
-#### quiz
-Question retrieval, attempt creation, scoring, feedback.
-
-#### progress
-Guest/server progress, merge logic, completion.
-
-#### favorites
-Favorite creation/removal.
-
-#### search
-Lesson/subject/topic search.
-
-#### ai
-AI context building, conversation orchestration, provider adapter.
-
-#### recommendations
-Simple rule-based recommendations only.
-
-#### analytics
-Event recording abstraction.
+| Module | Responsibility |
+|---|---|
+| levels | Level retrieval; only `isActive` levels are public |
+| subjects / topics | Listing, lookup, CRUD, ordering |
+| lessons | Retrieval, publishing, ordering, metadata, `kind` handling |
+| content | Block validation, sanitization, publish-readiness checks |
+| interactive | Component metadata, per-component config schemas, safe expression evaluation (P1) |
+| sources | Source CRUD, lesson linking, citation formatting |
+| quiz | Question bank, set building, check, scoring, evaluation, attempt history |
+| progress | Guest/server progress, merge logic, completion |
+| favorites | Add/remove favorites |
+| search | Lesson/subject/topic search |
+| ai | Context building, orchestration, provider adapter |
+| navigation | Menu tree, outline tree, breadcrumbs, prev/next |
+| recommendations | Deterministic rules only |
+| analytics | Event recording abstraction |
+| authz | Central permission checks (`can(user, action, resource)`) |
 
 ---
 
-# 7. DATABASE DESIGN
+# 8. DATABASE DESIGN
 
-Use PostgreSQL through Prisma.
+PostgreSQL through Prisma.
 
-## 7.1 User
-
-```text
-User
-- id
-- name
-- email
-- avatar
-- role
-- createdAt
-- updatedAt
-```
-
-Role enum:
+## 8.1 User
 
 ```text
-USER
-ADMIN
+User: id, name, email (unique), avatar, role, createdAt, updatedAt
+Role enum: USER | ADMIN        (default USER)
 ```
 
-Default role: USER.
+- Users MUST NOT select their role at registration.
+- Phase 2 will add `TEACHER`. Adding an enum value is a non-breaking migration; do not add it now.
 
-Users MUST NOT select their role during registration.
-
----
-
-## 7.2 EducationLevel
+## 8.2 EducationLevel
 
 ```text
-EducationLevel
-- id
-- name
-- slug
-- description
-- createdAt
-- updatedAt
+EducationLevel: id, name, slug (unique), description, isActive, order, createdAt, updatedAt
 ```
 
-Unique:
+Seed all four, but only `umum` is active in Phase 1:
 
-- slug
+| slug | isActive |
+|---|---|
+| umum | true |
+| sd | false |
+| smp | false |
+| sma | false |
 
-Seed:
+Public queries MUST filter `isActive = true`. Inactive levels are not listed, routable, or searchable.
 
-- umum
-- sd
-- smp
-- sma
-
----
-
-## 7.3 Subject
+## 8.3 Subject
 
 ```text
-Subject
-- id
-- educationLevelId
-- name
-- slug
-- description
-- icon
-- coverImage
-- status
-- createdAt
-- updatedAt
+Subject: id, educationLevelId, name, slug, description, icon, coverImage,
+         status, order, createdById, updatedById, createdAt, updatedAt
 ```
 
-Indexes:
+Indexes: educationLevelId, slug, status, educationLevelId + order.
+Slug uniqueness is scoped by education level: `unique(educationLevelId, slug)`.
 
-- educationLevelId
-- slug
-- status
-
-Slug uniqueness may be scoped by education level if product requirements need the same subject name across levels.
-
----
-
-## 7.4 Topic
+## 8.4 Topic
 
 ```text
-Topic
-- id
-- subjectId
-- name
-- slug
-- description
-- order
-- status
-- createdAt
-- updatedAt
+Topic: id, subjectId, name, slug, description, order, status,
+       createdById, updatedById, createdAt, updatedAt
 ```
 
-Indexes:
+Indexes: subjectId, slug, status, subjectId + order. Unique: `(subjectId, slug)`.
 
-- subjectId
-- slug
-- status
-- subjectId + order
-
----
-
-## 7.5 Lesson
+## 8.5 Lesson
 
 ```text
-Lesson
-- id
-- educationLevelId
-- subjectId
-- topicId
-- title
-- slug
-- description
-- difficulty
-- estimatedMinutes
-- thumbnail
-- keywords
-- contentBlocks
-- status
-- order
-- createdAt
-- updatedAt
+Lesson: id, educationLevelId, subjectId, topicId, kind, title, slug,
+        description, difficulty, estimatedMinutes, thumbnail, keywords,
+        contentBlocks (JSON), status, order, publishedAt,
+        createdById, updatedById, createdAt, updatedAt
+
+LessonKind:   LESSON | EXPERIMENT
+LessonStatus: DRAFT | PUBLISHED | ARCHIVED
+Difficulty:   BEGINNER | INTERMEDIATE | ADVANCED
 ```
 
-Enums:
+Indexes: educationLevelId, subjectId, topicId, status, slug, kind + status, topicId + order, subjectId + status. Unique: `(topicId, slug)`.
 
-```text
-LessonStatus:
-DRAFT
-PUBLISHED
-ARCHIVED
+Invariants:
 
-Difficulty:
-BEGINNER
-INTERMEDIATE
-ADVANCED
-```
+- Published lessons MUST reference valid, published/active taxonomy entities.
+- Public queries MUST filter `status = PUBLISHED` and an active level.
+- `educationLevelId` and `subjectId` are denormalized from the topic for query speed; the service layer keeps them consistent in a transaction.
 
-Indexes:
+## 8.6 Content blocks (JSON on Lesson)
 
-- educationLevelId
-- subjectId
-- topicId
-- status
-- slug
-- topicId + order
-- subjectId + status
-
-Important invariant:
-
-Published lessons MUST reference valid published/active taxonomy entities.
-
-Public queries MUST filter status = PUBLISHED.
-
----
-
-## 7.6 Content Blocks
-
-For Phase 1, store lesson content blocks as JSON on Lesson unless editor complexity or querying requires normalization.
-
-Recommended JSON shape:
-
-```json
-[
-  {
-    "id": "stable-block-id",
-    "type": "heading",
-    "content": "Apa itu Gerak Parabola?"
-  },
-  {
-    "id": "stable-block-id-2",
-    "type": "text",
-    "content": "..."
-  },
-  {
-    "id": "stable-block-id-3",
-    "type": "formula",
-    "content": "x = v_0 cos(θ)t"
-  },
-  {
-    "id": "stable-block-id-4",
-    "type": "interactive",
-    "component": "projectile-simulator",
-    "config": {
-      "gravity": 9.8
-    }
-  }
-]
-```
+Stored as JSON on `Lesson.contentBlocks` for Phase 1. Normalize only if editor complexity or querying requires it.
 
 Supported types:
 
-- heading
-- text
-- image
-- video
-- formula
-- callout
-- example
-- interactive
-- quiz
-- divider
-
-Unknown block types MUST render a safe fallback, not crash the lesson.
-
-All admin-authored rich text must be sanitized before rendering.
-
----
-
-## 7.7 Question
-
 ```text
-Question
-- id
-- lessonId
-- question
-- options
-- correctAnswer
-- explanation
-- difficulty
-- order
-- createdAt
-- updatedAt
+heading | text | image | video | formula | callout | example |
+realworld | interactive | quiz | divider
 ```
 
-`options` can be JSON:
+Recommended shapes:
 
 ```json
 [
-  {"id":"A","text":"..."},
-  {"id":"B","text":"..."},
-  {"id":"C","text":"..."},
-  {"id":"D","text":"..."}
+  { "id": "b1", "type": "heading", "level": 2, "content": "Apa itu Gerak Parabola?" },
+  { "id": "b2", "type": "text", "content": "<sanitized rich text or structured nodes>" },
+  { "id": "b3", "type": "formula", "latex": "x = v_0 \\cos(\\theta)\\, t", "display": true, "caption": "Posisi horizontal" },
+  { "id": "b4", "type": "image", "src": "storage-key", "alt": "Lintasan bola", "caption": "Lintasan parabola", "credit": "…", "sourceId": null },
+  { "id": "b5", "type": "video", "provider": "youtube", "videoId": "XXXXXXXXXXX", "title": "…" },
+  { "id": "b6", "type": "example", "title": "Contoh soal", "steps": [ { "text": "…", "latex": "…" } ] },
+  { "id": "b7", "type": "realworld", "title": "Dalam kehidupan sehari-hari", "content": "…", "image": null },
+  { "id": "b8", "type": "interactive", "component": "projectile-simulator", "config": { "gravity": 9.8 } }
 ]
 ```
 
-Never trust the client-supplied correct answer.
+Rules:
 
-Server calculates score from database truth.
+- Unknown block types MUST render a safe fallback, not crash the lesson.
+- All admin-authored rich text MUST be sanitized before rendering.
+- `video` stores a YouTube video ID and is rendered through a privacy-friendly lazy embed; arbitrary iframe HTML is never stored.
+- `image` requires `alt`. Illustrations from external works need `credit` and, where applicable, a `sourceId`.
+- Block schemas use a Zod discriminated union on `type`.
 
-Index:
+## 8.7 Source and LessonSource
 
-- lessonId
+```text
+Source: id, title, author, publisher, url, type, year, licenseNote,
+        createdById, createdAt, updatedAt
+SourceType: BOOK | ARTICLE | WEBSITE | JOURNAL | GOVERNMENT | OTHER
+
+LessonSource: lessonId, sourceId, citationNote (e.g. page/chapter), order
+Unique: (lessonId, sourceId)
+Indexes: lessonId, sourceId
+```
+
+A `Source` is reusable across lessons. See Section 13 for validity rules.
+
+## 8.8 Question (question bank)
+
+```text
+Question: id, topicId, lessonId (nullable), type, question, options (JSON),
+          correctOptionId, explanation, difficulty, order, status,
+          createdById, updatedById, createdAt, updatedAt
+
+QuestionType:   MULTIPLE_CHOICE      (only value in Phase 1)
+QuestionStatus: DRAFT | PUBLISHED | ARCHIVED
+```
+
+`options` JSON:
+
+```json
+[ {"id":"A","text":"…"}, {"id":"B","text":"…"}, {"id":"C","text":"…"}, {"id":"D","text":"…"} ]
+```
+
+Indexes: topicId, lessonId, topicId + status, lessonId + status.
+
+- Never trust a client-supplied correct answer; the server decides from database truth.
+- If `lessonId` is set, the lesson MUST belong to `topicId`.
+- Only `PUBLISHED` questions are served to learners.
+
+## 8.9 QuizAttempt and QuizAttemptAnswer
+
+```text
+QuizAttempt: id, userId, scopeType, lessonId (nullable), topicId (nullable),
+             mode, score, totalQuestions, correctAnswers, durationSeconds, createdAt
+ScopeType: LESSON | TOPIC
+Mode:      PRACTICE | QUIZ
+
+QuizAttemptAnswer: id, attemptId, questionId, selectedOptionId, isCorrect, createdAt
+Unique: (attemptId, questionId)
+```
+
+Indexes: `QuizAttempt(userId)`, `(userId, createdAt)`, `(lessonId)`, `(topicId)`; `QuizAttemptAnswer(attemptId)`, `(questionId)`.
+
+Guest attempts are local-only in Phase 1. The server still scores them (stateless) but does not persist them.
+
+## 8.10 UserProgress
+
+```text
+UserProgress: id, userId, lessonId, progress (0–100), completed,
+              lastPosition, updatedAt, createdAt
+Unique: (userId, lessonId)
+Indexes: userId, lessonId, userId + updatedAt
+```
+
+`lastPosition` is a block index or stable block ID.
+
+## 8.11 Favorite
+
+```text
+Favorite: id, userId, lessonId, createdAt
+Unique: (userId, lessonId)    Indexes: userId, lessonId
+```
+
+## 8.12 AIConversation and AIMessage
+
+```text
+AIConversation: id, userId, lessonId, createdAt, updatedAt     Index: (userId, lessonId)
+AIMessage: id, conversationId, role (USER | ASSISTANT), content, createdAt
+                                                                Index: (conversationId, createdAt)
+```
+
+Conversations are persisted for authenticated users only.
+
+## 8.13 AnalyticsEvent (optional but recommended)
+
+```text
+AnalyticsEvent: id, userId (nullable), eventName, lessonId (nullable),
+                metadata (JSON, nullable), createdAt
+```
+
+Events: `lesson_viewed`, `lesson_started`, `lesson_completed`, `interactive_used`, `quiz_started`, `quiz_completed`, `ai_opened`, `ai_question_asked`, `search_performed`.
+Do not build a dashboard around this in Phase 1.
 
 ---
 
-## 7.8 UserProgress
+# 9. DATA INTEGRITY
 
-```text
-UserProgress
-- id
-- userId
-- lessonId
-- progress
-- completed
-- lastPosition
-- updatedAt
-- createdAt
-```
+Database-level uniqueness where possible:
 
-Constraints:
-
-- unique(userId, lessonId)
-
-Indexes:
-
-- userId
-- lessonId
-- userId + updatedAt
-
-`progress` range: 0–100.
-
-`lastPosition` may represent a block index or another documented stable position.
-
----
-
-## 7.9 QuizAttempt
-
-```text
-QuizAttempt
-- id
-- userId
-- lessonId
-- score
-- totalQuestions
-- correctAnswers
-- createdAt
-```
-
-Indexes:
-
-- userId
-- lessonId
-- userId + createdAt
-
-Guest attempts are local-only in Phase 1 unless an explicit anonymous-attempt table is added later.
-
----
-
-## 7.10 Favorite
-
-```text
-Favorite
-- id
-- userId
-- lessonId
-- createdAt
-```
-
-Unique:
-
-- userId + lessonId
-
-Indexes:
-
-- userId
-- lessonId
-
----
-
-## 7.11 AIConversation
-
-```text
-AIConversation
-- id
-- userId
-- lessonId
-- createdAt
-- updatedAt
-```
-
-Index:
-
-- userId + lessonId
-
----
-
-## 7.12 AIMessage
-
-```text
-AIMessage
-- id
-- conversationId
-- role
-- content
-- createdAt
-```
-
-Role:
-
-```text
-USER
-ASSISTANT
-```
-
-Index:
-
-- conversationId + createdAt
-
----
-
-## 7.13 AnalyticsEvent
-
-Optional but recommended:
-
-```text
-AnalyticsEvent
-- id
-- userId nullable
-- eventName
-- lessonId nullable
-- metadata JSON nullable
-- createdAt
-```
-
-Events:
-
-- lesson_viewed
-- lesson_started
-- lesson_completed
-- quiz_started
-- quiz_completed
-- ai_opened
-- ai_question_asked
-- search_performed
-
-Do not build a complex dashboard around this in Phase 1.
-
----
-
-# 8. DATA INTEGRITY
-
-Implement database-level uniqueness where possible.
-
-Examples:
-
-- EducationLevel.slug unique
-- User.email unique
-- Favorite(userId, lessonId) unique
-- UserProgress(userId, lessonId) unique
-- AIMessage belongs to existing conversation
-- Question belongs to existing lesson
+- `EducationLevel.slug`, `User.email`
+- `Favorite(userId, lessonId)`, `UserProgress(userId, lessonId)`
+- `LessonSource(lessonId, sourceId)`, `QuizAttemptAnswer(attemptId, questionId)`
+- Foreign keys for every relation (AIMessage → conversation, Question → topic, etc.)
 
 Use transactions for:
 
-- publishing lesson with required validation
-- quiz attempt creation if additional derived records are created
-- progress merge
-- local-to-cloud migration where multiple rows are written
+- publishing a lesson (validation + status + `publishedAt` + cache invalidation trigger)
+- persisting a quiz attempt together with its answers
+- progress merge and local-to-cloud migration
+- keeping denormalized lesson taxonomy columns consistent
 
 ---
 
-# 9. CONTENT BLOCK ENGINE
+# 10. CONTENT BLOCK ENGINE
 
-Create one renderer:
+One renderer:
 
 ```text
-LessonContentRenderer
-```
-
-It receives:
-
-```typescript
-{
-  blocks: ContentBlock[]
-}
+LessonContentRenderer({ blocks: ContentBlock[] })
 ```
 
 Dispatch through a registry:
 
 ```text
 ContentBlockRenderer
-        |
-        +-- heading
-        +-- text
-        +-- image
-        +-- video
-        +-- formula
-        +-- callout
-        +-- example
-        +-- interactive
-        +-- quiz
-        +-- divider
+   +-- heading | text | image | video | formula | callout
+   +-- example | realworld | interactive | quiz | divider
 ```
 
-Never use `dangerouslySetInnerHTML` for unsanitized content.
+Rules:
 
-Interactive blocks MUST be lazy-loaded.
+- Never use `dangerouslySetInnerHTML` with unsanitized content.
+- Interactive blocks MUST be lazy-loaded.
+- Formula blocks render with KaTeX; invalid LaTeX renders a readable fallback (raw text), not an error page.
+- The same renderer serves public pages and admin preview (Agent Rule 15).
+
+### Recommended lesson template (soft guidance in CMS, not hard validation)
+
+```text
+Pengantar → Konsep (teks + ilustrasi [+ rumus]) → Video penjelasan →
+Eksplorasi interaktif → Contoh praktik dunia nyata → Latihan → Sumber
+```
+
+The CMS may show a non-blocking checklist ("belum ada ilustrasi", "belum ada contoh dunia nyata") but MUST NOT force every lesson to contain every block type. Formula blocks are only expected for formula-based material.
 
 ---
 
-# 10. INTERACTIVE REGISTRY
+# 11. INTERACTIVE ENGINE
 
-Create a registry:
+## 11.1 Principle
 
-```text
-InteractiveRegistry
+The CMS stores a **component key and a validated config**, never executable code.
+
+```json
+{ "type": "interactive", "component": "projectile-simulator", "config": { "gravity": 9.8 } }
 ```
 
-Supported keys:
+## 11.2 Component definition contract
+
+Every interactive component is registered with metadata:
+
+```typescript
+interface InteractiveDefinition<C> {
+  key: string                       // e.g. "projectile-simulator"
+  title: string
+  description: string
+  subjectHints: string[]            // for CMS filtering
+  configSchema: ZodType<C>          // validates CMS config
+  defaultConfig: C
+  component: LazyExoticComponent<ComponentType<{ config: C }>>
+  textFallback: (config: C) => string   // accessibility + no-JS/low-bandwidth
+}
+```
+
+Rules:
+
+- The CMS reads `title`, `description`, `configSchema`, and `defaultConfig` to render a **config form** automatically.
+- Unknown component key → friendly "unavailable" message; never crash, never execute anything.
+- Admin can only select registered components.
+- Every component supports **fullscreen** (classroom/projector use) and a **reset** control.
+- Every component shows a textual explanation as fallback.
+
+## 11.3 Registry
+
+Supported keys in Phase 1:
 
 ```text
 projectile-simulator
@@ -833,279 +672,283 @@ trigonometry-visualizer
 cell-explorer
 atom-explorer
 history-timeline
+formula-sandbox        (P1)
 ```
 
-The CMS stores the key, not executable code.
+## 11.4 Interaction composition flow (CMS interaction track)
 
-Example:
+```text
+Admin picks component → edits config form (validated by configSchema)
+→ live preview using the public component → inserts into lesson block list
+→ lesson publish validates config again server-side
+```
+
+Config validation happens on save AND on publish.
+
+## 11.5 Component requirements
+
+### Projectile Simulator
+
+- Inputs: initial velocity, angle, gravity
+- Outputs: trajectory, maximum height, horizontal range, flight time
+- Real physics equations. Defaults: 20 m/s, 45°, 9.8 m/s²
+- Reset; touch-friendly controls; text values as fallback
+- Config may constrain slider ranges and preset scenarios
+
+### Trigonometry Visualizer
+
+- Input: angle. Output: sin, cos, tan
+- Visualization: right triangle and/or unit circle
+- Avoid division instability near undefined `tan` values; display a clear "tak terdefinisi" state
+- Educational explanation shown
+
+### Cell Explorer
+
+- Clickable organelles: nucleus, mitochondria, ribosome, cell membrane, cytoplasm, Golgi apparatus
+- Click shows name, function, and a clear explanation for a general audience
+
+### Atom Explorer
+
+- Elements: Hydrogen, Helium, Carbon, Oxygen, Sodium
+- Shows atomic number, proton, neutron, and electron counts
+- Visualization clearly labelled as simplified
+
+### History Timeline
+
+- Seed events: 1908 Budi Utomo; 1928 Sumpah Pemuda; 1945 Proklamasi Kemerdekaan
+- Click shows year, event, description, historical significance
+- Present historical information carefully and factually, with sources attached to the lesson
+
+## 11.6 Formula Sandbox (P1 — the "interaction builder" without code)
+
+A generic component that lets an admin define a small experiment purely through config:
 
 ```json
 {
-  "type": "interactive",
-  "component": "projectile-simulator",
-  "config": {
-    "gravity": 9.8
-  }
+  "title": "Hukum Ohm",
+  "variables": [
+    { "name": "V", "label": "Tegangan", "unit": "V", "min": 0, "max": 24, "step": 0.5, "default": 12 },
+    { "name": "R", "label": "Hambatan", "unit": "Ω", "min": 1, "max": 100, "step": 1, "default": 10 }
+  ],
+  "outputs": [
+    { "name": "I", "label": "Arus", "unit": "A", "expression": "V / R" }
+  ],
+  "visualization": { "type": "line", "x": "V", "y": "I", "sweepVariable": "V" }
 }
 ```
 
-Unknown interactive component:
+Constraints:
 
-- show a friendly unavailable message
-- do not crash
-- do not execute arbitrary code
-
-Admin MUST only be able to select predefined components.
-
----
-
-# 11. INTERACTIVE COMPONENT REQUIREMENTS
-
-## Projectile Simulator
-
-Inputs:
-
-- initial velocity
-- angle
-- gravity
-
-Outputs:
-
-- trajectory
-- maximum height
-- horizontal range
-- flight time
-
-Use real physics equations.
-
-Default:
-
-- velocity = 20 m/s
-- angle = 45°
-- gravity = 9.8 m/s²
-
-Provide reset.
-
-Mobile controls must be touch friendly.
-
-Provide text values as fallback.
+- Expressions are evaluated by a **restricted expression evaluator** with an allowlist of operators and math functions. `eval`, `new Function`, and user-supplied JavaScript are forbidden.
+- Limits: maximum expression length, maximum variable/output count, maximum sweep points, evaluation guarded against `NaN`/`Infinity`.
+- Visualization types in Phase 1: live value readouts and a single line/scatter chart.
+- The evaluator may be a small in-house parser or a vetted library; the choice requires a written justification (Rules 11–12).
+- Unit tests for the evaluator are mandatory (including injection attempts).
 
 ---
 
-## Trigonometry Visualizer
+# 12. ADMIN CMS
 
-Input:
+Admin is intentionally simple but covers both authoring tracks.
 
-- angle
+## 12.1 Dashboard
 
-Output:
+Cards: total subjects, topics, lessons, experiments, questions, published lessons, draft lessons, **lessons without sources**. Recent lessons and updates.
 
-- sin
-- cos
-- tan
+## 12.2 Track 1 — Content authoring
 
-Visualization:
+### Subject
+Fields: name, slug, description, education level (defaults to Umum), icon, cover image, order, status. Actions: create, edit, archive.
 
-- right triangle and/or unit circle
+### Topic
+Fields: name, slug, subject, description, order, status.
 
-Avoid division instability around undefined tan values.
+### Lesson
+Fields: kind, title, slug, level/subject/topic, description, difficulty, estimated time, thumbnail, keywords, content blocks, sources, status.
 
-Display educational explanation.
+Actions: save draft, preview, publish, unpublish, archive.
 
----
+### Block editor
+- Add, reorder, duplicate, delete blocks.
+- Block types per Section 8.6, each with its own form (heading, rich text, image upload with alt/credit, YouTube URL → video ID extraction, LaTeX formula with live KaTeX preview, example steps, real-world practice, interactive picker).
+- Autosave draft is allowed; autosave MUST NOT publish.
+- Rich-text editing uses a library only after the Rule 12 justification; output is stored as sanitized structured content.
 
-## Cell Explorer
+### Question bank editor
+- Multiple-choice editor with: at least 2 options, exactly one correct option, explanation strongly recommended (warn if missing), difficulty, topic, optional lesson pin, status.
+- Bulk list by topic with filters (status, difficulty, lesson).
 
-Clickable organelles:
+### Media
+- Images and thumbnails go to object storage via validated upload (type, size, dimensions). Never store binaries in PostgreSQL.
+- Video is never hosted; only YouTube references.
 
-- nucleus
-- mitochondria
-- ribosome
-- cell membrane
-- cytoplasm
-- Golgi apparatus
+## 12.3 Track 2 — Interactive composition
 
-Click shows:
+- `/admin/interactive` shows the **Interactive Library**: all registered components with description and live sandbox.
+- Selecting a component inside the lesson editor opens the auto-generated config form and live preview (Section 11.4).
+- Formula Sandbox (P1) offers a structured form for variables/outputs with immediate preview and expression validation errors.
+- No free-form code field exists anywhere in the CMS.
 
-- name
-- function
-- age-appropriate explanation
+## 12.4 Preview
 
----
+Admin preview MUST use the same `LessonContentRenderer` as public pages. Preview of unpublished lessons is available only to authorized admins.
 
-## Atom Explorer
+## 12.5 Publishing rules
 
-Elements:
+Hard requirements to publish a lesson:
 
-- Hydrogen
-- Helium
-- Carbon
-- Oxygen
-- Sodium
-
-Show:
-
-- atomic number
-- proton count
-- neutron count
-- electron count
-
-Clearly label the visualization as simplified.
-
----
-
-## History Timeline
-
-Seed:
-
-- 1908 — Budi Utomo
-- 1928 — Sumpah Pemuda
-- 1945 — Proklamasi Kemerdekaan
-
-Clicking an event shows:
-
-- year
-- event
+- valid title and slug
+- level, subject, topic assigned (and active)
 - description
-- historical significance
+- valid content blocks (Zod)
+- no invalid interactive component reference or invalid config
+- **at least one linked Source** (Section 13)
+- every image block has `alt`
 
-Present historical information carefully and factually.
+Published content is publicly visible; unpublished is not. Archive is preferred over hard deletion for published educational content.
 
----
+## 12.6 Authorization model
 
-# 12. QUIZ ENGINE
-
-MVP supports multiple choice.
-
-Flow:
-
-```text
-Load lesson questions
-        ↓
-User selects answer
-        ↓
-POST answer / submit
-        ↓
-Server validates against DB
-        ↓
-Feedback
-        ↓
-Next question
-        ↓
-Final result
-```
-
-Server-side scoring is authoritative.
-
-Never send `correctAnswer` to the browser before the user submits that question.
-
-If questions are preloaded client-side, the implementation must avoid exposing answer keys.
-
-Recommended MVP flow: fetch question data without answer key, validate each answer server-side.
-
-Result:
-
-- score percentage
-- correct count
-- incorrect count
-- total
-- encouraging message
+- Phase 1 role check: `ADMIN` only for all `/admin` and `/api/admin` routes.
+- All checks go through `modules/authz` (`can(user, action, resource)`), never ad-hoc `role === "ADMIN"` in handlers. Phase 2 will extend this module (teacher ownership) without touching handlers.
+- Content tables record `createdById` / `updatedById` now.
 
 ---
 
-# 13. PROGRESS SYSTEM
+# 13. SOURCE VALIDITY
 
-## Guest
+Because "Akses materi mata pelajaran yang valid sumbernya" is a core feature:
 
-Use:
+- Every published lesson shows a **"Sumber"** section listing its sources (title, author/publisher, year, link when available, citation note).
+- A lesson cannot be published without at least one source; factual, historical, and scientific lessons should have two or more (CMS warns).
+- Source types: books, articles, websites, journals, government publications.
+- Editors **write or adapt** material in their own words. Verbatim copying of copyrighted text is not allowed. `licenseNote` records license/usage terms; images require `credit` and license notes.
+- Prefer authoritative sources (textbooks, government/education bodies, peer-reviewed or institution-published material) over anonymous pages.
+- The AI assistant is instructed to prefer the lesson's content and, when uncertain, say so (Section 18).
+
+The system verifies **presence and structure** of sources, not their truthfulness. Truthfulness remains an editorial responsibility; the CMS surfaces the missing-source warnings to support it.
+
+---
+
+# 14. STUDENT NAVIGATION AND DISCOVERY
+
+Because the catalog will grow large, navigation must be clear and shallow.
+
+## 14.1 Rules
+
+- Any subject reachable in **≤ 2 clicks** from the homepage; any lesson in **≤ 4 clicks**.
+- Hierarchy always visible: breadcrumbs on every learning page.
+- Phase 1 has a single active level, so the level picker is **hidden**. `/` shows the Umum subject catalog directly; `/learn` redirects to `/learn/umum`.
+
+## 14.2 Components
+
+| Surface | Behavior |
+|---|---|
+| Header | Logo, "Mata Pelajaran" mega menu (Subject → Topics), "Lab", search (keyboard shortcut), "Belajarku", login |
+| Homepage | Subject grid, "Lanjutkan belajar" (progress), featured experiments, search entry |
+| Subject page | Topics with lesson counts and progress |
+| Topic page | Ordered lessons, progress bar, start/continue button, practice-the-topic button |
+| Lesson page | Collapsible outline tree (subject → topics → lessons) on desktop; heading table of contents; prev/next within topic |
+| Mobile | Outline becomes a bottom drawer; mega menu becomes a full-screen menu |
+| Lab | Grid of `EXPERIMENT` lessons filterable by subject; each page links to the related full lesson when one exists |
+
+## 14.3 Classroom-friendly display
+
+- Fullscreen mode for interactive blocks.
+- Large, high-contrast readable typography; no dependency on hover.
+- Deep links to a lesson and to a specific block anchor so a teacher can open it directly.
+- P1: shareable parameter presets through query string (validated by the component's `configSchema`).
+
+---
+
+# 15. PRACTICE, QUIZ, AND EVALUATION
+
+## 15.1 Modes
+
+| Mode | Behavior |
+|---|---|
+| **PRACTICE** (Latihan) | Instant feedback after each answer, explanation shown immediately, unlimited retries, low-pressure |
+| **QUIZ** | Answers submitted without per-question feedback; scored and reviewed at the end |
+
+Scope: a **lesson** (its pinned questions) or a **topic** (all published questions in the topic, optionally limited to N random questions).
+
+## 15.2 Flow
 
 ```text
-localStorage
+GET question set (no answer keys)
+        ↓
+User answers
+        ↓
+PRACTICE: POST /api/quiz/check  → feedback for that question
+QUIZ:     collect locally
+        ↓
+POST /api/quiz/submit  → server scores all answers against DB
+        ↓
+Evaluation result (persisted if authenticated)
 ```
 
-Keys:
+Server-side scoring is authoritative. `correctOptionId` is never sent before the user answers that question. In PRACTICE mode, `check` reveals the correct answer only for the question just answered.
+
+## 15.3 Evaluation output
+
+- score percentage, correct / incorrect / total, encouraging message
+- **per-question review:** question, selected option, correct option, explanation, difficulty
+- **difficulty breakdown**
+- for TOPIC scope: **per-lesson breakdown** (based on pinned lessons)
+- **"Pelajari lagi":** deterministic links to lessons connected to incorrectly answered questions (feeds the recommendations module)
+- authenticated users: attempt history in `/my-learning` with ability to reopen a past review
+
+Guests receive the same evaluation screen; the attempt is stored in `localStorage` (`ive_quiz_attempts`) only.
+
+## 15.4 Rules
+
+- Fetch question data without answer keys.
+- Questions must be `PUBLISHED` to be served.
+- Submit validates `questionId`s against the requested scope; unknown or out-of-scope IDs are rejected.
+- Rate-limit `check` and `submit` against scripted answer-key harvesting.
+
+---
+
+# 16. PROGRESS SYSTEM
+
+## Guest — `localStorage`
+
+Keys: `ive_progress`, `ive_favorites`, `ive_quiz_attempts`. Do not store sensitive data.
+
+## Authenticated — PostgreSQL
+
+On login:
 
 ```text
-ive_progress
-ive_favorites
-ive_quiz_attempts
+local progress → merge → server progress
 ```
 
-Do not store sensitive data.
-
-## Authenticated
-
-Use PostgreSQL.
-
-When guest logs in:
-
-```text
-local progress
-      ↓
-merge
-      ↓
-server progress
-```
-
-Merge rule:
+Merge rules:
 
 - preserve higher progress
-- preserve completed = true once completed
-- do not replace a more advanced cloud state with lower local progress
+- once `completed = true`, it stays true
+- never replace a more advanced cloud state with lower local progress
+- merge is idempotent and runs in a transaction
 
-Perform merge idempotently.
+## Completion
 
----
-
-# 14. LESSON COMPLETION
-
-Reading progress may be marked completed independently of quiz completion.
-
-At end of lesson:
-
-```text
-completed = true
-progress = 100
-```
-
-unless a future configuration explicitly changes completion rules.
-
-Do not create fake prerequisite locks.
+Reading completion is independent of quiz completion. At the end of a lesson: `completed = true`, `progress = 100`. No fake prerequisite locks.
 
 ---
 
-# 15. SEARCH
+# 17. SEARCH
 
-Phase 1:
+PostgreSQL full-text or indexed search over: subject, topic, lesson title, description, keywords (and experiments).
 
-Use PostgreSQL full-text or indexed search.
-
-Search fields:
-
-- subject
-- topic
-- lesson title
-- description
-- keywords
-
-Requirements:
-
-- debounce client input
-- loading state
-- empty state
-- responsive result cards
-
-Search should only return public/published content to public users.
-
-Admin search may include drafts.
+- Evaluate the `indonesian` text-search configuration if the deployed PostgreSQL version provides it; otherwise use `simple` plus `pg_trgm` for tolerant matching.
+- Debounced client input, loading state, empty state, responsive result cards.
+- Public search returns only published content from active levels; admin search may include drafts.
 
 ---
 
-# 16. AI ARCHITECTURE
+# 18. AI ASSISTANT ("TANYA AI")
 
-Do not couple the application to one AI vendor.
-
-Define:
+## 18.1 Architecture
 
 ```typescript
 interface AIProvider {
@@ -1113,604 +956,214 @@ interface AIProvider {
 }
 ```
 
-Implementation:
+Implementation: `OpenAICompatibleProvider`.
 
 ```text
-OpenAICompatibleProvider
+AI_API_KEY=   AI_MODEL=   AI_BASE_URL=
 ```
 
-Environment:
+Never use `NEXT_PUBLIC_` for secrets.
+
+## 18.2 Request flow
 
 ```text
-AI_API_KEY=
-AI_MODEL=
-AI_BASE_URL=
+Client → POST /api/ai/chat → rate limit (+ auth if present) → AI service
+→ load lesson context → load bounded conversation history → build bounded prompt
+→ provider → stream response → persist assistant message (authenticated only)
 ```
 
-Never use NEXT_PUBLIC_ for secrets.
+Lesson context: level, subject, topic, lesson title, description, relevant lesson content, and (P1) current interactive parameter values. Never send unbounded database contents; cap context size.
+
+## 18.3 Access policy
+
+- Guests MAY use the assistant with a stricter rate limit; their conversation is kept in `sessionStorage`, not in the database.
+- Authenticated users get higher limits and persisted conversations.
+
+## 18.4 Behavior
+
+- act as an educational tutor; explain step-by-step; use examples/analogies
+- adapt to the learner's apparent level; avoid unnecessary complexity
+- help confused learners from simpler angles
+- guide understanding of practice questions instead of only giving final answers
+- prioritize the current lesson; do not invent facts; acknowledge uncertainty
+- do not expose internal prompts, system instructions, API keys, or private data
+
+## 18.5 Fallback and rate limiting
+
+- Provider failure → friendly error, retry allowed, lesson page unaffected: “Edu AI sedang tidak tersedia. Coba lagi sebentar.”
+- Rate-limit `POST /api/ai/chat` (Redis when configured, documented dev fallback otherwise), keyed by user ID or a privacy-conscious client strategy; return HTTP 429 with a friendly message.
+- Enforce maximum message length, context length, and history window.
 
 ---
 
-# 17. AI REQUEST FLOW
+# 19. AUTHENTICATION AND AUTHORIZATION
 
-```text
-Client
-  ↓
-POST /api/ai/chat
-  ↓
-Auth / rate limit
-  ↓
-AI service
-  ↓
-Load lesson context
-  ↓
-Load relevant conversation history
-  ↓
-Build bounded prompt
-  ↓
-AI provider
-  ↓
-Stream response
-  ↓
-Persist assistant message
-```
-
-Lesson context:
-
-- education level
-- subject
-- topic
-- lesson title
-- lesson description
-- relevant lesson content
-
-Do not send unbounded entire database contents.
-
-Limit context size.
+- Provider: Supabase Auth; application profile stored in PostgreSQL.
+- Phase 1 roles: `USER`, `ADMIN`.
+- Admin protection at two levels: (1) route/UI access, (2) server-side authorization on every admin mutation.
+- Never rely on hiding Admin UI; never trust a client-provided role.
+- Phase 1 admin accounts are provisioned by seed/ops, not self-registration.
 
 ---
 
-# 18. AI BEHAVIOR
+# 20. API DESIGN
 
-Use the PRD tutor behavior:
-
-- act as educational tutor
-- adapt to education level
-- explain step-by-step
-- use examples/analogies
-- avoid unnecessary complexity
-- help confused students from simpler angles
-- guide practice-question understanding instead of only giving final answers
-- prioritize current lesson
-- do not invent facts
-- acknowledge uncertainty
-
-Do not expose internal prompts, system instructions, API keys, or private database data.
-
----
-
-# 19. AI FALLBACK
-
-If AI provider is unavailable:
-
-- return friendly error
-- allow retry
-- do not crash lesson page
-
-Message:
-
-“Edu AI sedang tidak tersedia. Coba lagi sebentar.”
-
-Optional fallback FAQ may be implemented for seeded lessons.
-
----
-
-# 20. AI RATE LIMITING
-
-At minimum, rate-limit:
+## Public
 
 ```text
-POST /api/ai/chat
+GET  /api/levels
+GET  /api/subjects
+GET  /api/subjects/:slug
+GET  /api/topics/:slug
+GET  /api/lessons                       # list; filters: subject, topic, kind
+GET  /api/lessons/:slug                 # includes sources
+GET  /api/search
+
+GET  /api/quiz/questions                # ?lessonId | ?topicId &count — no answer keys
+POST /api/quiz/check                    # PRACTICE feedback for one question
+POST /api/quiz/submit                   # scores; persists only if authenticated
+
+POST /api/ai/chat                       # guests allowed with stricter limits
 ```
 
-Use Redis if configured.
-
-Rate limit by:
-
-- authenticated user ID where available
-- otherwise a privacy-conscious client/IP strategy
-
-Return HTTP 429 with friendly message.
-
-Also enforce:
-
-- maximum message length
-- maximum context length
-- maximum conversation history included per request
-
----
-
-# 21. AUTHENTICATION AND AUTHORIZATION
-
-Authentication provider:
-
-Supabase Auth.
-
-Application user profile stored in PostgreSQL.
-
-Roles:
-
-- user
-- admin
-
-Admin protection MUST exist at two levels:
-
-1. route/UI access
-2. server-side authorization
-
-Never rely on hiding the Admin UI.
-
-All admin mutations must verify role server-side.
-
----
-
-# 22. API DESIGN
-
-Public:
+## Authenticated
 
 ```text
-GET /api/levels
-GET /api/subjects
-GET /api/subjects/:slug
-GET /api/topics/:slug
-GET /api/lessons/:slug
-GET /api/lessons/:slug/questions
-GET /api/search
+GET  /api/progress        POST /api/progress
+POST /api/favorites       DELETE /api/favorites/:lessonId
+GET  /api/quiz/attempts   GET /api/quiz/attempts/:id
 ```
 
-Authenticated:
+## Admin
 
 ```text
-GET /api/progress
-POST /api/progress
-
-POST /api/favorites
-DELETE /api/favorites/:lessonId
-
-POST /api/quiz/submit
-
-POST /api/ai/chat
+POST/PUT/DELETE /api/admin/subjects[/:id]
+POST/PUT/DELETE /api/admin/topics[/:id]
+POST/PUT/DELETE /api/admin/lessons[/:id]
+POST            /api/admin/lessons/:id/publish | unpublish | archive
+POST/PUT/DELETE /api/admin/questions[/:id]
+POST/PUT/DELETE /api/admin/sources[/:id]
+PUT             /api/admin/lessons/:id/sources
+POST            /api/admin/media                      # validated upload / signed URL
 ```
 
-Admin:
+Route handlers stay thin: `validate request → authorize → call service → map response`.
 
-```text
-POST /api/admin/subjects
-PUT /api/admin/subjects/:id
-DELETE /api/admin/subjects/:id
-
-POST /api/admin/topics
-PUT /api/admin/topics/:id
-DELETE /api/admin/topics/:id
-
-POST /api/admin/lessons
-PUT /api/admin/lessons/:id
-DELETE /api/admin/lessons/:id
-
-POST /api/admin/questions
-PUT /api/admin/questions/:id
-DELETE /api/admin/questions/:id
-```
-
-Route handlers should be thin:
-
-```text
-validate request
-→ authorize
-→ call service
-→ map response
-```
-
-No complex business logic in route handlers.
-
----
-
-# 23. API RESPONSE CONVENTION
+## Response convention
 
 Success:
 
 ```json
-{
-  "data": {},
-  "meta": {}
-}
+{ "data": {}, "meta": {} }
 ```
 
 Error:
 
 ```json
-{
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Data yang dikirim belum valid."
-  }
-}
+{ "error": { "code": "VALIDATION_ERROR", "message": "Data yang dikirim belum valid." } }
 ```
 
-Never return stack traces.
+Never return stack traces or expose SQL/ORM internals.
 
-Never expose SQL/ORM internals.
+## Validation (Zod)
 
----
-
-# 24. VALIDATION
-
-Use Zod at API boundaries.
-
-Validate:
-
-- route params
-- query params
-- request body
-- content block structure
-- quiz answers
-- admin mutations
-- AI requests
-
-Content blocks must have discriminated schemas by `type`.
+Validate route params, query params, request bodies, content-block structure, interactive configs, quiz answers, admin mutations, and AI requests. Content blocks use discriminated schemas by `type`; interactive `config` is validated by the registered component's `configSchema`.
 
 ---
 
-# 25. ADMIN CMS
-
-Admin is intentionally simple.
-
-## Dashboard
-
-Cards:
-
-- total subjects
-- total topics
-- total lessons
-- total questions
-- published lessons
-- draft lessons
-
-Recent lessons and updates.
-
-## Subject
-
-Create/edit/archive.
-
-Fields:
-
-- name
-- slug
-- description
-- education level
-- icon
-- cover image
-- status
-
-## Topic
-
-Fields:
-
-- name
-- slug
-- subject
-- description
-- order
-- status
-
-## Lesson
-
-Fields:
-
-- title
-- slug
-- education level
-- subject
-- topic
-- description
-- difficulty
-- estimated time
-- thumbnail
-- keywords
-- content blocks
-- status
-
-Actions:
-
-- save draft
-- preview
-- publish
-- unpublish
-- archive
-
-## Question
-
-Multiple-choice editor.
-
-Validation:
-
-- at least 2 options
-- exactly one correct answer
-- explanation recommended
-
-## Interactive
-
-Only predefined interactive types.
-
-No arbitrary code.
-
----
-
-# 26. LESSON PREVIEW
-
-Admin preview MUST use the same renderer as public lesson pages.
-
-Architecture:
-
-```text
-CMS content
-    ↓
-ContentBlock validation
-    ↓
-LessonContentRenderer
-```
-
-Do not maintain separate preview rendering logic.
-
-Preview unpublished lessons only for authorized admins.
-
----
-
-# 27. PUBLISHING RULES
-
-Publishing requires:
-
-- valid title
-- valid slug
-- education level
-- subject
-- topic
-- description
-- valid content blocks
-- no invalid interactive component references
-
-Published content is publicly visible.
-
-Unpublished content is not publicly visible.
-
-Archive is preferred over hard deletion for published educational content when appropriate.
-
----
-
-# 28. SECURITY
+# 21. SECURITY
 
 Mandatory:
 
-- server-side authorization
-- Zod validation
-- Prisma parameterized queries
-- rich-content sanitization
+- server-side authorization on all admin routes and mutations
+- Zod validation; Prisma parameterized queries
+- rich-content sanitization; no `dangerouslySetInnerHTML` on raw input
 - secure authentication/session handling
 - server-side AI secrets
-- rate limiting
-- safe file upload validation if uploads are implemented
-- no arbitrary code execution through CMS
+- rate limiting (AI chat, quiz check/submit)
+- validated file uploads (type, size, content sniffing)
+- **no arbitrary code execution through CMS** — no `eval`, no stored scripts, no free-form iframes; Formula Sandbox uses a restricted evaluator
 - no production credentials in source
 
-Avoid exposing:
-
-- correct quiz answers before submission
-- admin-only lesson drafts
-- internal prompts
-- AI API keys
-- database errors
+Never expose: correct quiz answers before answering, draft/unpublished content, inactive-level content, internal prompts, AI API keys, database errors.
 
 ---
 
-# 29. PERFORMANCE
+# 22. PERFORMANCE, CACHING, REDIS, JOBS, STORAGE
 
-## Public lesson pages
+## Performance
 
-Prefer:
+- Server-render lesson content; cache published content where practical.
+- Lazy-load interactive components; do not initialize all simulations immediately.
+- Optimized images, lazy YouTube embeds, minimal client JavaScript.
+- Avoid N+1 queries; use Prisma `select`/`include`; rely on defined indexes.
+- Treat low-bandwidth devices as a target: define and test a page-weight budget for lesson pages and verify text fallbacks load without the interactive bundle.
 
-- server rendering for content
-- static/cached published content where practical
-- lazy loading interactive components
-- optimized images
-- lazy YouTube embeds
-- minimal client JavaScript
+## Caching
 
-Do not initialize all interactive simulations immediately.
-
-## Database
-
-Avoid N+1 queries.
-
-Use appropriate Prisma `select` / `include`.
-
-Do not fetch unnecessary columns.
-
-Use indexes defined above.
-
----
-
-# 30. CACHING STRATEGY
-
-Cache candidates:
-
-- education levels
-- subject lists
-- topic lists
-- published lesson metadata
-- published lesson content
-
-Do NOT cache user-specific progress without user-keyed invalidation.
-
-Initial strategy:
+Cache candidates: levels, subject/topic lists, published lesson metadata and content.
 
 ```text
-Public content
-→ Next.js caching / revalidation
-
-Hot shared data
-→ Redis if needed
-
-User-specific data
-→ PostgreSQL
+Public content   → Next.js caching / revalidation
+Hot shared data  → Redis if needed
+User-specific    → PostgreSQL
 ```
 
-Use explicit cache invalidation after admin publish/update.
+Explicit invalidation after admin publish/update/archive. Do not cache user-specific data without user-keyed invalidation.
+
+## Redis
+
+Used for AI/quiz rate limiting, hot content caching, future queues. Must not be mandatory for basic local development; features that do not need it keep working, and rate limiting has a documented dev fallback.
+
+## Background jobs
+
+No workers for normal CRUD. BullMQ only for analytics aggregation, expensive recommendation calculations, future AI indexing, notifications. Core lesson reading and quiz submission MUST NOT depend on a worker.
+
+## Object storage
+
+Lesson images, thumbnails, avatars, CMS media. No large binaries in PostgreSQL. No video hosting; YouTube embeds only.
 
 ---
 
-# 31. REDIS
+# 23. SEO, ACCESSIBILITY, UI
 
-Redis is an infrastructure dependency but should not become mandatory for every local development operation if avoidable.
+## SEO
 
-Use Redis for:
+Metadata for homepage, subject, topic, lesson, and lab pages. Canonical URLs and OpenGraph. Published lessons crawlable; admin routes not indexed; inactive levels not indexed.
 
-- AI rate limiting
-- hot content caching
-- future background queues
+Lesson example — Title: `Gerak Parabola — Fisika | ive`; Description: `Pelajari konsep gerak parabola melalui penjelasan, visualisasi interaktif, dan latihan soal.`
 
-If Redis is unavailable in local development, features that do not require it should continue working.
+## Responsive / accessibility
 
-Rate limiting may use a documented development fallback.
+Semantic HTML, keyboard navigation, visible focus states, accessible labels, alt text, heading hierarchy, contrast, touch-friendly controls.
 
----
+Mobile: no horizontal overflow, large quiz answer cards, responsive interactive controls, AI drawer becomes bottom sheet/full screen, usable navigation.
 
-# 32. BACKGROUND JOBS
+Every interactive component has a textual fallback explanation.
 
-Do not introduce asynchronous workers for normal CRUD.
+## UI principles
 
-Use BullMQ only for tasks such as:
+Student UI: friendly, visual, spacious, rounded, progress-oriented, welcoming for a general audience (not childish-only, since Phase 3 will serve multiple levels).
 
-- analytics aggregation
-- expensive recommendation calculations
-- future AI indexing
-- notifications
-
-Phase 1 can leave worker implementation minimal.
-
-The application MUST NOT depend on a background worker for core lesson reading or quiz submission.
+Avoid: corporate SaaS look, dense enterprise tables, tiny typography, excessive gray, old-fashioned school-website patterns. Do not copy another product's branding. Primary action must be obvious on every page.
 
 ---
 
-# 33. OBJECT STORAGE
-
-Use object storage for:
-
-- lesson images
-- thumbnails
-- user avatars
-- CMS media
-
-Never store large binary files in PostgreSQL.
-
-Do not implement video hosting.
-
-YouTube URLs should remain external embeds for MVP.
-
----
-
-# 34. SEO
-
-Implement metadata for:
-
-- homepage
-- level pages
-- subject pages
-- topic pages
-- lesson pages
-
-Lesson example:
-
-Title:
-Gerak Parabola — Fisika SMA | ive
-
-Description:
-Pelajari konsep gerak parabola melalui penjelasan, visualisasi interaktif, dan latihan soal.
-
-Use canonical URLs and OpenGraph metadata.
-
-Public published lessons should be crawlable.
-
-Admin routes should not be indexed.
-
----
-
-# 35. RESPONSIVE / ACCESSIBILITY
-
-Required:
-
-- semantic HTML
-- keyboard navigation
-- visible focus states
-- accessible labels
-- alt text
-- heading hierarchy
-- contrast
-- touch-friendly controls
-
-Mobile:
-
-- no horizontal overflow
-- large quiz answer cards
-- responsive interactive controls
-- AI drawer becomes bottom sheet/full screen
-- usable navigation
-
-Interactive components must have textual fallback explanations.
-
----
-
-# 36. UI PRINCIPLES
-
-Student UI:
-
-- friendly
-- colorful
-- playful
-- visual
-- spacious
-- rounded
-- progress-oriented
-
-Avoid:
-
-- corporate SaaS appearance
-- dense enterprise tables
-- tiny typography
-- excessive gray
-- old-fashioned school website patterns
-
-Do not copy another product's branding or exact UI.
-
-Primary user action must be obvious on each page.
-
----
-
-# 37. ROUTING
+# 24. ROUTING
 
 Public:
 
 ```text
 /
 /explore
+/lab
+/lab/:slug
 /search
 /my-learning
 /login
 
-/learn/umum
-/learn/sd
-/learn/smp
-/learn/sma
-
+/learn                       → redirects to /learn/umum
+/learn/umum                  (sd, smp, sma exist in schema but are inactive → 404)
 /learn/:level/:subject
 /learn/:level/:subject/:topic
 /learn/:level/:subject/:topic/:lesson
@@ -1721,80 +1174,56 @@ Public:
 Admin:
 
 ```text
-/admin
-/admin/dashboard
-/admin/subjects
-/admin/topics
-/admin/lessons
-/admin/questions
-/admin/interactive
+/admin  /admin/dashboard  /admin/subjects  /admin/topics
+/admin/lessons  /admin/questions  /admin/sources  /admin/interactive
 ```
 
-Use stable slug-based public URLs.
+Stable slug-based public URLs.
 
 ---
 
-# 38. RECOMMENDATIONS
+# 25. RECOMMENDATIONS
 
-Phase 1 uses deterministic rules:
+Deterministic rules only; separate module so it can be replaced later:
 
-1. If user completed a lesson, recommend next lesson in same topic.
-2. If no progress, recommend beginner content.
-3. If user frequently studies a subject, recommend additional content from that subject.
+1. Completed a lesson → recommend the next lesson in the same topic.
+2. No progress → recommend beginner content and featured experiments.
+3. Frequent subject → recommend more from that subject.
+4. After an evaluation → recommend lessons linked to incorrectly answered questions.
 
-Do not use ML.
-
-Keep recommendation logic in its own module so it can later be replaced.
+No ML.
 
 ---
 
-# 39. SEED DATA
+# 26. SEED DATA
 
-Application MUST not start empty.
+The app MUST NOT start empty.
+
+Phase 1 content is **general-purpose (Umum)**. Not tied to a school grade.
 
 Minimum:
 
-- Umum: 5 lessons
-- SD: 5 lessons
-- SMP: 10 lessons
-- SMA: 20 lessons
+- Subjects (suggested): Fisika, Matematika, Biologi, Kimia, Sejarah Indonesia
+- At least 20 published lessons/experiments in total, target 30+
+- At least 3 published experiments for `/lab`
 
-Target: 40+ lessons.
-
-Each lesson should have:
-
-- title
-- description
-- realistic Indonesian learning content
-- at least one visual/content block
-- at least 3 questions where appropriate
+Each lesson has: title, description, realistic Indonesian learning content, at least one visual/content block, **at least one linked source**, and at least 3 questions where appropriate.
 
 Priority polished lesson:
 
 ```text
-SMA → Fisika → Gerak → Gerak Parabola
+Umum → Fisika → Gerak → Gerak Parabola
 ```
 
-Also integrate:
+Also integrate: Trigonometry Visualizer, Cell Explorer, Atom Explorer, History Timeline (and Formula Sandbox if P1 is built).
 
-- Trigonometry Visualizer
-- Cell Explorer
-- Atom Explorer
-- History Timeline
-
-Seed data must contain no lorem ipsum or fake “coming soon” primary content.
+Seed rules: no lorem ipsum, no fake "coming soon" primary content, no copied copyrighted text. Seed is idempotent (deterministic slugs/IDs or upserts). SD/SMP/SMA levels are seeded with `isActive = false` and no content.
 
 ---
 
-# 40. LOCAL DEVELOPMENT
+# 27. LOCAL DEVELOPMENT AND MIGRATION
 
-Provide:
-
-```text
-.env.example
-```
-
-Variables:
+`.env.example`:
 
 ```text
 DATABASE_URL=
@@ -1820,556 +1249,234 @@ ADMIN_EMAIL=
 ADMIN_PASSWORD=
 ```
 
-Only public Supabase/browser-safe values may use `NEXT_PUBLIC_`.
+Only browser-safe Supabase values use `NEXT_PUBLIC_`. Never put AI, service-role, database-admin, or storage-secret credentials in public variables.
 
-Never put AI, service-role, database-admin, or storage-secret credentials in public variables.
+README documents: install dependencies → configure env → run migration → run seed → start dev server. A development admin account may be created from `ADMIN_EMAIL` / `ADMIN_PASSWORD`; never hardcode production credentials.
 
 ---
 
-# 41. DATABASE MIGRATION / SEED
+# 28. TESTING STRATEGY
 
-Required commands should be documented in README:
+## Unit
+
+Projectile calculations, trigonometry calculations, expression evaluator (including injection attempts), quiz scoring and evaluation breakdown, progress merge, content block validation, interactive config validation, publish-readiness rules (including source requirement), recommendation rules, slug utilities, authz permission checks.
+
+## Integration
+
+Lesson retrieval (inactive level excluded), quiz check/submit, attempt persistence, progress persistence, favorites, admin authorization, lesson publishing (blocked without source), source linking.
+
+## E2E — mandatory flows
 
 ```text
-install dependencies
-configure env
-run migration
-run seed
-start development server
-```
+Learner A:  Homepage → Fisika → Gerak → Gerak Parabola → use simulator
+            → view Sumber → open AI → ask → close AI → start Practice
+            → finish Quiz → evaluation review
 
-Seed must be idempotent where practical.
+Learner B:  Homepage → Matematika → Trigonometri → visualizer
+            → change angle → quiz
 
-Use deterministic IDs/slugs or upsert logic so rerunning seed does not create duplicate content.
+Learner C:  Homepage → Biologi → Cell lesson → Cell Explorer → nucleus → mitochondria
 
-Development admin account may be created from:
+Learner D:  Homepage → Lab → open experiment → change parameters → fullscreen
 
-```text
-ADMIN_EMAIL
-ADMIN_PASSWORD
-```
+Admin 1:    Login admin → dashboard → lessons → create → content blocks
+            → add interactive + config + preview → add sources → questions
+            → draft → preview → publish → public verification
 
-Never hardcode production credentials.
-
----
-
-# 42. TESTING STRATEGY
-
-## Unit tests
-
-Test:
-
-- projectile calculations
-- trigonometry calculations
-- quiz scoring
-- progress merge
-- content block validation
-- recommendation rules
-- slug utilities
-
-## Integration tests
-
-Test:
-
-- lesson retrieval
-- quiz submission
-- progress persistence
-- favorites
-- admin authorization
-- lesson publishing
-
-## E2E
-
-Mandatory demo flow:
-
-```text
-Homepage
-→ SMA
-→ Fisika
-→ Gerak
-→ Gerak Parabola
-→ interact simulator
-→ open AI
-→ ask question
-→ close AI
-→ start quiz
-→ finish quiz
-→ result
-```
-
-Second:
-
-```text
-Homepage
-→ SMA
-→ Matematika
-→ Trigonometri
-→ visualizer
-→ change angle
-→ quiz
-```
-
-Third:
-
-```text
-Homepage
-→ Biologi
-→ Cell lesson
-→ Cell Explorer
-→ nucleus
-→ mitochondria
-```
-
-Admin:
-
-```text
-Login admin
-→ dashboard
-→ lessons
-→ create
-→ content blocks
-→ questions
-→ draft
-→ preview
-→ publish
-→ public verification
+Admin 2:    Attempt to publish lesson without source → blocked with clear message
 ```
 
 ---
 
-# 43. OBSERVABILITY
+# 29. OBSERVABILITY AND ANALYTICS
 
-At minimum:
+Minimum: server error logging, request error context, client error monitoring, no secret values in logs. Recommended: Sentry, structured server logs. Track route, request ID, user ID where appropriate, error code, latency.
 
-- server error logging
-- request error context
-- client error monitoring
-- no secret values in logs
+Never log: passwords, API keys, auth tokens, full private AI conversations unless explicitly required and protected.
 
-Recommended:
-
-- Sentry
-- structured server logs
-
-Track useful dimensions:
-
-- route
-- request ID
-- user ID where appropriate
-- error code
-- latency
-
-Never log:
-
-- passwords
-- API keys
-- auth tokens
-- full private AI conversations unless explicitly required and protected
+Analytics goes through an adapter (`analytics.track({ event, userId, properties })`); analytics failure MUST NOT break the user experience.
 
 ---
 
-# 44. ANALYTICS
+# 30. ERROR / LOADING UX
 
-Track:
-
-```text
-lesson_viewed
-lesson_started
-lesson_completed
-quiz_started
-quiz_completed
-ai_opened
-ai_question_asked
-search_performed
-```
-
-Use an analytics adapter rather than directly coupling every component to a provider.
-
-Example:
-
-```typescript
-analytics.track({
-  event: "lesson_completed",
-  userId,
-  properties: {
-    lessonId
-  }
-})
-```
-
-Analytics failure MUST NOT break the user experience.
+- Loading: skeletons for lesson/subject/search cards, AI typing indicator, quiz button loading state.
+- Error: “Ups, ada sedikit gangguan.” with “Coba lagi”.
+- Search empty: “Belum menemukan materi yang cocok.”
+- AI: “Edu AI sedang tidak tersedia. Coba lagi sebentar.”
+- Interactive unavailable: “Simulasi ini belum tersedia.” plus the textual explanation.
+- Never show raw stack traces.
 
 ---
 
-# 45. ERROR / LOADING UX
+# 31. IMPLEMENTATION ORDER
 
-Loading:
+Agents MUST implement in this order unless a dependency requires otherwise. CMS authoring comes earlier than in v1.0 because materials are provided through the CMS.
 
-- skeletons for lesson/subject/search cards
-- AI typing indicator
-- quiz button loading state
-
-Errors:
-
-“Ups, ada sedikit gangguan.”
-
-“Coba lagi”
-
-Search empty:
-
-“Belum menemukan materi yang cocok.”
-
-AI:
-
-“Edu AI sedang tidak tersedia. Coba lagi sebentar.”
-
-Never show raw stack traces.
+1. **Bootstrap** — Next.js App Router, TypeScript, Tailwind, shadcn/ui, lint, format, test setup
+2. **Database** — Prisma, schema, migration, indexes, seed skeleton (levels with `isActive`)
+3. **Auth** — Supabase Auth, user profile, admin role, `authz` module, middleware/server authorization
+4. **Core domain** — levels, subjects, topics, lessons (with `kind`)
+5. **Content engine + sources** — block schemas, renderer, formula, video, illustration, real-world block, Source/LessonSource
+6. **Interactive engine** — registry, definition contract, config schemas, five components
+7. **Student UI + navigation** — homepage, subject, topic, lesson, mega menu, outline tree, breadcrumbs, lab
+8. **Admin CMS — authoring track** — CRUD, block editor, source editor, preview, publish rules
+9. **Admin CMS — interaction track** — interactive library, config forms, live preview
+10. **Quiz** — question bank editor, question sets, practice/quiz, check/submit, evaluation, history
+11. **Progress** — localStorage, authenticated persistence, merge
+12. **AI** — provider adapter, context builder, streaming, persistence, rate limiting
+13. **Search / Favorites**
+14. **P1 items** — Formula Sandbox, shareable state, AI interactive context
+15. **SEO / performance / accessibility**
+16. **Tests**
+17. **End-to-end polish**
 
 ---
 
-# 46. IMPLEMENTATION ORDER
+# 32. DEFINITION OF DONE
 
-Agents MUST implement in this order unless a dependency requires otherwise.
-
-## Step 1 — Bootstrap
-
-- Next.js App Router
-- TypeScript
-- Tailwind
-- shadcn/ui
-- linting
-- formatting
-- test setup
-
-## Step 2 — Database
-
-- Prisma
-- PostgreSQL schema
-- migration
-- indexes
-- seed
-
-## Step 3 — Auth
-
-- Supabase Auth
-- user profile
-- admin role
-- middleware/server authorization
-
-## Step 4 — Core domain
-
-- levels
-- subjects
-- topics
-- lessons
-
-## Step 5 — Content engine
-
-- content block schema
-- renderer
-- formula
-- video
-- callout
-- example
-- interactive registry
-
-## Step 6 — Student UI
-
-- homepage
-- level
-- subject
-- topic
-- lesson
-
-## Step 7 — Interactive engine
-
-Implement all five components.
-
-## Step 8 — Quiz
-
-- question loading
-- answer submission
-- scoring
-- feedback
-- result
-
-## Step 9 — Progress
-
-- local storage
-- authenticated persistence
-- merge
-
-## Step 10 — AI
-
-- provider adapter
-- context builder
-- streaming
-- conversation persistence
-- rate limiting
-
-## Step 11 — Search / Favorites
-
-## Step 12 — Admin CMS
-
-## Step 13 — SEO / performance / accessibility
-
-## Step 14 — Tests
-
-## Step 15 — End-to-end polish
+A feature is DONE only when: UI works; API/service works; validation exists; authorization exists where needed; loading and error states exist; mobile behavior works; tests cover important business logic; no dead buttons; no placeholder primary content; no avoidable console/runtime errors.
 
 ---
 
-# 47. DEFINITION OF DONE
-
-A feature is DONE only when:
-
-- UI works
-- API/service works
-- validation exists
-- authorization exists where needed
-- loading state exists
-- error state exists
-- mobile behavior works
-- tests cover important business logic
-- no dead buttons
-- no placeholder primary content
-- no console/runtime errors reasonably avoidable
-
----
-
-# 48. AGENT RULES
+# 33. AGENT RULES
 
 All coding agents MUST follow these rules.
 
-### Rule 1
-Do not rewrite working modules unnecessarily.
-
-### Rule 2
-Do not place business logic inside UI components.
-
-### Rule 3
-Do not put database queries directly in reusable UI components.
-
-### Rule 4
-Do not expose secrets to the client.
-
-### Rule 5
-Do not trust client-side quiz scoring.
-
-### Rule 6
-Do not trust client-provided admin role.
-
-### Rule 7
-Do not allow arbitrary CMS code execution.
-
-### Rule 8
-Do not create fake locked lessons.
-
-### Rule 9
-Do not introduce microservices unless explicitly approved.
-
-### Rule 10
-Do not introduce new infrastructure dependencies without documenting why they are needed.
-
-### Rule 11
-Prefer existing dependencies before adding a new package.
-
-### Rule 12
-Every new package must have a clear reason.
-
-### Rule 13
-Every public route must have a meaningful loading and error state.
-
-### Rule 14
-All public educational content must come from database/content data, not hardcoded page components.
-
-### Rule 15
-Use the same content renderer for admin preview and public lesson.
+1. Do not rewrite working modules unnecessarily.
+2. Do not place business logic inside UI components.
+3. Do not put database queries directly in reusable UI components.
+4. Do not expose secrets to the client.
+5. Do not trust client-side quiz scoring.
+6. Do not trust a client-provided admin role.
+7. Do not allow arbitrary CMS code execution.
+8. Do not create fake locked lessons.
+9. Do not introduce microservices unless explicitly approved.
+10. Do not introduce new infrastructure dependencies without documenting why.
+11. Prefer existing dependencies before adding a new package.
+12. Every new package must have a clear reason.
+13. Every public route must have a meaningful loading and error state.
+14. All public educational content must come from database/content data, not hardcoded page components.
+15. Use the same content renderer for admin preview and public lesson.
+16. **Do not publish or seed a lesson without at least one linked source.**
+17. **Do not build Phase 2/3 features** (teacher role, classrooms, access codes, active SD/SMP/SMA content). Keep only the extension points in Section 34.
+18. **Do not hardcode "umum" in business logic;** read the active level(s) from the database so Phase 3 needs no refactor.
+19. **Every interactive component must register a `configSchema` and a `textFallback`.**
 
 ---
 
-# 49. FUTURE EXTRACTION PLAN
+# 34. PHASE 2 AND PHASE 3 EXTENSION POINTS
 
-The architecture should permit later extraction of:
+## Prepared now (cheap, non-breaking)
 
-```text
-AI Service
-Search Service
-Quiz Service
-Analytics Pipeline
-Recommendation Service
-```
+| Future need | Preparation in Phase 1 |
+|---|---|
+| Phase 2: teachers author content | `createdById`/`updatedById` on content tables; central `authz.can()`; `Role` enum extensible with `TEACHER` |
+| Phase 2: teacher-owned or class-scoped content | Content ownership recorded; a `visibility` field is NOT added now |
+| Phase 2: question bank shared via access code | Questions already belong to a topic and are served through a question-set service, so an access-code-scoped set can be added later |
+| Phase 2: two-way teacher ↔ student results | `QuizAttempt` and `QuizAttemptAnswer` already store per-question results |
+| Phase 3: SD / SMP / SMA / UMUM | `EducationLevel` with `isActive`, level segment in URLs and queries |
 
-Extraction trigger examples:
+## Deferred (design only when the phase starts)
 
-- independent scaling requirement
-- independent deployment cadence
-- clear ownership boundary
-- infrastructure bottleneck
-- team ownership
-
-Do not extract merely because a module exists.
+- Phase 2: `Classroom`, `ClassroomMember`, `AccessCode`, teacher dashboard, teacher-authored question sets, result visibility rules, privacy rules for student data.
+- Phase 3: curriculum mapping per level, level-specific content import, level selection UI.
 
 ---
 
-# 50. EXPECTED FUTURE SCALE PATH
+# 35. FUTURE EXTRACTION, SCALE PATH, PRIORITIES
 
-## Stage A — MVP
+Extractable later: AI Service, Search Service, Quiz Service, Analytics Pipeline, Recommendation Service. Extract only for independent scaling, deployment cadence, ownership boundary, or an infrastructure bottleneck; not merely because a module exists.
 
-```text
-Next.js
-PostgreSQL
-Redis
-Object Storage
-```
+Scale path:
 
-Single deployable application.
+- **Stage A — MVP:** Next.js + PostgreSQL + Redis + Object Storage, single deployable.
+- **Stage B — Growing traffic:** CDN, multiple Next.js instances, managed PostgreSQL, Redis, background worker.
+- **Stage C — Large platform:** extract only high-load/high-change domains.
 
-## Stage B — Growing traffic
-
-```text
-CDN
-multiple Next.js instances
-managed PostgreSQL
-Redis
-background worker
-```
-
-## Stage C — Large platform
-
-```text
-Web App
-  |
-  +-- Learning
-  +-- Quiz
-  +-- AI
-  +-- Search
-  +-- Analytics
-```
-
-Extract only high-load/high-change domains.
+Trade-off priority: 1) Correctness, 2) Student learning experience, 3) Data integrity, 4) Security, 5) Maintainability, 6) Performance, 7) Scalability, 8) Infrastructure sophistication.
 
 ---
 
-# 51. ARCHITECTURAL PRIORITIES
-
-When trade-offs occur, use this order:
-
-1. Correctness
-2. Student learning experience
-3. Data integrity
-4. Security
-5. Maintainability
-6. Performance
-7. Scalability
-8. Infrastructure sophistication
-
-Do not sacrifice core learning quality merely to demonstrate complex infrastructure.
-
----
-
-# 52. FINAL TECHNICAL CHECKLIST
-
-Before Phase 1 is accepted:
+# 36. FINAL TECHNICAL CHECKLIST
 
 ## Architecture
-
-- [ ] Modular monolith
-- [ ] Clear domain boundaries
-- [ ] Thin API handlers
-- [ ] Services contain business logic
-- [ ] Repository abstraction used where useful
+- [ ] Modular monolith, clear domain boundaries, thin API handlers
+- [ ] Services contain business logic; repositories where useful
 - [ ] External providers behind adapters
+- [ ] Central `authz` module
 
 ## Database
+- [ ] PostgreSQL, Prisma schema, migration, seed, indexes, constraints
+- [ ] `EducationLevel.isActive` enforced in public queries
+- [ ] Source / LessonSource, Question (topic-based), QuizAttempt(+Answer)
+- [ ] Transactions where needed
 
-- [ ] PostgreSQL
-- [ ] Prisma schema
-- [ ] Migration
-- [ ] Seed
-- [ ] Indexes
-- [ ] Constraints
-- [ ] Transactional operations where needed
-
-## Student
-
-- [ ] Homepage
-- [ ] Level selection
-- [ ] Subject
-- [ ] Topic
-- [ ] Lesson
-- [ ] Interactive
-- [ ] Quiz
-- [ ] AI
-- [ ] Progress
-- [ ] Search
-- [ ] Favorites
+## Learner
+- [ ] Homepage subject catalog, subject, topic, lesson
+- [ ] Mega menu, outline tree, breadcrumbs, prev/next
+- [ ] Content blocks (text, illustration, formula, video, real-world, interactive)
+- [ ] Sources shown on lessons
+- [ ] Interactive components + fullscreen + text fallback
+- [ ] Lab
+- [ ] Practice mode, Quiz mode, evaluation review, attempt history
+- [ ] AI assistant
+- [ ] Progress (guest + authenticated + merge), Search, Favorites
 
 ## Admin
-
-- [ ] Auth
-- [ ] Authorization
-- [ ] CRUD
+- [ ] Auth and server-side authorization
+- [ ] CRUD (subject, topic, lesson, question, source)
 - [ ] Block editor
-- [ ] Interactive selector
-- [ ] Preview
-- [ ] Publish
+- [ ] Interactive library, config form, live preview
+- [ ] Preview via public renderer
+- [ ] Publish blocked without source
 
 ## Security
-
-- [ ] Secrets server-side
-- [ ] Zod validation
-- [ ] Admin checks server-side
-- [ ] Quiz score server-side
-- [ ] Sanitization
-- [ ] Rate limiting
-- [ ] No arbitrary code execution
+- [ ] Secrets server-side; Zod validation; admin checks server-side
+- [ ] Quiz scoring server-side; no answer keys leaked
+- [ ] Sanitization; rate limiting; no arbitrary code execution
 
 ## UX
-
-- [ ] Mobile
-- [ ] Tablet
-- [ ] Desktop
-- [ ] Loading states
-- [ ] Error states
-- [ ] Empty states
-- [ ] Accessibility
-- [ ] SEO
+- [ ] Mobile, tablet, desktop; classroom/fullscreen
+- [ ] Loading, error, empty states
+- [ ] Accessibility; SEO
 
 ## Testing
-
-- [ ] Unit
-- [ ] Integration
-- [ ] E2E primary flow
-- [ ] E2E admin flow
+- [ ] Unit, integration, E2E learner flows, E2E admin flows
 
 ---
 
-# 53. AGENT EXECUTION BRIEF
+# 37. ASSUMPTIONS AND OPEN DECISIONS
 
-The agents should interpret this document as an implementation contract.
+These choices were made while converting the 5W1H into architecture. Confirm or change them before implementation.
 
-Do not build a static prototype.
+| # | Decision made in this TAD | Alternative |
+|---|---|---|
+| 1 | The teacher-issued access code question bank is **Phase 2** (it requires teacher accounts) | Pull a simplified version into Phase 1 (would add Classroom/AccessCode and a TEACHER role) |
+| 2 | Keep `/learn/umum/...` URLs and hide the level picker | Drop the level segment now and migrate URLs in Phase 3 |
+| 3 | Guests may use AI with a stricter limit | Require login for AI |
+| 4 | `EXPERIMENT` is a lesson `kind`, listed in `/lab` | Separate Experiment table |
+| 5 | Formula Sandbox is P1 (should-have), coded components are P0 | Make Formula Sandbox P0 |
+| 6 | Sources are mandatory to publish (presence, not truth-checking) | Soft warning only |
+| 7 | Suggested Umum subjects: Fisika, Matematika, Biologi, Kimia, Sejarah Indonesia | Different subject list |
+| 8 | Rich-text editor library (for example Tiptap) and expression parser need a Rule 12 justification; none is chosen here | Pre-select libraries |
+| 9 | Questions belong to a topic and may be pinned to a lesson | Lesson-only questions as in v1.0 |
 
-Build a functional application.
+---
 
-Do not stop when the UI looks correct.
+# 38. AGENT EXECUTION BRIEF
 
-Verify:
+Interpret this document as an implementation contract for **Phase 1 only**.
+
+Do not build a static prototype. Build a functional application.
+
+Do not stop when the UI looks correct. Verify:
 
 ```text
-database
-→ API
-→ UI
-→ state
-→ interactions
-→ authentication
-→ authorization
-→ error handling
-→ tests
+database → API → UI → state → interactions → authentication
+→ authorization → error handling → tests
 ```
 
-The core demo must work end-to-end.
+The core demo must work end-to-end: a learner picks a subject, studies a lesson with real content and visible sources, plays with an interactive component, asks the AI, practices, takes a quiz, and reviews the evaluation; an admin authors the lesson, composes its interaction, attaches sources, previews, and publishes it.
 
-The resulting codebase must be understandable by another engineering team and must support future scaling without an immediate rewrite.
-
+The resulting codebase must be understandable by another engineering team and must support Phase 2 (teacher CMS) and Phase 3 (education levels) without an immediate rewrite.
