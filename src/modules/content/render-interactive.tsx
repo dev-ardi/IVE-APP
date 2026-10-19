@@ -4,6 +4,10 @@ import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 import { isInteractiveKey } from "@/modules/content/interactive-registry";
 
+const FormulaSandbox = dynamic(() => import("@/components/interactive/formula-sandbox"), {
+  ssr: false,
+  loading: () => <InteractiveLoading />,
+});
 const ProjectileSimulator = dynamic(() => import("@/components/interactive/projectile-simulator"), {
   ssr: false,
   loading: () => <InteractiveLoading />,
@@ -41,6 +45,7 @@ const NuclearFission = dynamic(() => import("@/components/interactive/nuclear-fi
  * components are stable references resolved outside render (next/react lint).
  */
 const COMPONENTS: Record<string, ComponentType<{ config?: Record<string, unknown> }>> = {
+  "formula-sandbox": FormulaSandbox,
   "projectile-simulator": ProjectileSimulator,
   "trigonometry-visualizer": TrigonometryVisualizer,
   "cell-explorer": CellExplorer,

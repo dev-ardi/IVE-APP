@@ -11,6 +11,7 @@ import {
   Sparkles,
   Send,
 } from "lucide-react";
+import { RenderFormula } from "@/modules/content/render-formula";
 
 interface StepDetail {
   step: string;
@@ -273,10 +274,10 @@ export function LearningLoopPillars() {
 
                       <div className="relative z-10 flex items-center justify-between rounded-xl bg-white/90 p-2.5 backdrop-blur-sm dark:bg-stone-900/90">
                         <span className="font-mono text-xs font-bold text-stone-700 dark:text-stone-300">
-                          Sudut Elevasi (θ): <strong className="text-blue-600">{interactiveSliderVal}°</strong>
+                          Sudut Elevasi (<RenderFormula formula="\theta" />): <strong className="text-blue-600">{interactiveSliderVal}°</strong>
                         </span>
-                        <span className="font-mono text-xs font-bold text-stone-700 dark:text-stone-300">
-                          Jangkauan ($R$):{" "}
+                        <span className="font-mono text-xs font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1">
+                          <span>Jangkauan (<RenderFormula formula="R" />):</span>
                           <strong className="text-emerald-600">
                             {(Math.sin((2 * interactiveSliderVal * Math.PI) / 180) * 40.8).toFixed(1)} m
                           </strong>
@@ -351,8 +352,9 @@ export function LearningLoopPillars() {
                       </div>
 
                       {selectedQuizOption !== null && (
-                        <div className="mt-3 rounded-xl border border-stone-200 bg-white p-2.5 text-[11px] font-medium text-stone-700 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-300">
-                          💡 <strong>Penjelasan:</strong> Nol Mutlak (0 K) adalah kondisi teoretis di mana seluruh gerakan termal partikel berhenti, setara dengan -273.15°C.
+                        <div className="mt-3 rounded-xl border border-stone-200 bg-white p-2.5 text-[11px] font-medium text-stone-700 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-300 flex items-center gap-1.5 flex-wrap">
+                          <span>💡 <strong>Penjelasan:</strong> Titik Nol Mutlak (<RenderFormula formula="0\text{ K}" />) adalah kondisi teoretis partikel berhenti, setara dengan</span>
+                          <strong className="text-emerald-700 dark:text-emerald-300"><RenderFormula formula="-273.15^\circ\text{C}" /></strong>.
                         </div>
                       )}
                     </div>
@@ -384,9 +386,17 @@ export function LearningLoopPillars() {
                       </div>
 
                       {/* AI response */}
-                      <div className="self-start rounded-2xl rounded-tl-none border border-stone-200 bg-white p-3 text-xs font-medium text-stone-800 shadow-2xs dark:border-stone-800 dark:bg-stone-900 dark:text-stone-200">
-                        <span className="font-bold text-amber-600 dark:text-amber-400">🤖 AI Tutor: </span>
-                        Jangkauan horizontal dirumuskan oleh R = (v₀² · sin(2θ)) / g. Fungsi sinus mencapai nilai maksimumnya yaitu 1 saat sudutnya 90°. Karena sin(2θ) = 1, maka 2θ = 90° sehingga θ = 45°!
+                      <div className="self-start rounded-2xl rounded-tl-none border border-stone-200 bg-white p-3 text-xs font-medium text-stone-800 shadow-2xs dark:border-stone-800 dark:bg-stone-900 dark:text-stone-200 flex flex-col gap-1.5">
+                        <div className="flex items-center gap-1">
+                          <span className="font-bold text-amber-600 dark:text-amber-400">🤖 AI Tutor: </span>
+                          <span>Jangkauan horizontal dirumuskan oleh persamaan:</span>
+                        </div>
+                        <div className="my-0.5 rounded-lg bg-stone-100 p-2 dark:bg-stone-800">
+                          <RenderFormula formula="R = \frac{v_0^2 \sin(2\theta)}{g}" display={true} />
+                        </div>
+                        <div className="text-[11.5px] leading-relaxed">
+                          Fungsi sinus mencapai nilai maksimumnya yaitu <RenderFormula formula="1" /> saat sudutnya <RenderFormula formula="90^\circ" />. Karena <RenderFormula formula="\sin(2\theta) = 1" />, maka <RenderFormula formula="2\theta = 90^\circ \implies \theta = 45^\circ" />!
+                        </div>
                       </div>
 
                       {/* Quick input field mock */}

@@ -7,6 +7,7 @@
  */
 
 export const INTERACTIVE_KEYS = [
+  "formula-sandbox",
   "projectile-simulator",
   "trigonometry-visualizer",
   "cell-explorer",

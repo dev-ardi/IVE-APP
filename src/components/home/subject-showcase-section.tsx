@@ -12,6 +12,7 @@ import {
   Activity,
   Zap,
 } from "lucide-react";
+import { RenderFormula } from "@/modules/content/render-formula";
 
 interface SubjectSummary {
   name: string;
@@ -100,7 +101,7 @@ export function SubjectShowcaseSection({ subjects }: { subjects: SubjectSummary[
               {/* Parallax Interactive Preview Ribbon */}
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span className="rounded-xl border border-blue-300 bg-white/90 px-3 py-1.5 font-mono text-xs font-bold text-blue-900 dark:border-blue-800 dark:bg-stone-900 dark:text-blue-200">
-                  y = v₀ sin(θ)t - ½gt²
+                  <RenderFormula formula="y = v_0 \sin(\theta)t - \frac{1}{2}gt^2" />
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                   <Activity className="h-3.5 w-3.5" />
@@ -199,7 +200,7 @@ export function SubjectShowcaseSection({ subjects }: { subjects: SubjectSummary[
               </p>
 
               <div className="rounded-xl border border-amber-300 bg-white/80 p-2 text-center font-mono text-xs font-bold text-amber-900 dark:border-amber-800 dark:bg-stone-900 dark:text-amber-200">
-                0 K = -273.15 °C
+                <RenderFormula formula="0\text{ K} = -273.15^\circ\text{C}" />
               </div>
             </div>
 
@@ -241,7 +242,7 @@ export function SubjectShowcaseSection({ subjects }: { subjects: SubjectSummary[
               </p>
 
               <div className="rounded-xl border border-blue-300 bg-white/80 p-2 text-center font-mono text-xs font-bold text-blue-900 dark:border-blue-800 dark:bg-stone-900 dark:text-blue-200">
-                sin²(θ) + cos²(θ) = 1
+                <RenderFormula formula="\sin^2(\theta) + \cos^2(\theta) = 1" />
               </div>
             </div>
 
@@ -283,7 +284,7 @@ export function SubjectShowcaseSection({ subjects }: { subjects: SubjectSummary[
               </p>
 
               <div className="rounded-xl border border-purple-300 bg-white/80 p-2 text-center font-mono text-xs font-bold text-purple-900 dark:border-purple-800 dark:bg-stone-900 dark:text-purple-200">
-                ²³⁵U + n → ¹⁴¹Ba + ⁹²Kr + 3n
+                <RenderFormula formula="^{235}\text{U} + \text{n} \to ^{141}\text{Ba} + ^{92}\text{Kr} + 3\text{n}" />
               </div>
             </div>
 
