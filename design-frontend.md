@@ -114,8 +114,9 @@ const theme = getSubjectTheme(subjectSlug);
 Navigasi desktop menggunakan kontainer pill mengambang yang terpusat secara mutlak (*pinned absolute center*). Hal ini mencegah menu bergeser saat bilah pencarian meluas atau menyusut.
 
 - **Komponen:** [`src/components/layout/nav-links.tsx`](file:///d:/Kerjaan/IVE-APP/src/components/layout/nav-links.tsx).
-- **Teknologi:** Framer Motion `<motion.span layoutId="navbar-active-pill" ... />`.
-- **Perilaku Transisi:** Ketika pengguna berpindah antar menu (*Beranda* `/`, *Jelajahi* `/explore`, *Lab Simulasi* `/lab`, *Pembelajaran Saya* `/my-learning`), kapsul penanda warna biru meluncur secara fisik (*smooth sliding animation*) dengan fisika pegas (`type: "spring", stiffness: 400, damping: 32`), bukan berganti warna secara instan.
+- **Teknologi:** Framer Motion spring physics (`type: "spring", stiffness: 400, damping: 32`) dengan sistem koordinat kontainer lokal (*local parent offset isolation*).
+- **Pencegahan Scroll Jump Artifact:** Indikator pil meluncur menggunakan kalkulasi `offsetLeft` dan `offsetWidth` lokal di dalam kontainer navbar, bukan `layoutId` global lintas halaman. Hal ini mencegah bug di mana lompatan posisi scroll halaman (misalnya saat pengguna mengklik tombol link di dasar halaman) salah diinterpretasikan oleh mesin animasi sebagai translasi sumbu-Y.
+- **Perilaku Transisi:** Ketika pengguna berpindah antar menu (*Beranda* `/`, *Jelajahi* `/explore`, *Lab Simulasi* `/lab`, *Pembelajaran Saya* `/my-learning`), kapsul penanda warna biru meluncur secara fisik (*smooth sliding animation*) murni secara horizontal di dalam kontainer navbar.
 - **Aksi Kanan:** Search bar yang dapat meluas secara dinamis ([`ExpandableSearch`](file:///d:/Kerjaan/IVE-APP/src/components/layout/expandable-search.tsx)), menu autentikasi profil, dan menu drawer responsif untuk perangkat mobile ([`MobileNav`](file:///d:/Kerjaan/IVE-APP/src/components/layout/mobile-nav.tsx)).
 
 ### 4.2 Smooth Scrolling Tanpa Macet (Lenis Engine Architecture)
