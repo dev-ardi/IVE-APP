@@ -8,7 +8,8 @@ function createPrismaClient(): PrismaClient {
   });
   return new PrismaClient({
     adapter,
-    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+    // Do not log connection errors as raw unhandled dumps during local offline dev
+    log: process.env.NODE_ENV === "development" ? ["warn"] : ["error"],
   });
 }
 

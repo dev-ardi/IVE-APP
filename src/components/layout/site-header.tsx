@@ -1,80 +1,77 @@
 import Link from "next/link";
+import { Compass, FlaskConical, BookMarked, Home } from "lucide-react";
 import { getSessionUser } from "@/server/auth";
 import { UserMenu } from "./user-menu";
 import { MobileNav } from "./mobile-nav";
+import { IveLogo } from "./ive-logo";
+import { ExpandableSearch } from "./expandable-search";
+import { ScrollProgress } from "./scroll-progress";
 
 export async function SiteHeader() {
   const user = await getSessionUser();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/80 bg-background/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        {/* Brand Logo & Name */}
-        <div className="flex items-center gap-6">
-          <Link href="/" className="group flex items-center gap-2.5 font-bold tracking-tight">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-primary to-indigo-500 text-sm font-black text-white shadow-xs shadow-primary/30 transition group-hover:scale-105">
-              IV
-            </span>
-            <div className="flex flex-col">
-              <span className="text-lg font-extrabold tracking-tight text-foreground leading-none">
-                IVE<span className="text-primary">-APP</span>
-              </span>
-              <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">
-                Interactive Visual Ed
-              </span>
-            </div>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden items-center gap-1 md:flex" aria-label="Navigasi utama">
-            <Link
-              href="/"
-              className="rounded-lg px-3 py-1.5 text-sm font-medium text-foreground/80 transition hover:bg-muted hover:text-foreground"
-            >
-              Beranda
-            </Link>
-            <Link
-              href="/explore"
-              className="rounded-lg px-3 py-1.5 text-sm font-medium text-foreground/80 transition hover:bg-muted hover:text-foreground"
-            >
-              Jelajahi
-            </Link>
-            <Link
-              href="/lab"
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-foreground/80 transition hover:bg-muted hover:text-foreground"
-            >
-              <span>🧪</span>
-              <span>Lab Simulasi</span>
-            </Link>
-            <Link
-              href="/my-learning"
-              className="rounded-lg px-3 py-1.5 text-sm font-medium text-foreground/80 transition hover:bg-muted hover:text-foreground"
-            >
-              Pembelajaran Saya
-            </Link>
-          </nav>
-        </div>
-
-        {/* Right side: Search, User Menu, and Mobile toggle */}
-        <div className="flex items-center gap-2.5">
-          <Link
-            href="/search"
-            className="flex items-center gap-2 rounded-lg border border-border/80 bg-muted/40 px-3 py-1.5 text-xs text-muted-foreground transition hover:border-border hover:bg-muted hover:text-foreground"
-            aria-label="Cari materi pelajaran"
-          >
-            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <span className="hidden sm:inline">Cari materi...</span>
-          </Link>
-
-          <div className="hidden sm:flex items-center">
-            <UserMenu user={user} />
+    <>
+      <ScrollProgress />
+      <header className="sticky top-0 z-40 border-b-2 border-stone-900/10 bg-[#FAF9F5]/90 backdrop-blur-md dark:border-slate-800/80 dark:bg-[#121316]/90">
+        <div className="relative mx-auto flex h-16 w-full max-w-[1400px] items-center justify-between px-3 sm:px-6">
+          {/* Left: Brand Logo (z-20 so it stays above absolute center container) */}
+          <div className="flex shrink-0 items-center z-20">
+            <IveLogo />
           </div>
 
-          <MobileNav userRole={user?.role} userName={user?.name ?? user?.email} />
+          {/* Center: Main Navigation (Absolute center pinned so expanding/collapsing search bar never shifts or snaps the menu) */}
+          <nav
+            className="pointer-events-none absolute inset-x-0 mx-auto hidden items-center justify-center md:flex z-10"
+            aria-label="Navigasi utama"
+          >
+            <div className="pointer-events-auto flex items-center gap-1 rounded-full border border-stone-900/10 bg-white/90 p-1 shadow-2xs backdrop-blur-md dark:border-stone-800 dark:bg-stone-900/90">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13.5px] font-bold text-stone-700 transition hover:bg-stone-100 hover:text-stone-950 dark:text-stone-300 dark:hover:bg-stone-800 dark:hover:text-white"
+              >
+                <Home className="h-4 w-4 text-stone-500 dark:text-stone-400" />
+                <span>Beranda</span>
+              </Link>
+
+              <Link
+                href="/explore"
+                className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13.5px] font-bold text-stone-700 transition hover:bg-stone-100 hover:text-stone-950 dark:text-stone-300 dark:hover:bg-stone-800 dark:hover:text-white"
+              >
+                <Compass className="h-4 w-4 text-stone-500 dark:text-stone-400" />
+                <span>Jelajahi</span>
+              </Link>
+
+              <Link
+                href="/lab"
+                className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13.5px] font-bold text-blue-700 transition hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/60"
+              >
+                <FlaskConical className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <span>Lab Simulasi</span>
+              </Link>
+
+              <Link
+                href="/my-learning"
+                className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13.5px] font-bold text-stone-700 transition hover:bg-stone-100 hover:text-stone-950 dark:text-stone-300 dark:hover:bg-stone-800 dark:hover:text-white"
+              >
+                <BookMarked className="h-4 w-4 text-stone-500 dark:text-stone-400" />
+                <span>Pembelajaran Saya</span>
+              </Link>
+            </div>
+          </nav>
+
+          {/* Right: Expandable Search, User Profile, Mobile Nav (z-20) */}
+          <div className="flex shrink-0 items-center gap-3 z-20">
+            <ExpandableSearch />
+
+            <div className="hidden sm:flex items-center">
+              <UserMenu user={user} />
+            </div>
+
+            <MobileNav userRole={user?.role} userName={user?.name ?? user?.email} />
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 }

@@ -137,7 +137,12 @@ export async function listLessonsBySubject(subjectIdOrSlug: string): Promise<Les
       }));
     }
   } catch (error) {
-    console.warn("Database not accessible, using dummy lessons list by subject:", error);
+    const isConnRefused = (error as { code?: string })?.code === "ECONNREFUSED";
+    if (isConnRefused) {
+      console.info(`[Offline Mode] PostgreSQL offline, menggunakan dummy lessons list untuk subjek: ${subjectIdOrSlug}`);
+    } else {
+      console.warn("Database not accessible, using dummy lessons list by subject:", error);
+    }
   }
 
   const dummy = getDummyLessonsBySubject(subjectIdOrSlug);
@@ -260,7 +265,12 @@ export async function getPublishedLesson(
       };
     }
   } catch (error) {
-    console.warn("Database not accessible, using dummy lesson lookup:", error);
+    const isConnRefused = (error as { code?: string })?.code === "ECONNREFUSED";
+    if (isConnRefused) {
+      console.info(`[Offline Mode] PostgreSQL tidak terdeteksi (ECONNREFUSED), menggunakan data dummy untuk: ${opts.lessonSlug}`);
+    } else {
+      console.warn("Database not accessible, using dummy lesson lookup:", error);
+    }
   }
 
   // Fallback to dummy lesson

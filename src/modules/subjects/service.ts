@@ -111,7 +111,12 @@ export async function getSubjectBySlug(
       };
     }
   } catch (error) {
-    console.warn("Database not accessible, using dummy subject lookup:", error);
+    const isConnRefused = (error as { code?: string })?.code === "ECONNREFUSED";
+    if (isConnRefused) {
+      console.info(`[Offline Mode] PostgreSQL offline, menggunakan dummy subject untuk: ${subjectSlug}`);
+    } else {
+      console.warn("Database not accessible, using dummy subject lookup:", error);
+    }
   }
 
   const dummy = getDummySubjectBySlug(levelSlug, subjectSlug);

@@ -101,7 +101,12 @@ export async function getTopicBySlug(
       };
     }
   } catch (error) {
-    console.warn("Database not accessible, using dummy topic lookup:", error);
+    const isConnRefused = (error as { code?: string })?.code === "ECONNREFUSED";
+    if (isConnRefused) {
+      console.info(`[Offline Mode] PostgreSQL offline, menggunakan dummy topic untuk: ${topicSlug}`);
+    } else {
+      console.warn("Database not accessible, using dummy topic lookup:", error);
+    }
   }
 
   const subject = DUMMY_DATA.subjects.find(

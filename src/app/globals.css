@@ -50,72 +50,83 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.546 0.245 262.881);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.958 0.042 260);
-  --accent-foreground: oklch(0.4 0.18 262);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.546 0.245 262.881);
-  --chart-1: oklch(0.546 0.245 262.881);
-  --chart-2: oklch(0.6 0.2 190);
-  --chart-3: oklch(0.7 0.2 150);
-  --chart-4: oklch(0.7 0.2 30);
-  --chart-5: oklch(0.65 0.2 300);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.546 0.245 262.881);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.958 0.042 260);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.546 0.245 262.881);
+  /* Warm vintage stone/linen canvas background (distinctively non-white, soothing like Oblo) */
+  --background: #F4F1EA;
+  --foreground: #1E2024;
+  
+  --card: #FCFAF6;
+  --card-foreground: #1E2024;
+  
+  --popover: #FCFAF6;
+  --popover-foreground: #1E2024;
+  
+  /* Refined, focused Royal Cobalt */
+  --primary: #2A3FB8;
+  --primary-foreground: #FFFFFF;
+  
+  --secondary: #EBE6DC;
+  --secondary-foreground: #22242B;
+  
+  --muted: #EBE6DC;
+  --muted-foreground: #525662;
+  
+  --accent: #E5EFFE;
+  --accent-foreground: #1E3A8A;
+  
+  --destructive: #DC2626;
+  --border: #DCD6C9;
+  --input: #DCD6C9;
+  --ring: #2A3FB8;
+  
+  --chart-1: #2A3FB8;
+  --chart-2: #0284C7;
+  --chart-3: #059669;
+  --chart-4: #D97706;
+  --chart-5: #7C3AED;
+  
+  --radius: 0.875rem;
+  --sidebar: #F4F1EA;
+  --sidebar-foreground: #1E2024;
+  --sidebar-primary: #2A3FB8;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #E5EFFE;
+  --sidebar-accent-foreground: #1E3A8A;
+  --sidebar-border: #DCD6C9;
+  --sidebar-ring: #2A3FB8;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.685 0.24 262.881);
-  --primary-foreground: oklch(0.145 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.33 0.14 262);
-  --accent-foreground: oklch(0.88 0.2 262);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.685 0.24 262.881);
-  --chart-1: oklch(0.685 0.24 262.881);
-  --chart-2: oklch(0.6 0.2 190);
-  --chart-3: oklch(0.7 0.2 150);
-  --chart-4: oklch(0.7 0.2 30);
-  --chart-5: oklch(0.65 0.2 300);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.685 0.24 262.881);
-  --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(0.33 0.14 262);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.685 0.24 262.881);
+  --background: #121316;
+  --foreground: #F4F1EA;
+  --card: #191B20;
+  --card-foreground: #F4F1EA;
+  --popover: #191B20;
+  --popover-foreground: #F4F1EA;
+  --primary: #4F6BFF;
+  --primary-foreground: #121316;
+  --secondary: #242730;
+  --secondary-foreground: #F4F1EA;
+  --muted: #242730;
+  --muted-foreground: #A4AAB7;
+  --accent: #1E2B4D;
+  --accent-foreground: #93B4F8;
+  --destructive: #EF4444;
+  --border: #2D313C;
+  --input: #2D313C;
+  --ring: #4F6BFF;
+  --chart-1: #4F6BFF;
+  --chart-2: #38BDF8;
+  --chart-3: #34D399;
+  --chart-4: #FBBF24;
+  --chart-5: #A78BFA;
+  --sidebar: #191B20;
+  --sidebar-foreground: #F4F1EA;
+  --sidebar-primary: #4F6BFF;
+  --sidebar-primary-foreground: #121316;
+  --sidebar-accent: #1E2B4D;
+  --sidebar-accent-foreground: #F4F1EA;
+  --sidebar-border: #2D313C;
+  --sidebar-ring: #4F6BFF;
 }
 
 @layer base {
@@ -123,7 +134,10 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
+    @apply text-[15.5px] sm:text-[16px] leading-relaxed;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
   html {
     @apply font-sans;
