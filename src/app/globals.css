@@ -165,3 +165,53 @@ html.lenis body {
 .lenis.lenis-smooth iframe {
   pointer-events: none;
 }
+
+/* ==========================================================================
+   Admin CMS Neo-Brutalist Scoped Tokens & Utilities (design-cms.md §3)
+   ========================================================================== */
+.cms-root {
+  --cms-ink: #1E2024;
+  --cms-shadow: #1E2024;
+  --cms-highlight: #FFD84D;
+  --cms-ok: #7BE0A4;
+  --cms-warn: #FFD84D;
+  --cms-muted: #D9D4C7;
+  --cms-danger: #FF6B6B;
+  --cms-info: #E5EFFE;
+  --cms-role-super: #FFB3D1;
+
+  --cms-border-w: 3px;
+  --cms-border-w-sm: 2px;
+  --cms-shadow-sm: 2px 2px 0 0 var(--cms-shadow);
+  --cms-shadow-md: 4px 4px 0 0 var(--cms-shadow);
+  --cms-shadow-lg: 6px 6px 0 0 var(--cms-shadow);
+  --cms-radius-control: 8px;
+  --cms-radius-panel: 12px;
+}
+
+.dark .cms-root {
+  --cms-ink: #F4F1EA;
+  --cms-shadow: rgba(244, 241, 234, 0.85);
+  --cms-highlight: #E6B800;
+  --cms-ok: #2F9E67;
+  --cms-warn: #E6B800;
+  --cms-muted: #3A3F4B;
+  --cms-danger: #EF4444;
+  --cms-info: #1E2B4D;
+  --cms-role-super: #C2477F;
+}
+
+/* Mechanical press interaction: 80-120ms without spring */
+.cms-press {
+  transition: transform 100ms ease-out, box-shadow 100ms ease-out;
+}
+.cms-press:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 0 transparent !important;
+}
+
+/* Visible keyboard focus outline */
+.cms-focus:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}

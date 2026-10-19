@@ -1,10 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 
 export function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
+
   useEffect(() => {
+    // CMS does not use Lenis (design-cms.md §4.1)
+    if (isAdmin) return;
+
     // Initialize Lenis smooth scroll with autoResize
     const lenis = new Lenis({
       duration: 1.1,
