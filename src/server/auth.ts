@@ -4,6 +4,7 @@ import { env, isSupabaseEnabled } from "@/lib/env";
 import { prisma } from "@/lib/db";
 import { Result, ok, fail, ErrorCode } from "@/lib/result";
 import type { Role } from "@prisma/client";
+import { can, type AuthzAction } from "@/modules/authz";
 
 /**
  * Identity abstraction over Supabase Auth with a local dev fallback.
@@ -81,18 +82,28 @@ export async function requireUser(): Promise<
 }
 
 /**
- * Require an authenticated ADMIN user (server-side authorization, §21).
+ * Require an authorized user with a specific capability (design-cms §2.2).
  * Never trust client-side role flags.
+ */
+export async function requireAuthz(
+  action: AuthzAction = "cms:access",
+  resource?: unknown,
+): Promise<Result<SessionUser & { userId: string }>> {
+  const user = await getSessionUser();
+  if (!user) return fail(ErrorCode.UNAUTHORIZED, "Silakan masuk terlebih dahulu.");
+  if (!can(user, action, resource)) {
+    return fail(ErrorCode.FORBIDDEN, "Anda tidak memiliki akses ke halaman ini.");
+  }
+  return ok({ ...user, userId: user.id });
+}
+
+/**
+ * Require an authenticated user with CMS access capability.
  */
 export async function requireAdmin(): Promise<
   Result<SessionUser & { userId: string }>
 > {
-  const user = await getSessionUser();
-  if (!user) return fail(ErrorCode.UNAUTHORIZED, "Silakan masuk terlebih dahulu.");
-  if (user.role !== "ADMIN") {
-    return fail(ErrorCode.FORBIDDEN, "Anda tidak memiliki akses ke halaman ini.");
-  }
-  return ok({ ...user, userId: user.id });
+  return requireAuthz("cms:access");
 }
 
 // ---------------------------------------------------------------------------

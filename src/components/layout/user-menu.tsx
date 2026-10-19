@@ -5,7 +5,12 @@ import { LogIn, Shield, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 import type { SessionUser } from "@/server/auth";
 
-export function UserMenu({ user }: { user: SessionUser | null }) {
+export function UserMenu({
+  user,
+}: {
+  user: SessionUser | null;
+  canAccessCms?: boolean;
+}) {
   if (!user) {
     return (
       <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
@@ -22,15 +27,6 @@ export function UserMenu({ user }: { user: SessionUser | null }) {
 
   return (
     <div className="flex items-center gap-2">
-      {user.role === "ADMIN" ? (
-        <Link
-          href="/admin"
-          className="inline-flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800 transition hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-200"
-        >
-          <Shield className="h-3 w-3" />
-          <span>Admin</span>
-        </Link>
-      ) : null}
       <span className="rounded-xl border border-stone-200 bg-white px-3 py-1 text-xs font-bold text-stone-800 shadow-2xs dark:border-stone-700 dark:bg-stone-900 dark:text-stone-200">
         {user.name ?? user.email}
       </span>
