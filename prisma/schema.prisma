@@ -1,5 +1,5 @@
-// IVE — Visual Education Interactive
-// Phase 1 data model (source: IVE_TAD_Phase_1.md §7)
+// IVE-APP — Interactive Visual Education Application
+// Phase 1 data model (source: IVE_TAD_Phase_1.md §8)
 
 generator client {
   provider = "prisma-client-js"
@@ -20,10 +20,38 @@ enum ContentStatus {
   ARCHIVED
 }
 
+enum LessonKind {
+  LESSON
+  EXPERIMENT
+}
+
 enum Difficulty {
   BEGINNER
   INTERMEDIATE
   ADVANCED
+}
+
+enum SourceType {
+  BOOK
+  ARTICLE
+  WEBSITE
+  JOURNAL
+  GOVERNMENT
+  OTHER
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+}
+
+enum QuizScope {
+  LESSON
+  TOPIC
+}
+
+enum QuizMode {
+  PRACTICE
+  QUIZ
 }
 
 enum AIMessageRole {
@@ -54,6 +82,8 @@ model EducationLevel {
   name        String
   slug        String   @unique
   description String?
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -72,6 +102,9 @@ model Subject {
   icon             String?
   coverImage       String?
   status           ContentStatus @default(DRAFT)
+  order            Int           @default(0)
+  createdById      String?
+  updatedById      String?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
@@ -87,17 +120,21 @@ model Subject {
 }
 
 model Topic {
-  id          String   @id @default(cuid())
+  id          String        @id @default(cuid())
   subjectId   String
   name        String
   slug        String
   description String?
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  order       Int           @default(0)
+  status      ContentStatus @default(DRAFT)
+  createdById String?
+  updatedById String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
-  subject Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  lessons Lesson[]
+  subject   Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  lessons   Lesson[]
+  questions Question[]
 
   @@unique([subjectId, slug])
   @@index([subjectId])
@@ -110,16 +147,23 @@ model Lesson {
   educationLevelId String
   subjectId        String
   topicId          String?
+  kind             LessonKind    @default(LESSON)
   title            String
   slug             String
   description      String?
   content          Json?
+  contentBlocks    Json?
   coverImage       String?
+  thumbnail        String?
   durationMinutes  Int?          @default(0)
+  estimatedMinutes Int?          @default(0)
   difficulty       Difficulty    @default(BEGINNER)
   status           ContentStatus @default(DRAFT)
   order            Int           @default(0)
+  keywords         String[]      @default([])
   publishedAt      DateTime?
+  createdById      String?
+  updatedById      String?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
@@ -128,6 +172,7 @@ model Lesson {
   topic          Topic?         @relation(fields: [topicId], references: [id], onDelete: SetNull)
 
   questions Question[]
+  sources   LessonSource[]
   progress  UserProgress[]
   attempts  QuizAttempt[]
   favorites Favorite[]
@@ -139,26 +184,71 @@ model Lesson {
   @@index([subjectId])
   @@index([topicId])
   @@index([status])
+  @@index([kind, status])
   @@index([topicId, order])
   @@index([subjectId, status])
   @@map("lessons")
 }
 
-model Question {
-  id            String     @id @default(cuid())
-  lessonId      String
-  question      String
-  options       Json
-  correctAnswer String
-  explanation   String?
-  difficulty    Difficulty @default(BEGINNER)
-  order         Int        @default(0)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+model Source {
+  id          String     @id @default(cuid())
+  title       String
+  author      String?
+  publisher   String?
+  url         String?
+  type        SourceType @default(WEBSITE)
+  year        Int?
+  licenseNote String?
+  createdById String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  lessons LessonSource[]
+
+  @@map("sources")
+}
+
+model LessonSource {
+  lessonId     String
+  sourceId     String
+  citationNote String?
+  order        Int     @default(0)
 
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  source Source @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@id([lessonId, sourceId])
+  @@index([lessonId])
+  @@index([sourceId])
+  @@map("lesson_sources")
+}
+
+model Question {
+  id              String        @id @default(cuid())
+  topicId         String?
+  lessonId        String?
+  type            QuestionType  @default(MULTIPLE_CHOICE)
+  question        String
+  options         Json
+  correctAnswer   String
+  correctOptionId String?
+  explanation     String?
+  difficulty      Difficulty    @default(BEGINNER)
+  order           Int           @default(0)
+  status          ContentStatus @default(DRAFT)
+  createdById     String?
+  updatedById     String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  lesson Lesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  topic  Topic?  @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+  attempts QuizAttemptAnswer[]
 
   @@index([lessonId])
+  @@index([topicId])
+  @@index([status])
   @@map("questions")
 }
 
@@ -183,21 +273,44 @@ model UserProgress {
 }
 
 model QuizAttempt {
-  id             String   @id @default(cuid())
-  userId         String
-  lessonId       String
-  score          Int
-  totalQuestions Int
-  correctAnswers Int
-  createdAt      DateTime @default(now())
+  id              String      @id @default(cuid())
+  userId          String
+  scopeType       QuizScope   @default(LESSON)
+  lessonId        String?
+  topicId         String?
+  mode            QuizMode    @default(QUIZ)
+  score           Int
+  totalQuestions  Int
+  correctAnswers  Int
+  durationSeconds Int?
+  createdAt       DateTime    @default(now())
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user    User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson  Lesson?             @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  answers QuizAttemptAnswer[]
 
   @@index([userId])
   @@index([lessonId])
+  @@index([topicId])
   @@index([userId, createdAt])
   @@map("quiz_attempts")
+}
+
+model QuizAttemptAnswer {
+  id               String   @id @default(cuid())
+  attemptId        String
+  questionId       String
+  selectedOptionId String
+  isCorrect        Boolean
+  createdAt        DateTime @default(now())
+
+  attempt  QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+  @@index([questionId])
+  @@map("quiz_attempt_answers")
 }
 
 model Favorite {

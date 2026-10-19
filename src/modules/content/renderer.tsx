@@ -65,8 +65,19 @@ function BlockRenderer({ block }: { block: ContentBlock }) {
     case "example":
       return (
         <div className="rounded-xl border-l-4 border-l-sky-500 bg-sky-50 px-4 py-3 text-sm dark:bg-sky-950/30">
-          <p className="font-medium text-sky-700 dark:text-sky-300">Contoh</p>
-          <p className="text-foreground/90">{block.content}</p>
+          <p className="font-medium text-sky-700 dark:text-sky-300">Contoh Penerapan</p>
+          <p className="text-foreground/90 mt-1 leading-relaxed">{block.content}</p>
+        </div>
+      );
+
+    case "realworld":
+      return (
+        <div className="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50/70 px-4 py-3 text-sm dark:bg-emerald-950/30">
+          <div className="flex items-center gap-1.5 font-medium text-emerald-800 dark:text-emerald-300">
+            <span>🌱</span>
+            <span>{block.title || "Dalam Kehidupan Nyata"}</span>
+          </div>
+          <p className="text-foreground/90 mt-1 leading-relaxed">{block.content}</p>
         </div>
       );
 

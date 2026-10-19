@@ -24,6 +24,14 @@ const HistoryTimeline = dynamic(() => import("@/components/interactive/history-t
   ssr: false,
   loading: () => <InteractiveLoading />,
 });
+const TemperatureConverter = dynamic(() => import("@/components/interactive/temperature-converter"), {
+  ssr: false,
+  loading: () => <InteractiveLoading />,
+});
+const NuclearFission = dynamic(() => import("@/components/interactive/nuclear-fission"), {
+  ssr: false,
+  loading: () => <InteractiveLoading />,
+});
 
 /**
  * Client boundary resolving an interactive component key to a lazily-loaded
@@ -38,6 +46,8 @@ const COMPONENTS: Record<string, ComponentType<{ config?: Record<string, unknown
   "cell-explorer": CellExplorer,
   "atom-explorer": AtomExplorer,
   "history-timeline": HistoryTimeline,
+  "temperature-converter": TemperatureConverter,
+  "nuclear-fission": NuclearFission,
 };
 
 export function RenderInteractive({

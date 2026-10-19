@@ -1,10 +1,12 @@
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { Result, ok, fail, ErrorCode } from "@/lib/result";
+import { DUMMY_DATA } from "@/data/dummy-data";
 
 /**
- * Server-authoritative quiz service (IVE_TAD_Phase_1.md §7.7, §19).
- * Correctness is derived from database truth, never from the client.
+ * Server-authoritative quiz service (IVE_TAD_Phase_1.md §7.7, §19, Design §4.7).
+ * Correctness is derived from server truth, never from the client.
+ * Provides constructive feedback that teaches.
  */
 
 export interface QuestionOption {
@@ -21,19 +23,45 @@ export interface QuestionView {
 }
 
 /** Questions exposed to the client — correct answer is NOT included. */
-export async function listQuestionsForLesson(lessonId: string): Promise<QuestionView[]> {
-  const questions = await prisma.question.findMany({
-    where: { lessonId },
-    orderBy: { order: "asc" },
-    select: { id: true, question: true, options: true, difficulty: true, order: true },
-  });
-  return questions.map((qs) => ({
-    id: qs.id,
-    question: qs.question,
-    options: (qs.options as unknown as QuestionOption[]) ?? [],
-    difficulty: qs.difficulty,
-    order: qs.order,
-  }));
+export async function listQuestionsForLesson(lessonIdOrSlug: string): Promise<QuestionView[]> {
+  try {
+    const questions = await prisma.question.findMany({
+      where: {
+        OR: [{ lessonId: lessonIdOrSlug }, { lesson: { slug: lessonIdOrSlug } }],
+      },
+      orderBy: { order: "asc" },
+      select: { id: true, question: true, options: true, difficulty: true, order: true },
+    });
+
+    if (questions.length > 0) {
+      return questions.map((qs) => ({
+        id: qs.id,
+        question: qs.question,
+        options: (qs.options as unknown as QuestionOption[]) ?? [],
+        difficulty: qs.difficulty,
+        order: qs.order,
+      }));
+    }
+  } catch (error) {
+    console.warn("Database not accessible, using dummy questions list:", error);
+  }
+
+  // Fallback to dummy lesson questions
+  const dummyLesson = DUMMY_DATA.lessons.find(
+    (l) => l.id === lessonIdOrSlug || l.slug === lessonIdOrSlug
+  );
+
+  if (dummyLesson && dummyLesson.questions) {
+    return dummyLesson.questions.map((q, idx) => ({
+      id: q.id,
+      question: q.question,
+      options: q.options,
+      difficulty: q.difficulty,
+      order: idx + 1,
+    }));
+  }
+
+  return [];
 }
 
 export const quizSubmitSchema = z.object({
@@ -43,12 +71,19 @@ export const quizSubmitSchema = z.object({
 
 export type QuizSubmitInput = z.infer<typeof quizSubmitSchema>;
 
+export interface QuestionFeedback {
+  questionId: string;
+  correct: boolean;
+  correctAnswer: string;
+  explanation?: string;
+}
+
 export interface QuizResult {
   lessonId: string;
   totalQuestions: number;
   correctAnswers: number;
   score: number;
-  feedback: { questionId: string; correct: boolean; correctAnswer: string }[];
+  feedback: QuestionFeedback[];
   passed: boolean;
   attemptId: string | null;
 }
@@ -59,51 +94,100 @@ export async function submitQuiz(
   userId: string | null,
   input: QuizSubmitInput,
 ): Promise<Result<QuizResult>> {
-  const lesson = await prisma.lesson.findUnique({
-    where: { id: input.lessonId },
-    select: { id: true, status: true },
-  });
-  if (!lesson) return fail(ErrorCode.NOT_FOUND, "Materi tidak ditemukan.");
-  if (lesson.status !== "PUBLISHED") {
-    return fail(ErrorCode.NOT_FOUND, "Materi tidak ditemukan.");
+  try {
+    const lesson = await prisma.lesson.findFirst({
+      where: {
+        OR: [{ id: input.lessonId }, { slug: input.lessonId }],
+        status: "PUBLISHED",
+      },
+      select: { id: true, status: true },
+    });
+
+    if (lesson) {
+      const questions = await prisma.question.findMany({
+        where: { lessonId: lesson.id },
+        orderBy: { order: "asc" },
+        select: { id: true, correctAnswer: true, explanation: true },
+      });
+
+      if (questions.length > 0) {
+        let correct = 0;
+        const feedback: QuestionFeedback[] = questions.map((qs) => {
+          const isCorrect = input.answers[qs.id] === qs.correctAnswer;
+          if (isCorrect) correct += 1;
+          return {
+            questionId: qs.id,
+            correct: isCorrect,
+            correctAnswer: qs.correctAnswer,
+            explanation: qs.explanation ?? undefined,
+          };
+        });
+
+        const total = questions.length;
+        const score = total === 0 ? 0 : Math.round((correct / total) * 100);
+        const passed = score >= PASS_THRESHOLD;
+
+        let attemptId: string | null = null;
+        if (userId) {
+          const attempt = await prisma.quizAttempt.create({
+            data: {
+              userId,
+              lessonId: lesson.id,
+              score,
+              totalQuestions: total,
+              correctAnswers: correct,
+            },
+          });
+          attemptId = attempt.id;
+        }
+
+        return ok({
+          lessonId: input.lessonId,
+          totalQuestions: total,
+          correctAnswers: correct,
+          score,
+          feedback,
+          passed,
+          attemptId,
+        });
+      }
+    }
+  } catch (error) {
+    console.warn("Database not accessible, scoring via dummy data:", error);
   }
 
-  const questions = await prisma.question.findMany({
-    where: { lessonId: input.lessonId },
-    orderBy: { order: "asc" },
-    select: { id: true, correctAnswer: true },
-  });
+  // Fallback scoring via dummy questions
+  const dummyLesson = DUMMY_DATA.lessons.find(
+    (l) => l.id === input.lessonId || l.slug === input.lessonId
+  );
 
-  let correct = 0;
-  const feedback = questions.map((qs) => {
-    const isCorrect = input.answers[qs.id] === qs.correctAnswer;
-    if (isCorrect) correct += 1;
+  if (!dummyLesson || !dummyLesson.questions || dummyLesson.questions.length === 0) {
+    return fail(ErrorCode.NOT_FOUND, "Soal latihan materi tidak ditemukan.");
+  }
+
+  let correctCount = 0;
+  const feedback: QuestionFeedback[] = dummyLesson.questions.map((q) => {
+    const isCorrect = input.answers[q.id] === q.correctAnswer;
+    if (isCorrect) correctCount += 1;
     return {
-      questionId: qs.id,
+      questionId: q.id,
       correct: isCorrect,
-      correctAnswer: qs.correctAnswer,
+      correctAnswer: q.correctAnswer,
+      explanation: q.explanation,
     };
   });
 
-  const total = questions.length;
-  const score = total === 0 ? 0 : Math.round((correct / total) * 100);
+  const total = dummyLesson.questions.length;
+  const score = total === 0 ? 0 : Math.round((correctCount / total) * 100);
   const passed = score >= PASS_THRESHOLD;
 
-  let attemptId: string | null = null;
-  if (userId) {
-    const attempt = await prisma.quizAttempt.create({
-      data: {
-        userId,
-        lessonId: input.lessonId,
-        score,
-        totalQuestions: total,
-        correctAnswers: correct,
-      },
-    });
-    attemptId = attempt.id;
-  } else {
-    // Guest attempts are local-only in Phase 1 (§7.9).
-  }
-
-  return ok({ lessonId: input.lessonId, totalQuestions: total, correctAnswers: correct, score, feedback, passed, attemptId });
+  return ok({
+    lessonId: input.lessonId,
+    totalQuestions: total,
+    correctAnswers: correctCount,
+    score,
+    feedback,
+    passed,
+    attemptId: null,
+  });
 }

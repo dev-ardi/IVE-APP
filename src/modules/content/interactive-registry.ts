@@ -12,6 +12,8 @@ export const INTERACTIVE_KEYS = [
   "cell-explorer",
   "atom-explorer",
   "history-timeline",
+  "temperature-converter",
+  "nuclear-fission",
 ] as const;
 
 export type InteractiveKey = (typeof INTERACTIVE_KEYS)[number];

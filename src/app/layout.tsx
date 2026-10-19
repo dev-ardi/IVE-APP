@@ -10,19 +10,19 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata: Metadata = {
   title: {
-    default: "IVE — Visual Education Interactive",
-    template: "%s | IVE",
+    default: "IVE-APP — Interactive Visual Education Application",
+    template: "%s | IVE-APP",
   },
   description:
-    "IVE adalah platform edukasi interaktif berbahasa Indonesia: belajar visual, interaktif, dan terukur dari jenjang SD hingga SMA.",
-  applicationName: "IVE",
-  keywords: ["IVE", "edukasi", "belajar", "interaktif", "fisika", "matematika", "biologi"],
+    "IVE-APP adalah platform edukasi interaktif Indonesia: belajar sains dan matematika secara visual, eksplorasi simulasi interaktif, dan pemahaman konsep mendalam.",
+  applicationName: "IVE-APP",
+  keywords: ["IVE-APP", "edukasi visual", "interaktif", "fisika", "kimia", "biologi", "matematika", "simulasi sains"],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" className={cn("h-full", "antialiased", figtree.variable, geistMono.variable, "font-sans")}>
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      <body className="min-h-full flex flex-col bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary">
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />

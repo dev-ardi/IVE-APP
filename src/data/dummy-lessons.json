@@ -1,0 +1,801 @@
+{
+  "levels": [
+    {
+      "id": "lvl-umum",
+      "slug": "umum",
+      "name": "Umum",
+      "description": "Materi visual interaktif untuk pelajar mandiri, mahasiswa, dan peminat sains umum.",
+      "isActive": true,
+      "order": 1
+    },
+    {
+      "id": "lvl-sd",
+      "slug": "sd",
+      "name": "Sekolah Dasar (SD)",
+      "description": "Materi sains & matematika dasar tingkat SD.",
+      "isActive": false,
+      "order": 2
+    },
+    {
+      "id": "lvl-smp",
+      "slug": "smp",
+      "name": "Sekolah Menengah Pertama (SMP)",
+      "description": "Materi sains & matematika tingkat SMP.",
+      "isActive": false,
+      "order": 3
+    },
+    {
+      "id": "lvl-sma",
+      "slug": "sma",
+      "name": "Sekolah Menengah Atas (SMA)",
+      "description": "Materi persiapan ujian dan sains mendalam tingkat SMA.",
+      "isActive": false,
+      "order": 4
+    }
+  ],
+  "subjects": [
+    {
+      "id": "sub-biologi",
+      "levelSlug": "umum",
+      "slug": "biologi",
+      "name": "Biologi",
+      "icon": "🧬",
+      "color": "emerald",
+      "description": "Eksplorasi proses kehidupan, respirasi seluler, anatomi mitokondria, dan metabolisme biologis.",
+      "order": 1
+    },
+    {
+      "id": "sub-kimia",
+      "levelSlug": "umum",
+      "slug": "kimia",
+      "name": "Kimia",
+      "icon": "🧪",
+      "color": "amber",
+      "description": "Termodinamika zat, konversi skala termometri, struktur molekul, dan dinamika reaksi.",
+      "order": 2
+    },
+    {
+      "id": "sub-fisika",
+      "levelSlug": "umum",
+      "slug": "fisika",
+      "name": "Fisika",
+      "icon": "⚛️",
+      "color": "blue",
+      "description": "Mekanika gerak dua dimensi, kinematika proyektil, vektor kecepatan, dan medan gravitasi.",
+      "order": 3
+    },
+    {
+      "id": "sub-matematika",
+      "levelSlug": "umum",
+      "slug": "matematika",
+      "name": "Matematika",
+      "icon": "📐",
+      "color": "indigo",
+      "description": "Geometri analitis, lingkaran satuan trigonometri, rasio sinus kosinus, dan fungsi periodik.",
+      "order": 4
+    },
+    {
+      "id": "sub-general-knowledge",
+      "levelSlug": "umum",
+      "slug": "general-knowledge",
+      "name": "General Knowledge",
+      "icon": "🌍",
+      "color": "violet",
+      "description": "Wawasan sains masa kini, teknologi energi nuklir, fisika partikel modern, dan rekayasa peradaban.",
+      "order": 5
+    }
+  ],
+  "topics": [
+    {
+      "id": "top-metabolisme-sel",
+      "subjectSlug": "biologi",
+      "slug": "metabolisme-sel",
+      "name": "Metabolisme Seluler",
+      "description": "Rangkaian proses biokimia pembentukan dan perombakan energi di dalam sel makhluk hidup.",
+      "order": 1
+    },
+    {
+      "id": "top-termodinamika",
+      "subjectSlug": "kimia",
+      "slug": "termodinamika",
+      "name": "Termodinamika & Termometri",
+      "description": "Prinsip suhu, energi kinetik molekul, dan konversi antarskala pengukuran panas.",
+      "order": 1
+    },
+    {
+      "id": "top-kinematika-gerak",
+      "subjectSlug": "fisika",
+      "slug": "kinematika-gerak",
+      "name": "Kinematika Gerak Dua Dimensi",
+      "description": "Analisis pergerakan benda pada bidang lengkung di bawah pengaruh medan gravitasi bumi.",
+      "order": 1
+    },
+    {
+      "id": "top-trigonometri-dasar",
+      "subjectSlug": "matematika",
+      "slug": "trigonometri-dasar",
+      "name": "Trigonometri & Lingkaran Satuan",
+      "description": "Hubungan sudut, rasio sisi segitiga siku-siku, dan koordinat trigonometri lingkaran satuan.",
+      "order": 1
+    },
+    {
+      "id": "top-energi-dan-sains",
+      "subjectSlug": "general-knowledge",
+      "slug": "energi-dan-sains",
+      "name": "Energi & Sains Modern",
+      "description": "Inovasi transisi energi, sains pemecahan inti atom berat, dan pemanfaatan reaktor daya.",
+      "order": 1
+    }
+  ],
+  "lessons": [
+    {
+      "id": "les-siklus-krebs",
+      "levelSlug": "umum",
+      "subjectSlug": "biologi",
+      "topicSlug": "metabolisme-sel",
+      "slug": "siklus-krebs",
+      "title": "Siklus Krebs & Respirasi Seluler",
+      "description": "Pelajari siklus asam sitrat di mitokondria, tahap-tahap perombakan Asetil-KoA, hingga pembentukan pembawa elektron NADH dan FADH2 pembawa energi.",
+      "difficulty": "INTERMEDIATE",
+      "durationMinutes": 15,
+      "kind": "LESSON",
+      "interactiveKey": "cell-explorer",
+      "thumbnail": null,
+      "keywords": ["biologi", "siklus krebs", "mitokondria", "respirasi", "atp", "asetil koa"],
+      "sources": [
+        {
+          "title": "Campbell Biology (12th Edition)",
+          "author": "Lisa A. Urry, Michael L. Cain, Steven A. Wasserman",
+          "publisher": "Pearson Education",
+          "year": 2020,
+          "citationNote": "Bab 9: Cellular Respiration and Fermentation (hlm. 168-185)",
+          "url": "https://www.pearson.com"
+        },
+        {
+          "title": "Lehninger Principles of Biochemistry (8th Edition)",
+          "author": "David L. Nelson, Michael M. Cox",
+          "publisher": "Macmillan Learning",
+          "year": 2021,
+          "citationNote": "Bab 16: The Citric Acid Cycle (hlm. 615-640)",
+          "url": "https://www.macmillanlearning.com"
+        }
+      ],
+      "content": [
+        {
+          "id": "b-bio-1",
+          "type": "heading",
+          "level": 2,
+          "content": "Pengantar Siklus Asam Sitrat (Siklus Krebs)"
+        },
+        {
+          "id": "b-bio-2",
+          "type": "text",
+          "content": "Siklus Krebs, atau dikenal juga sebagai siklus asam sitrat (TCA cycle), adalah pusat metabolisme energi aerobik utama pada sel eukariotik. Reaksi biokimia berputar ini berlangsung di dalam matriks mitokondria, mengoksidasi gugus asetil yang dibawa oleh molekul Asetil-KoA menjadi karbon dioksida sembari memanen elektron berenergi tinggi."
+        },
+        {
+          "id": "b-bio-video",
+          "type": "video",
+          "src": "/assets/video/example-vieo-biologi-context.mp4",
+          "title": "Visualisasi Mekanisme Siklus Krebs di Matriks Mitokondria"
+        },
+        {
+          "id": "b-bio-3",
+          "type": "callout",
+          "variant": "info",
+          "content": "Tahapan Kunci: Siklus dimulai ketika Asetil-KoA (2 atom karbon) bergabung dengan Oksaloasetat (4 atom karbon) menghasilkan Asam Sitrat (6 atom karbon). Sepanjang 8 reaksi enzimatik berurutan, dua karbon dilepas kembali sebagai gas CO2."
+        },
+        {
+          "id": "b-bio-4",
+          "type": "formula",
+          "content": "\\text{Asetil-KoA} + 3\\text{NAD}^+ + \\text{FAD} + \\text{GDP} + \\text{P}_i + 2\\text{H}_2\\text{O} \\to 2\\text{CO}_2 + 3\\text{NADH} + \\text{FADH}_2 + \\text{GTP} + \\text{KoA-SH}",
+          "display": true
+        },
+        {
+          "id": "b-bio-5",
+          "type": "heading",
+          "level": 3,
+          "content": "Eksplorasi Struktur Organel Mitokondria"
+        },
+        {
+          "id": "b-bio-6",
+          "type": "text",
+          "content": "Mitokondria memiliki membran ganda: membran luar yang berpori dan membran dalam yang berlipat-lipat membentuk krista. Matriks mitokondria mengandung enzim-enzim Siklus Krebs dan DNA mitokondria."
+        },
+        {
+          "id": "b-bio-7",
+          "type": "interactive",
+          "component": "cell-explorer",
+          "config": {}
+        },
+        {
+          "id": "b-bio-8",
+          "type": "example",
+          "content": "Neraca Energi 1 Molekul Glukosa: Satu glukosa dipecah menjadi 2 piruvat di sitoplasma, menghasilkan 2 Asetil-KoA. Artinya, per molekul glukosa, Siklus Krebs berputar 2 kali dan menghasilkan: 2 GTP (ATP), 6 NADH, dan 2 FADH2. Molekul NADH dan FADH2 inilah yang memasok rantai transpor elektron untuk mensintesis sekitar 26-28 ATP tambahan!"
+        },
+        {
+          "id": "b-bio-9",
+          "type": "realworld",
+          "title": "Aplikasi Metabolisme Saat Berolahraga",
+          "content": "Saat Anda berolahraga lari maraton, laju konsumsi oksigen di mitokondria meningkat pesat. Jika pasokan oksigen tidak mencukupi, sel beralih sementara ke fermentasi asam laktat. Siklus Krebs yang efisien adalah kunci daya tahan kardiovaskular atlet profesional."
+        }
+      ],
+      "questions": [
+        {
+          "id": "q-bio-1",
+          "question": "Di organel bagian manakah Siklus Krebs berlangsung pada sel hewan dan tumbuhan?",
+          "options": [
+            { "id": "A", "text": "Sitoplasma luar sel" },
+            { "id": "B", "text": "Matriks mitokondria" },
+            { "id": "C", "text": "Lumen retikulum endoplasma" },
+            { "id": "D", "text": "Membran luar kloroplas" }
+          ],
+          "correctAnswer": "B",
+          "explanation": "Pada sel eukariotik, enzim-enzim Siklus Krebs terlokalisasi di dalam matriks mitokondria, cairan kental di dalam membran dalam mitokondria.",
+          "difficulty": "BEGINNER"
+        },
+        {
+          "id": "q-bio-2",
+          "question": "Molekul berkarbon empat yang bereaksi dengan Asetil-KoA pada tahap awal siklus untuk membentuk asam sitrat adalah...",
+          "options": [
+            { "id": "A", "text": "Oksaloasetat" },
+            { "id": "B", "text": "Piruvat" },
+            { "id": "C", "text": "Alfa-ketoglutarat" },
+            { "id": "D", "text": "Suksinat" }
+          ],
+          "correctAnswer": "A",
+          "explanation": "Oksaloasetat (4C) berkondensasi dengan Asetil-KoA (2C) dengan bantuan enzim sitrat sintase untuk membentuk molekul sitrat (6C).",
+          "difficulty": "INTERMEDIATE"
+        },
+        {
+          "id": "q-bio-3",
+          "question": "Berapa molekul NADH yang dihasilkan dari 1 putaran Siklus Krebs untuk satu molekul Asetil-KoA?",
+          "options": [
+            { "id": "A", "text": "1 molekul" },
+            { "id": "B", "text": "2 molekul" },
+            { "id": "C", "text": "3 molekul" },
+            { "id": "D", "text": "6 molekul" }
+          ],
+          "correctAnswer": "C",
+          "explanation": "Dalam satu putaran untuk 1 Asetil-KoA, dihasilkan 3 molekul NADH, 1 FADH2, dan 1 GTP/ATP.",
+          "difficulty": "INTERMEDIATE"
+        }
+      ]
+    },
+    {
+      "id": "les-konversi-suhu",
+      "levelSlug": "umum",
+      "subjectSlug": "kimia",
+      "topicSlug": "termodinamika",
+      "slug": "konversi-suhu",
+      "title": "Konversi Skala Suhu: Celsius, Fahrenheit, Kelvin, & Reamur",
+      "description": "Pahami hubungan matematis antar skala pengukuran suhu, konsep titik nol mutlak Kelvin, dan cara mengubah nilai suhu secara intuitif.",
+      "difficulty": "BEGINNER",
+      "durationMinutes": 12,
+      "kind": "LESSON",
+      "interactiveKey": "temperature-converter",
+      "thumbnail": null,
+      "keywords": ["kimia", "suhu", "konversi", "celsius", "fahrenheit", "kelvin", "reamur"],
+      "sources": [
+        {
+          "title": "Kimia Dasar: Konsep-Konsep Inti (Edisi Ketiga)",
+          "author": "Raymond Chang",
+          "publisher": "Penerbit Erlangga",
+          "year": 2011,
+          "citationNote": "Bab 1: Pengukuran dan Satuan Termodinamika (hlm. 14-22)",
+          "url": "https://www.erlangga.co.id"
+        },
+        {
+          "title": "The International System of Units (SI) 9th Edition",
+          "author": "Bureau International des Poids et Mesures (BIPM)",
+          "publisher": "BIPM Pavillon de Breteuil",
+          "year": 2019,
+          "citationNote": "Bagian 2.3.1: Unit of thermodynamic temperature (Kelvin)",
+          "url": "https://www.bipm.org/en/publications/si-brochure"
+        }
+      ],
+      "content": [
+        {
+          "id": "b-chem-1",
+          "type": "heading",
+          "level": 2,
+          "content": "Hakikat Suhu dan Skala Pengukuran"
+        },
+        {
+          "id": "b-chem-2",
+          "type": "text",
+          "content": "Suhu adalah besaran fisika yang mengukur derajat panas atau dinginnya suatu benda. Secara mikroskopis, suhu berbanding lurus dengan rata-rata energi kinetik partikel penyusun materi. Terdapat empat skala termometer yang umum dikenal di dunia: Celsius (°C), Fahrenheit (°F), Kelvin (K), dan Reamur (°R)."
+        },
+        {
+          "id": "b-chem-3",
+          "type": "formula",
+          "content": "F = \\frac{9}{5}C + 32 \\quad\\Longleftrightarrow\\quad C = \\frac{5}{9}(F - 32)",
+          "display": true
+        },
+        {
+          "id": "b-chem-4",
+          "type": "formula",
+          "content": "K = C + 273.15 \\quad\\text{dan}\\quad R = \\frac{4}{5}C",
+          "display": true
+        },
+        {
+          "id": "b-chem-5",
+          "type": "callout",
+          "variant": "tip",
+          "content": "Rasio Perbandingan Suhu: Rentang titik beku ke titik didih air adalah: Celsius = 100 bagian, Reamur = 80 bagian, Fahrenheit = 180 bagian (32°F sampai 212°F). Maka perbandingannya disederhanakan menjadi C : R : (F - 32) = 5 : 4 : 9."
+        },
+        {
+          "id": "b-chem-6",
+          "type": "heading",
+          "level": 3,
+          "content": "Simulasi Termometer & Konversi Interaktif"
+        },
+        {
+          "id": "b-chem-7",
+          "type": "text",
+          "content": "Coba geser slider suhu di bawah ini atau tekan tombol preset untuk mengamati kolom cairan termometer dan perubahan nilai numerik di keempat skala sekaligus."
+        },
+        {
+          "id": "b-chem-8",
+          "type": "interactive",
+          "component": "temperature-converter",
+          "config": {
+            "initialCelsius": 37
+          }
+        },
+        {
+          "id": "b-chem-9",
+          "type": "example",
+          "content": "Contoh Perhitungan Klinis: Seseorang di Amerika Serikat diukur suhunya menunjukkan 98.6°F. Berapa dalam Celsius? C = (5/9) * (98.6 - 32) = (5/9) * 66.6 = 37.0°C. Ini adalah suhu normal tubuh manusia sehat."
+        },
+        {
+          "id": "b-chem-10",
+          "type": "realworld",
+          "title": "Penerapan Nol Mutlak di Laboratorium Kuantum",
+          "content": "Pada skala Kelvin, 0 K (-273.15°C) disebut Titik Nol Mutlak. Fisikawan modern mendinginkan atom hingga mendekati sepermiliar Kelvin di atas nol mutlak untuk mengamati fenomena kuantum unik seperti Kondensasi Bose-Einstein dan superkonduktivitas."
+        }
+      ],
+      "questions": [
+        {
+          "id": "q-chem-1",
+          "question": "Jika suhu suatu ruangan tercatat sebesar 30°C, berapakah nilainya dalam skala Reamur (°R)?",
+          "options": [
+            { "id": "A", "text": "24°R" },
+            { "id": "B", "text": "37.5°R" },
+            { "id": "C", "text": "40°R" },
+            { "id": "D", "text": "48°R" }
+          ],
+          "correctAnswer": "A",
+          "explanation": "Rumus konversi Celsius ke Reamur adalah R = (4/5) * C. Jadi R = (4/5) * 30 = 24°R.",
+          "difficulty": "BEGINNER"
+        },
+        {
+          "id": "q-chem-2",
+          "question": "Berapakah suhu titik beku air murni pada tekanan atmosfer standar dalam skala Fahrenheit?",
+          "options": [
+            { "id": "A", "text": "0°F" },
+            { "id": "B", "text": "32°F" },
+            { "id": "C", "text": "100°F" },
+            { "id": "D", "text": "212°F" }
+          ],
+          "correctAnswer": "B",
+          "explanation": "Pada skala Fahrenheit, titik beku air ditetapkan pada 32°F dan titik didih air pada 212°F.",
+          "difficulty": "BEGINNER"
+        },
+        {
+          "id": "q-chem-3",
+          "question": "Pada angka berapakah skala Celsius dan skala Fahrenheit menunjukkan nilai numerik yang persis sama?",
+          "options": [
+            { "id": "A", "text": "0" },
+            { "id": "B", "text": "-32" },
+            { "id": "C", "text": "-40" },
+            { "id": "D", "text": "100" }
+          ],
+          "correctAnswer": "C",
+          "explanation": "Dengan persamaan X = (9/5)X + 32, kita dapatkan -4/5 X = 32 sehingga X = -40. Jadi -40°C = -40°F.",
+          "difficulty": "INTERMEDIATE"
+        }
+      ]
+    },
+    {
+      "id": "les-gerak-parabola",
+      "levelSlug": "umum",
+      "subjectSlug": "fisika",
+      "topicSlug": "kinematika-gerak",
+      "slug": "gerak-parabola",
+      "title": "Gerak Parabola (Projectile Motion)",
+      "description": "Simulasikan lintasan parabola proyektil, pelajari pengaruh kecepatan awal, sudut elevasi, percepatan gravitasi terhadap jarak tempuh dan waktu melayang.",
+      "difficulty": "INTERMEDIATE",
+      "durationMinutes": 20,
+      "kind": "LESSON",
+      "interactiveKey": "projectile-simulator",
+      "thumbnail": null,
+      "keywords": ["fisika", "kinematika", "gerak parabola", "proyektil", "gravitasi", "sudut elevasi"],
+      "sources": [
+        {
+          "title": "Fundamentals of Physics (11th Edition)",
+          "author": "David Halliday, Robert Resnick, Jearl Walker",
+          "publisher": "John Wiley & Sons",
+          "year": 2018,
+          "citationNote": "Bab 4: Motion in Two and Three Dimensions (hlm. 68-84)",
+          "url": "https://www.wiley.com"
+        },
+        {
+          "title": "Fisika untuk SMA/MA Kelas XI",
+          "author": "Marianna Magdalena Radjawane dkk.",
+          "publisher": "Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi RI",
+          "year": 2022,
+          "citationNote": "Bab 2: Kinematika Gerak Lurus dan Melengkung (hlm. 35-52)",
+          "url": "https://buku.kemdikbud.go.id"
+        }
+      ],
+      "content": [
+        {
+          "id": "b-phys-1",
+          "type": "heading",
+          "level": 2,
+          "content": "Superposisi Dua Dimensi: GLB dan GLBB"
+        },
+        {
+          "id": "b-phys-2",
+          "type": "text",
+          "content": "Gerak parabola adalah perpaduan dua gerak lurus yang saling tegak lurus dan independen satu sama lain. Pada sumbu horizontal (X), tidak ada percepatan sehingga benda mengalami Gerak Lurus Beraturan (GLB). Sementara itu, pada sumbu vertikal (Y), benda dipengaruhi oleh percepatan gravitasi bumi ke bawah (GLBB diperlambat saat naik, dipercepat saat turun)."
+        },
+        {
+          "id": "b-phys-3",
+          "type": "formula",
+          "content": "x(t) = v_0 \\cos(\\theta) \\cdot t \\qquad y(t) = v_0 \\sin(\\theta) \\cdot t - \\frac{1}{2}g t^2",
+          "display": true
+        },
+        {
+          "id": "b-phys-4",
+          "type": "formula",
+          "content": "H_{\\max} = \\frac{v_0^2 \\sin^2(\\theta)}{2g} \\qquad X_{\\max} = \\frac{v_0^2 \\sin(2\\theta)}{g}",
+          "display": true
+        },
+        {
+          "id": "b-phys-5",
+          "type": "callout",
+          "variant": "info",
+          "content": "Sudut Optimal Jarak Terjauh: Jika mengabaikan gesekan udara, sudut elevasi 45° memberikan jarak horizontal (X_max) terjauh karena sin(2 × 45°) = sin(90°) = 1."
+        },
+        {
+          "id": "b-phys-6",
+          "type": "heading",
+          "level": 3,
+          "content": "Simulasi Lintasan Parabola Interaktif"
+        },
+        {
+          "id": "b-phys-7",
+          "type": "text",
+          "content": "Ubah nilai kecepatan awal (v0) dan sudut tembak (θ) untuk melihat bagaimana ketinggian puncak dan titik jatuh proyektil berubah secara langsung."
+        },
+        {
+          "id": "b-phys-8",
+          "type": "interactive",
+          "component": "projectile-simulator",
+          "config": {
+            "initialSpeed": 25,
+            "angle": 45,
+            "gravity": 9.8
+          }
+        },
+        {
+          "id": "b-phys-9",
+          "type": "example",
+          "content": "Perhitungan Waktu Terbang: Bola dilempar dengan kecepatan 20 m/s pada sudut 30° (g = 10 m/s²). Kecepatan vertikal awal vy = 20 * sin(30°) = 10 m/s. Waktu menuju puncak = vy / g = 1 detik. Total waktu melayang di udara sampai menyentuh tanah kembali = 2 * 1 = 2 detik!"
+        },
+        {
+          "id": "b-phys-10",
+          "type": "realworld",
+          "title": "Aplikasi dalam Olahraga dan Balistik",
+          "content": "Pemain bola basket yang melakukan lemparan three-point secara intuitif mengatur sudut pelepasan bola mendekati 50°-55° agar lintasan bola melengkung tajam ke bawah saat menembus ring, memperbesar kemungkinan masuknya bola."
+        }
+      ],
+      "questions": [
+        {
+          "id": "q-phys-1",
+          "question": "Pada titik tertinggi lintasannya, berapakah komponen kecepatan vertikal (vy) dari benda yang mengalami gerak parabola?",
+          "options": [
+            { "id": "A", "text": "Maksimum" },
+            { "id": "B", "text": "Nol (0 m/s)" },
+            { "id": "C", "text": "Sama dengan kecepatan awal (v0)" },
+            { "id": "D", "text": "Bergantung pada massa benda" }
+          ],
+          "correctAnswer": "B",
+          "explanation": "Di titik puncak tertinggi, gerak vertikal berhenti sejenak sebelum berbalik arah ke bawah, sehingga vy = 0 m/s, sedangkan kecepatan horizontal vx tetap konstan.",
+          "difficulty": "BEGINNER"
+        },
+        {
+          "id": "q-phys-2",
+          "question": "Jika hambatan udara diabaikan, dua sudut elevasi berikut manakah yang menghasilkan jarak jatuh horizontal yang sama besar bila ditembakkan dengan kecepatan awal yang sama?",
+          "options": [
+            { "id": "A", "text": "30° dan 60°" },
+            { "id": "B", "text": "20° dan 50°" },
+            { "id": "C", "text": "45° dan 55°" },
+            { "id": "D", "text": "15° dan 45°" }
+          ],
+          "correctAnswer": "A",
+          "explanation": "Dua sudut komplementer yang jumlahnya 90° (misal θ dan 90° - θ seperti 30° dan 60°) menghasilkan nilai sin(2θ) yang sama persis: sin(60°) = sin(120°) = 1/2 √3.",
+          "difficulty": "INTERMEDIATE"
+        },
+        {
+          "id": "q-phys-3",
+          "question": "Sebuah peluru ditembakkan dengan v0 = 40 m/s pada sudut 45° (g = 10 m/s²). Berapakah jarak mendatar maksimumnya?",
+          "options": [
+            { "id": "A", "text": "80 meter" },
+            { "id": "B", "text": "160 meter" },
+            { "id": "C", "text": "200 meter" },
+            { "id": "D", "text": "320 meter" }
+          ],
+          "correctAnswer": "B",
+          "explanation": "Rumus jarak terjauh X_max = (v0^2 * sin(2θ)) / g = (40^2 * sin(90°)) / 10 = (1600 * 1) / 10 = 160 meter.",
+          "difficulty": "INTERMEDIATE"
+        }
+      ]
+    },
+    {
+      "id": "les-trigonometri",
+      "levelSlug": "umum",
+      "subjectSlug": "matematika",
+      "topicSlug": "trigonometri-dasar",
+      "slug": "trigonometri",
+      "title": "Trigonometri: Lingkaran Satuan & Rasio Segitiga",
+      "description": "Visualisasikan lingkaran satuan r=1, cari nilai sinus, kosinus, tangen untuk berbagai sudut kuadran, dan pahami pembuktian identitas Pythagoras.",
+      "difficulty": "BEGINNER",
+      "durationMinutes": 18,
+      "kind": "LESSON",
+      "interactiveKey": "trigonometry-visualizer",
+      "thumbnail": null,
+      "keywords": ["matematika", "trigonometri", "lingkaran satuan", "sinus", "kosinus", "tangen"],
+      "sources": [
+        {
+          "title": "Calculus: Early Transcendentals (9th Edition)",
+          "author": "James Stewart, Daniel Clegg, Saleem Watson",
+          "publisher": "Cengage Learning",
+          "year": 2020,
+          "citationNote": "Appendix D: Trigonometry Review (hlm. A24-A33)",
+          "url": "https://www.cengage.com"
+        },
+        {
+          "title": "Matematika untuk SMA/SMK Kelas X",
+          "author": "Dick Susanto dkk.",
+          "publisher": "Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi RI",
+          "year": 2021,
+          "citationNote": "Bab 4: Perbandingan Trigonometri (hlm. 97-124)",
+          "url": "https://buku.kemdikbud.go.id"
+        }
+      ],
+      "content": [
+        {
+          "id": "b-math-1",
+          "type": "heading",
+          "level": 2,
+          "content": "Lingkaran Satuan: Jembatan Sudut dan Aljabar"
+        },
+        {
+          "id": "b-math-2",
+          "type": "text",
+          "content": "Lingkaran satuan adalah lingkaran dengan radius r = 1 yang berpusat pada titik asal bidang kartesius (0,0). Jika sebuah garis ditarik dari titik asal membentuk sudut θ terhadap sumbu X positif, maka titik temu garis dengan keliling lingkaran memiliki koordinat (x, y) = (cos θ, sin θ)."
+        },
+        {
+          "id": "b-math-3",
+          "type": "formula",
+          "content": "\\sin^2(\\theta) + \\cos^2(\\theta) = 1 \\qquad \\tan(\\theta) = \\frac{\\sin(\\theta)}{\\cos(\\theta)} = \\frac{y}{x}",
+          "display": true
+        },
+        {
+          "id": "b-math-4",
+          "type": "callout",
+          "variant": "info",
+          "content": "Tanda Fungsi di Empat Kuadran: Kuadran I (Semua positif), Kuadran II (Hanya Sin positif), Kuadran III (Hanya Tan positif), Kuadran IV (Hanya Cos positif). Singkatan populer: 'Semua Sindikat Tangan Kosong'."
+        },
+        {
+          "id": "b-math-5",
+          "type": "heading",
+          "level": 3,
+          "content": "Visualisator Lingkaran Satuan Interaktif"
+        },
+        {
+          "id": "b-math-6",
+          "type": "text",
+          "content": "Putar atau atur sudut θ pada visualizer di bawah ini untuk melihat segitiga siku-siku terbentuk dan membaca nilai sin, cos, dan tan secara real-time."
+        },
+        {
+          "id": "b-math-7",
+          "type": "interactive",
+          "component": "trigonometry-visualizer",
+          "config": {
+            "initialAngle": 45
+          }
+        },
+        {
+          "id": "b-math-8",
+          "type": "example",
+          "content": "Menghitung Jarak Tanpa Menyeberang Sungai: Pengamat melihat pohon tepat di seberang sungai tegak lurus. Ia berjalan sejajar tepi sungai sejauh 20 meter, lalu mengukur sudut ke pohon sebesar 60°. Lebar sungai = 20 * tan(60°) = 20 * √3 ≈ 34.64 meter!"
+        },
+        {
+          "id": "b-math-9",
+          "type": "realworld",
+          "title": "Grafika Komputer dan Efek Visual Game",
+          "content": "Setiap animasi kamera 3D, rotasi objek virtual, simulasi gelombang laut di game, hingga pemrosesan sinyal audio digital mengandalkan fungsi trigonometri sinus dan kosinus secara intensif."
+        }
+      ],
+      "questions": [
+        {
+          "id": "q-math-1",
+          "question": "Berapakah nilai eksak dari sin(30°) dan cos(60°)?",
+          "options": [
+            { "id": "A", "text": "1/2 dan 1/2" },
+            { "id": "B", "text": "1/2 √2 dan 1/2 √2" },
+            { "id": "C", "text": "1/2 √3 dan 1/2" },
+            { "id": "D", "text": "1 dan 0" }
+          ],
+          "correctAnswer": "A",
+          "explanation": "Sinus 30° bernilai 0.5 (1/2), dan karena sudut 30° dan 60° adalah sudut berpenyiku (komplementer), cos(60°) = sin(90° - 60°) = sin(30°) = 1/2.",
+          "difficulty": "BEGINNER"
+        },
+        {
+          "id": "q-math-2",
+          "question": "Pada sudut berapakah nilai fungsi tangen tan(θ) tidak terdefinisi (menuju tak terhingga)?",
+          "options": [
+            { "id": "A", "text": "0° dan 180°" },
+            { "id": "B", "text": "45° dan 225°" },
+            { "id": "C", "text": "90° dan 270°" },
+            { "id": "D", "text": "60° dan 120°" }
+          ],
+          "correctAnswer": "C",
+          "explanation": "Tangen didefinisikan sebagai sin(θ)/cos(θ). Pada 90° dan 270°, cos(θ) bernilai 0, sehingga pembagian dengan nol menyebabkan tangen tidak terdefinisi.",
+          "difficulty": "INTERMEDIATE"
+        },
+        {
+          "id": "q-math-3",
+          "question": "Jika diketahui sin(θ) = 3/5 pada sudut lancip di Kuadran I, berapakah nilai cos(θ)?",
+          "options": [
+            { "id": "A", "text": "4/5" },
+            { "id": "B", "text": "3/4" },
+            { "id": "C", "text": "5/4" },
+            { "id": "D", "text": "2/5" }
+          ],
+          "correctAnswer": "A",
+          "explanation": "Berdasarkan identitas Pythagoras: cos(θ) = √(1 - sin²(θ)) = √(1 - 9/25) = √(16/25) = 4/5.",
+          "difficulty": "BEGINNER"
+        }
+      ]
+    },
+    {
+      "id": "les-fisi-nuklir",
+      "levelSlug": "umum",
+      "subjectSlug": "general-knowledge",
+      "topicSlug": "energi-dan-sains",
+      "slug": "fisi-nuklir",
+      "title": "Fisi Nuklir: Energi Pemecahan Inti Atom",
+      "description": "Pelajari reaksi pembelahan inti Uranium-235, pelepasan neutron bebas, kesetaraan massa-energi Einstein, dan cara kerja reaktor pembangkit listrik tenaga nuklir.",
+      "difficulty": "ADVANCED",
+      "durationMinutes": 22,
+      "kind": "LESSON",
+      "interactiveKey": "nuclear-fission",
+      "thumbnail": null,
+      "keywords": ["general knowledge", "nuklir", "fisi nuklir", "uranium", "einstein", "reaktor", "energi"],
+      "sources": [
+        {
+          "title": "Introduction to Nuclear Power (IAEA Safety Standards)",
+          "author": "International Atomic Energy Agency (IAEA)",
+          "publisher": "IAEA Publishing, Vienna",
+          "year": 2021,
+          "citationNote": "Bagian 3: Fundamentals of Nuclear Fission and Reactor Physics",
+          "url": "https://www.iaea.org"
+        },
+        {
+          "title": "Nuclear Physics: Principles and Applications",
+          "author": "John Lilley",
+          "publisher": "John Wiley & Sons",
+          "year": 2013,
+          "citationNote": "Bab 7: Nuclear Energy and Fission Reactions (hlm. 215-248)",
+          "url": "https://www.wiley.com"
+        }
+      ],
+      "content": [
+        {
+          "id": "b-gk-1",
+          "type": "heading",
+          "level": 2,
+          "content": "Dasar Ilmiah Reaksi Fisi Terinduksi"
+        },
+        {
+          "id": "b-gk-2",
+          "type": "text",
+          "content": "Fisi nuklir adalah reaksi pemecahan inti atom yang sangat berat (seperti isotop Uranium-235 atau Plutonium-239) menjadi dua inti atom yang berukuran lebih sedang, disertai pelepasan beberapa neutron bebas dan energi kinetik berdensitas raksasa."
+        },
+        {
+          "id": "b-gk-3",
+          "type": "formula",
+          "content": "^{235}_{92}\\text{U} + ^1_0\\text{n} \\longrightarrow ^{236}_{92}\\text{U}^* \\longrightarrow ^{141}_{56}\\text{Ba} + ^{92}_{36}\\text{Kr} + 3\\,^1_0\\text{n} + \\Delta E",
+          "display": true
+        },
+        {
+          "id": "b-gk-4",
+          "type": "formula",
+          "content": "E = \\Delta m \\cdot c^2 \\qquad (c \\approx 3 \\times 10^8\\text{ m/s})",
+          "display": true
+        },
+        {
+          "id": "b-gk-5",
+          "type": "callout",
+          "variant": "info",
+          "content": "Defek Massa dan Energi Raksasa: Total massa produk fisi (Barium + Kripton + 3 neutron) sekitar 0.215 sma lebih ringan dibanding massa reaktan mula-mula. Berdasarkan kesetaraan massa-energi Einstein (E=mc²), selisih massa yang sangat kecil ini berubah menjadi energi sekitar 200 MeV per satu pembelahan inti atom."
+        },
+        {
+          "id": "b-gk-6",
+          "type": "heading",
+          "level": 3,
+          "content": "Simulasi Pembelahan Inti & Reaksi Berantai"
+        },
+        {
+          "id": "b-gk-7",
+          "type": "text",
+          "content": "Klik tombol 'Tembakkan Neutron' untuk menembakkan neutron lambat ke inti Uranium-235. Amati inti bergetar dan terbelah menjadi fragmen Ba-141 dan Kr-92 sembari memancarkan neutron baru. Atur kedalaman batang kendali untuk melihat bagaimana neutron bebas diserap."
+        },
+        {
+          "id": "b-gk-8",
+          "type": "interactive",
+          "component": "nuclear-fission",
+          "config": {
+            "initialControlRods": 35
+          }
+        },
+        {
+          "id": "b-gk-9",
+          "type": "example",
+          "content": "Kepadatan Energi Luar Biasa: Satu pelet uranium berdiameter 1 cm (berat 10 gram) mampu membangkitkan energi listrik sebesar 14.000 kiloWatt-jam (kWh). Ini setara dengan membakar 1.000 kg batu bara berkualitas tinggi atau 560 liter solar tanpa menghasilkan gas karbon monoksida!"
+        },
+        {
+          "id": "b-gk-10",
+          "type": "realworld",
+          "title": "Peran Reaktor Nuklir dalam Transisi Energi Bersih",
+          "content": "Banyak negara maju memanfaatkan Pembangkit Listrik Tenaga Nuklir (PLTN) sebagai sumber 'baseload power' bebas emisi karbon untuk menggantikan PLTU batu bara demi mencapai target Net Zero Emission 2050 dan mendukung ketahanan energi nasional."
+        }
+      ],
+      "questions": [
+        {
+          "id": "q-gk-1",
+          "question": "Partikel subatomik apakah yang ditembakkan ke inti Uranium-235 untuk memicu terjadinya reaksi fisi?",
+          "options": [
+            { "id": "A", "text": "Proton berenergi tinggi" },
+            { "id": "B", "text": "Neutron termal lambat" },
+            { "id": "C", "text": "Elektron bebas" },
+            { "id": "D", "text": "Foton sinar ultraviolet" }
+          ],
+          "correctAnswer": "B",
+          "explanation": "Neutron lambat (termal) memiliki probabilitas tangkapan (cross-section) tertinggi untuk diserap oleh inti U-235 tanpa terpental.",
+          "difficulty": "BEGINNER"
+        },
+        {
+          "id": "q-gk-2",
+          "question": "Apakah fungsi utama dari batang kendali (control rods) yang terbuat dari boron atau kadmium pada reaktor nuklir?",
+          "options": [
+            { "id": "A", "text": "Mendinginkan air reaktor" },
+            { "id": "B", "text": "Menyerap kelebihan neutron bebas untuk mengendalikan laju reaksi" },
+            { "id": "C", "text": "Menghasilkan bahan bakar baru" },
+            { "id": "D", "text": "Mempercepat pembelahan inti atom" }
+          ],
+          "correctAnswer": "B",
+          "explanation": "Boron dan kadmium memiliki daya serap neutron yang sangat kuat. Jika dimasukkan lebih dalam ke inti reaktor, batang kendali menyerap neutron sehingga reaksi berantai melambat atau berhenti.",
+          "difficulty": "INTERMEDIATE"
+        },
+        {
+          "id": "q-gk-3",
+          "question": "Hukum fisika manakah yang menjelaskan mengapa kehilangan massa (defek massa) pada fisi nuklir menghasilkan pelepasan energi yang luar biasa besar?",
+          "options": [
+            { "id": "A", "text": "Hukum Gravitasi Universal Newton" },
+            { "id": "B", "text": "Hukum Termodinamika Kedua" },
+            { "id": "C", "text": "Kesetaraan Massa-Energi Einstein (E = mc²)" },
+            { "id": "D", "text": "Hukum Induksi Faraday" }
+          ],
+          "correctAnswer": "C",
+          "explanation": "Hubungan E = m·c² menunjukkan bahwa bahkan massa yang sangat kecil (m), jika dikalikan kuadrat kecepatan cahaya (c² ≈ 9 × 10¹⁶ m²/s²), akan terkonversi menjadi energi yang luar biasa masif.",
+          "difficulty": "BEGINNER"
+        }
+      ]
+    }
+  ]
+}

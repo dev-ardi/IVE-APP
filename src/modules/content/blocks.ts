@@ -14,6 +14,7 @@ export const CONTENT_BLOCK_TYPES = [
   "formula",
   "callout",
   "example",
+  "realworld",
   "interactive",
   "quiz",
   "divider",
@@ -38,14 +39,14 @@ export const textBlockSchema = sharedBlock.extend({
 
 export const imageBlockSchema = sharedBlock.extend({
   type: z.literal("image"),
-  src: z.string().url(),
+  src: z.string().min(1),
   alt: z.string().optional().default(""),
   caption: z.string().optional(),
 });
 
 export const videoBlockSchema = sharedBlock.extend({
   type: z.literal("video"),
-  src: z.string().url(),
+  src: z.string().min(1),
   title: z.string().optional(),
 });
 
@@ -63,6 +64,12 @@ export const calloutBlockSchema = sharedBlock.extend({
 
 export const exampleBlockSchema = sharedBlock.extend({
   type: z.literal("example"),
+  content: z.string().min(1),
+});
+
+export const realworldBlockSchema = sharedBlock.extend({
+  type: z.literal("realworld"),
+  title: z.string().optional(),
   content: z.string().min(1),
 });
 
@@ -92,6 +99,7 @@ const blockSchemas = [
   formulaBlockSchema,
   calloutBlockSchema,
   exampleBlockSchema,
+  realworldBlockSchema,
   interactiveBlockSchema,
   quizBlockSchema,
   dividerBlockSchema,
@@ -109,6 +117,7 @@ export type VideoBlock = z.infer<typeof videoBlockSchema>;
 export type FormulaBlock = z.infer<typeof formulaBlockSchema>;
 export type CalloutBlock = z.infer<typeof calloutBlockSchema>;
 export type ExampleBlock = z.infer<typeof exampleBlockSchema>;
+export type RealworldBlock = z.infer<typeof realworldBlockSchema>;
 export type InteractiveBlock = z.infer<typeof interactiveBlockSchema>;
 export type QuizBlock = z.infer<typeof quizBlockSchema>;
 export type DividerBlock = z.infer<typeof dividerBlockSchema>;
