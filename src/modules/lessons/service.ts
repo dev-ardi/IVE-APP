@@ -28,7 +28,9 @@ export interface LessonSummary {
   order: number;
   topicSlug: string | null;
   subjectSlug?: string | null;
+  levelSlug?: string | null;
   kind?: string;
+  keywords?: string[];
 }
 
 export interface LessonSourceView {
@@ -58,6 +60,8 @@ export async function listLessonsByTopic(topicIdOrSlug: string): Promise<LessonS
         durationMinutes: true,
         order: true,
         kind: true,
+        keywords: true,
+        educationLevel: { select: { slug: true } },
         topic: { select: { slug: true } },
         subject: { select: { slug: true } },
       },
@@ -74,6 +78,8 @@ export async function listLessonsByTopic(topicIdOrSlug: string): Promise<LessonS
         durationMinutes: l.durationMinutes,
         order: l.order,
         kind: l.kind,
+        keywords: l.keywords,
+        levelSlug: l.educationLevel?.slug ?? "umum",
         topicSlug: l.topic?.slug ?? null,
         subjectSlug: l.subject?.slug ?? null,
       }));
@@ -93,6 +99,7 @@ export async function listLessonsByTopic(topicIdOrSlug: string): Promise<LessonS
     durationMinutes: l.durationMinutes,
     order: 1,
     kind: l.kind,
+    levelSlug: l.levelSlug ?? "umum",
     topicSlug: l.topicSlug,
     subjectSlug: l.subjectSlug,
   }));
@@ -116,6 +123,8 @@ export async function listLessonsBySubject(subjectIdOrSlug: string): Promise<Les
         durationMinutes: true,
         order: true,
         kind: true,
+        keywords: true,
+        educationLevel: { select: { slug: true } },
         topic: { select: { slug: true } },
         subject: { select: { slug: true } },
       },
@@ -132,6 +141,8 @@ export async function listLessonsBySubject(subjectIdOrSlug: string): Promise<Les
         durationMinutes: l.durationMinutes,
         order: l.order,
         kind: l.kind,
+        keywords: l.keywords,
+        levelSlug: l.educationLevel?.slug ?? "umum",
         topicSlug: l.topic?.slug ?? null,
         subjectSlug: l.subject?.slug ?? null,
       }));
@@ -205,6 +216,7 @@ export async function getPublishedLesson(
         durationMinutes: true,
         order: true,
         content: true,
+        contentBlocks: true,
         kind: true,
         educationLevelId: true,
         subjectId: true,
@@ -231,7 +243,11 @@ export async function getPublishedLesson(
     });
 
     if (lesson) {
-      const content = Array.isArray(lesson.content) ? parseContentBlocks(lesson.content) : [];
+      const rawBlocks =
+        Array.isArray(lesson.contentBlocks) && lesson.contentBlocks.length > 0
+          ? lesson.contentBlocks
+          : lesson.content;
+      const content = Array.isArray(rawBlocks) ? parseContentBlocks(rawBlocks) : [];
       const sources: LessonSourceView[] = lesson.sources.map((ls) => ({
         title: ls.source.title,
         author: ls.source.author ?? undefined,
@@ -365,7 +381,10 @@ export async function getLessonById(id: string): Promise<LessonDetail | null> {
 export async function listAllPublishedLessons(): Promise<LessonSummary[]> {
   try {
     const lessons = await prisma.lesson.findMany({
-      where: { status: "PUBLISHED" },
+      where: {
+        status: "PUBLISHED",
+        educationLevel: { isActive: true },
+      },
       orderBy: [{ updatedAt: "desc" }],
       select: {
         id: true,
@@ -377,6 +396,8 @@ export async function listAllPublishedLessons(): Promise<LessonSummary[]> {
         durationMinutes: true,
         order: true,
         kind: true,
+        keywords: true,
+        educationLevel: { select: { slug: true } },
         topic: { select: { slug: true } },
         subject: { select: { slug: true } },
       },
@@ -393,6 +414,8 @@ export async function listAllPublishedLessons(): Promise<LessonSummary[]> {
         durationMinutes: l.durationMinutes,
         order: l.order,
         kind: l.kind,
+        keywords: l.keywords,
+        levelSlug: l.educationLevel?.slug ?? "umum",
         topicSlug: l.topic?.slug ?? null,
         subjectSlug: l.subject?.slug ?? null,
       }));
@@ -411,6 +434,7 @@ export async function listAllPublishedLessons(): Promise<LessonSummary[]> {
     durationMinutes: l.durationMinutes,
     order: 1,
     kind: l.kind,
+    levelSlug: l.levelSlug ?? "umum",
     topicSlug: l.topicSlug,
     subjectSlug: l.subjectSlug,
   }));
