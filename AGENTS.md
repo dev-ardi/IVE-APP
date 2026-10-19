@@ -2,7 +2,7 @@
 # IVE-APP — Interactive Visual Education Application
 # AI Agent Engineering & Development Constitution
 
-> **Version:** 2.0 — aligned with `IVE-APP-PRD.md` v2.0, `IVE_TAD_Phase_1.md` v2.0, and `design-frontend.md` v1.0
+> **Version:** 2.0 — aligned with `IVE-APP-PRD.md` v2.0, `IVE_TAD_Phase_1.md` v2.0, `design-cms.md` and `design-frontend.md` v1.0
 > **Last revised:** 2026-10-19
 >
 > **Purpose:** This file is the persistent engineering contract for every AI coding agent working on IVE-APP. It defines *how agents behave*. It does **not** duplicate the architecture, product, or design specifications — it tells you **which document to open for which decision** and what rules always apply.
@@ -32,7 +32,7 @@ Before modifying anything, every agent MUST:
 Never assume the repository is empty or matches the documented architecture exactly. Locate the documents with:
 
 ```bash
-rg --files -g 'AGENTS.md' -g 'IVE*TAD*' -g 'IVE-APP-PRD*' -g 'design-frontend*' -g '!node_modules'
+rg --files -g 'AGENTS.md' -g 'IVE*TAD*' -g 'IVE-APP-PRD*' -g 'design-frontend*' -g 'design-cms*' -g '!node_modules'
 ```
 
 **The running codebase is the source of truth for implementation state.** The documents below are the intended baseline. If they conflict because the codebase intentionally evolved, preserve the working architecture unless the task explicitly requests migration (Section 49).
@@ -47,12 +47,12 @@ Each document is authoritative for a different kind of question. When two docume
 | How an agent behaves, process, quality gates | `AGENTS.md` (this file) | all |
 | Architecture, data model, API, security, module boundaries, implementation order, hard agent rules | `IVE_TAD_Phase_1.md` v2.0 | §4–§24, §31–§34 |
 | Product behavior, requirement IDs (FR-xx), priorities (P0/P1/P2), acceptance criteria, metrics, open decisions (D-xx) | `IVE-APP-PRD.md` v2.0 | §7–§8, §14–§17 |
-| Student-facing visual design, layout, page composition, UI states, motion, accessibility details | `design-frontend.md` v1.0 | §2–§11 |
+| Student-facing visual design, layout, page composition, UI states, motion, accessibility details | `design-frontend.md` v1.0 |design-cms.md (otoritas desain CMS, jembatan RBAC, Sandbox Studio, integrasi data)| §2–§11 |
 
 Rules of use:
 
 - **PRD** says *what and why* → **TAD** says *how it is built* → **design brief** says *how the student UI looks and feels*.
-- Use stable IDs when you cite requirements in code comments, PR text, and handoff reports: `FR-07.2` (PRD), `TAD §15.2`, `Design §4.6`.
+- Use stable IDs when you cite requirements in code comments, PR text, and handoff reports: `FR-07.2` (PRD), `TAD §15.2`, `Design §6`.
 - Do not silently override any document. If you must deviate, follow Section 4 and Section 51.
 
 ## 3. TASK MODES — WHICH DOCUMENTS ARE MANDATORY
@@ -63,10 +63,10 @@ Classify every task first. A task may mix modes; if so, split it (Section 40) or
 |---|---|---|---|
 | **S — Student frontend / design** | Layout, visual design, student pages, quiz UI, AI drawer UI, navigation UI, content-block presentation | `design-frontend.md` (all), PRD FRs for the page, TAD §10, §11, §14, §15, §18, §23, §24, §30 | **Never touch `/admin` routes or admin components.** Do not add backend features just for visuals. Do not break working features. |
 | **B — Backend / domain / data** | Prisma models, services, API, quiz scoring, progress merge, AI orchestration, search, auth | TAD §4–§9, §15–§22, PRD FR for the feature | No UI redesign beyond what the contract needs. |
-| **C — Admin CMS** | `/admin/*`, block editor, interactive library, source editor, publish rules | TAD §11, §12, §13, PRD FR-16, FR-19 | The student design brief does **not** apply to admin. Do not restyle student pages. |
-| **I — Interactive component** | New or changed registry component, Formula Sandbox | TAD §11, PRD FR-07.x, design brief §6 | Registry contract is mandatory (Section 17). |
+| **C — Admin CMS** | `/admin/*`, block editor, interactive library, source editor,require to read design-cms.md publish rules | TAD §11, §12, §13, PRD FR-16, FR-19 | The student design brief does **not** apply to admin. Do not restyle student pages. |
+| **I — Interactive component** | New or changed registry component, Formula Sandbox |Sandbox Studio Mode 1 | TAD §11, PRD FR-07.x, design brief §6 | Registry contract is mandatory (Section 17). |
 
-The student design brief has its own scope fence (Design §0): it covers learner-facing frontend only. Admin CMS is separate work.
+The student design brief has its own scope fence (Design §0): it covers learner-facing frontend only. Admin CMS is separate work,design-cms.md is the frontend brief.
 
 ## 4. CONFLICT RESOLUTION AND KNOWN DISCREPANCIES
 
@@ -89,10 +89,16 @@ The three documents were revised at slightly different times and disagree in a f
 | 7 | Source fields | PRD FR-19 wants accessed date, license status, usage note. TAD §8.7 `Source` has `licenseNote`, `year`, no `accessedAt` | Follow the TAD schema. Propose an `accessedAt` migration + TAD update in the handoff; do not add it silently. |
 | 8 | Experiments route | TAD: `/lab`, `/lab/:slug`. PRD: `/experiments` | Use `/lab`. A standalone `/practice` question-bank page (PRD FR-20, P1, D-16) is not in the TAD routes: do not build it without approval. |
 | 9 | Seed volume | TAD: ≥20 lessons/experiments (target 30+), ≥3 experiments. PRD: ≥15 Umum lessons, ≥3 per core subject, ≥8 interactive | Satisfy both: ≥20 published, ≥3 experiments, ≥3 per core subject, ≥8 with interactive blocks. |
-| 10 | Level selector & inactive levels | Design §4.1 lists "Pilihan jenjang: Umum, SD, SMP, SMA". TAD §14.1 hides the picker; inactive levels are not listed/routable. PRD allows hidden or "Segera hadir" | Hide the level picker while one level is active (show it automatically once ≥2 active levels have published content). Never render inactive levels. "Segera hadir" labels only with explicit owner approval (also see Section 36). |
-| 11 | Navigation labels | Design §3.1: Beranda · Jelajahi · Pembelajaran Saya. TAD §14.2: Mata Pelajaran mega menu · Lab · Belajarku. PRD §9: Home · Explore · Latihan · My Learning | Structure/behavior from TAD §14 and PRD FR-18 (mega menu Subject → Topics, Lab, search, outline tree, breadcrumbs). Visible labels from the design brief; use **"Pembelajaran Saya"** for `/my-learning`. Keep all nav labels in one constants file. "Latihan" nav only if `/practice` is approved. |
+| 10 | Level selector & inactive levels | Design §4.1 lists. TAD §14.1 hides the picker; inactive levels are not listed/routable. PRD allows hidden or "Segera hadir" | Hide the level picker while one level is active (show it automatically once ≥2 active levels have published content). Never render inactive levels. "Segera hadir" labels only with explicit owner approval (also see Section 36). |
+| 11 | Navigation labels | Design §3.1: Beranda · Jelajahi · Pembelajaran Saya · Lab Simulasi. TAD §14.2:. PRD §9: Home · Explore · Latihan · My Learning | Structure/behavior from TAD §14 and PRD FR-18 (mega menu Subject → Topics, Lab, search, outline tree, breadcrumbs). Visible labels from the design brief; use **"Pembelajaran Saya"** for `/my-learning`. Keep all nav labels in one constants file. "Latihan" nav only if `/practice` is approved. |
 | 12 | Topic-scope practice entry | TAD requires topic-scope practice (§14.2, §15.1) but lists only `/quiz/:lesson` | Extend the existing quiz runner with an explicit, documented scope parameter. Record the decision. |
 | 13 | SEO title brand | TAD §23 example: `… \| ive`. PRD Appendix B: user-visible name is IVE-APP | Pattern: `<Judul> — <Mata Pelajaran> \| IVE-APP`. |
+| 14 | SUPER_ADMIN enum vs. TAD.
+| 15 | Local videos (design §6.1) vs. YouTube-only (TAD).
+| 16 | fallback dummy-data.ts (design §7.2) vs. “no fake data”.
+| 17 | mock AI chat on the homepage (design §5.1) vs. “no fake AI”.
+
+
 
 ---
 
@@ -386,6 +392,7 @@ New question type procedure: type contract → validation → submission format 
 
 ## 20. AUTHENTICATION AND AUTHORIZATION
 
+- Roles are USER, ADMIN, and SUPER_ADMIN. Add the following rule: no separate admin login; the cms:access capability is present; the canAccessCms flag is sent to the client (not the raw role).
 - Browsing public lessons never requires login. Login is for cloud progress, history, favorites, and persisted AI conversations. Explain these benefits; never force login before public material.
 - Roles in Phase 1: `USER`, `ADMIN` (default `USER`). Users never choose or raise their own role; admin accounts are provisioned by seed/ops.
 - **All permission checks go through `modules/authz` — `can(user, action, resource)`.** No ad-hoc `role === "ADMIN"` in handlers or components (TAD §12.6).
@@ -397,6 +404,7 @@ Admin functionality is secondary to student learning; keep the CMS simple. Two e
 
 1. **Content authoring** — subject/topic/lesson CRUD, block editor, source linking, question bank editor, validated media upload.
 2. **Interactive composition** — Interactive Library (`/admin/interactive`), registry-generated config forms, live preview. **No free-form code field exists anywhere in the CMS.**
+
 
 Rules:
 

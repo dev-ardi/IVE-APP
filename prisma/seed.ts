@@ -30,10 +30,11 @@ async function main() {
   console.log("Seeding IVE database...");
 
   // --- Users ---------------------------------------------------------
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@ive.example";
   const admin = await prisma.user.upsert({
-    where: { email: "admin@ive.example" },
-    update: { name: "Admin IVE", role: Role.ADMIN },
-    create: { email: "admin@ive.example", name: "Admin IVE", role: Role.ADMIN },
+    where: { email: adminEmail },
+    update: { name: "Admin IVE", role: Role.SUPER_ADMIN },
+    create: { email: adminEmail, name: "Admin IVE", role: Role.SUPER_ADMIN },
   });
   const student = await prisma.user.upsert({
     where: { email: "siswa@ive.example" },

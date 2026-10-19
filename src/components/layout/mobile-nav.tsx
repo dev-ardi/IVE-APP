@@ -3,14 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Home, Compass, FlaskConical, BookMarked, Search, LogIn, LogOut, Shield } from "lucide-react";
+import { Menu, X, Home, Compass, FlaskConical, BookMarked, Search, LogIn, LogOut } from "lucide-react";
+import { CmsAccessButton } from "./cms-access-button";
 
 interface MobileNavProps {
   userRole?: string | null;
   userName?: string | null;
+  canAccessCms?: boolean;
 }
 
-export function MobileNav({ userRole, userName }: MobileNavProps) {
+export function MobileNav({ userRole: _userRole, userName, canAccessCms }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
@@ -58,19 +60,18 @@ export function MobileNav({ userRole, userName }: MobileNavProps) {
 
             <div className="my-2 border-t border-slate-100 pt-3 dark:border-slate-800">
               {userName ? (
-                <div className="flex flex-col gap-2 px-1">
-                  <span className="text-xs font-semibold text-slate-500">Masuk sebagai:</span>
-                  <span className="text-sm font-black text-slate-900 dark:text-white">{userName}</span>
-                  {userRole === "ADMIN" && (
-                    <Link
-                      href="/admin"
-                      onClick={() => setIsOpen(false)}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 hover:underline"
-                    >
-                      <Shield className="h-3.5 w-3.5" />
-                      <span>Buka Panel Admin</span>
-                    </Link>
+                <div className="flex flex-col gap-2.5 px-1">
+                  {canAccessCms && (
+                    <CmsAccessButton
+                      variant="mobile"
+                      initialCanAccess={true}
+                      onNavigate={() => setIsOpen(false)}
+                    />
                   )}
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xs font-semibold text-slate-500">Masuk sebagai:</span>
+                    <span className="text-sm font-black text-slate-900 dark:text-white">{userName}</span>
+                  </div>
                   <Link
                     href="/api/auth/logout"
                     onClick={() => setIsOpen(false)}

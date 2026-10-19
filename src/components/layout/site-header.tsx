@@ -6,8 +6,12 @@ import { ExpandableSearch } from "./expandable-search";
 import { ScrollProgress } from "./scroll-progress";
 import { NavLinks } from "./nav-links";
 
+import { can } from "@/modules/authz";
+import { CmsAccessButton } from "./cms-access-button";
+
 export async function SiteHeader() {
   const user = await getSessionUser();
+  const canAccessCms = can(user, "cms:access");
 
   return (
     <>
@@ -31,11 +35,13 @@ export async function SiteHeader() {
           <div className="flex shrink-0 items-center gap-3 z-20">
             <ExpandableSearch />
 
+            <CmsAccessButton initialCanAccess={canAccessCms} variant="desktop" />
+
             <div className="hidden sm:flex items-center">
-              <UserMenu user={user} />
+              <UserMenu user={user} canAccessCms={canAccessCms} />
             </div>
 
-            <MobileNav userRole={user?.role} userName={user?.name ?? user?.email} />
+            <MobileNav canAccessCms={canAccessCms} userName={user?.name ?? user?.email} />
           </div>
         </div>
       </header>
