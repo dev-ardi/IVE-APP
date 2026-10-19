@@ -120,12 +120,22 @@ export function getDummyTopicBySlug(subjectSlug: string, topicSlug: string) {
   };
 }
 
-export function getDummyLessonsBySubject(subjectSlug: string) {
-  return DUMMY_DATA.lessons.filter((l) => l.subjectSlug === subjectSlug);
+export function getDummyLessonsBySubject(subjectIdOrSlug: string) {
+  const norm = subjectIdOrSlug.toLowerCase();
+  const sub = DUMMY_DATA.subjects.find((s) => s.id === norm || s.slug === norm);
+  const targetSlug = sub?.slug ?? norm;
+  return DUMMY_DATA.lessons.filter(
+    (l) => l.subjectSlug === targetSlug || l.subjectSlug === norm
+  );
 }
 
-export function getDummyLessonsByTopic(topicSlug: string) {
-  return DUMMY_DATA.lessons.filter((l) => l.topicSlug === topicSlug);
+export function getDummyLessonsByTopic(topicIdOrSlug: string) {
+  const norm = topicIdOrSlug.toLowerCase();
+  const top = DUMMY_DATA.topics.find((t) => t.id === norm || t.slug === norm);
+  const targetSlug = top?.slug ?? norm;
+  return DUMMY_DATA.lessons.filter(
+    (l) => l.topicSlug === targetSlug || l.topicSlug === norm
+  );
 }
 
 export function getDummyLessonBySlug(opts: {

@@ -5,14 +5,15 @@ import Lenis from "lenis";
 
 export function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Initialize Lenis smooth scroll
+    // Initialize Lenis smooth scroll with autoResize
     const lenis = new Lenis({
       duration: 1.1,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
-      touchMultiplier: 1.5,
+      touchMultiplier: 1.2,
+      autoResize: true,
     });
 
     let rafId: number;
@@ -22,8 +23,24 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
     }
     rafId = requestAnimationFrame(raf);
 
+    // Watch resize of body/document to guarantee lenis recalculates scroll height
+    const resizeObserver = new ResizeObserver(() => {
+      lenis.resize();
+    });
+
+    if (document.body) {
+      resizeObserver.observe(document.body);
+    }
+
+    // Also trigger resize on window load and after a short timeout for dynamic images/fonts
+    const timer = setTimeout(() => {
+      lenis.resize();
+    }, 500);
+
     return () => {
+      clearTimeout(timer);
       cancelAnimationFrame(rafId);
+      resizeObserver.disconnect();
       lenis.destroy();
     };
   }, []);
