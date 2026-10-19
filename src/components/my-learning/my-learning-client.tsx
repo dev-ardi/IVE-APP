@@ -1,14 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Cloud, Heart, CheckCircle2, ArrowRight, BookOpen, GraduationCap } from "lucide-react";
-import { DUMMY_DATA } from "@/data/dummy-data";
 import { Card } from "@/components/products/card";
 import { DifficultyBadge } from "@/components/products/difficulty-badge";
 import { SubjectIcon, getSubjectTheme } from "@/components/ui/subject-theme";
+import type { SubjectSummary } from "@/modules/subjects/service";
+import type { LessonSummary } from "@/modules/lessons/service";
 
-export default function MyLearningPage() {
+interface MyLearningClientProps {
+  subjects: SubjectSummary[];
+  allLessons: LessonSummary[];
+}
+
+export function MyLearningClient({ subjects, allLessons }: MyLearningClientProps) {
   const [favoriteIds] = useState<string[]>(() => {
     if (typeof window === "undefined") return [];
     try {
@@ -26,9 +32,6 @@ export default function MyLearningPage() {
       return [];
     }
   });
-
-  const allLessons = DUMMY_DATA.lessons;
-  const subjects = DUMMY_DATA.subjects;
 
   const favoriteLessons = allLessons.filter(
     (l) => favoriteIds.includes(l.id) || favoriteIds.includes(l.slug)
@@ -141,13 +144,15 @@ export default function MyLearningPage() {
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {favoriteLessons.map((lesson) => {
               const subj = subjects.find((s) => s.slug === lesson.subjectSlug);
-              const theme = getSubjectTheme(lesson.subjectSlug);
+              const theme = getSubjectTheme(lesson.subjectSlug || "");
+              const levelSlug = lesson.levelSlug || "umum";
+              const topicSlug = lesson.topicSlug || "umum";
 
               return (
                 <Card
                   key={lesson.slug}
-                  href={`/learn/${lesson.levelSlug}/${lesson.subjectSlug}/${lesson.topicSlug}/${lesson.slug}`}
-                  icon={<SubjectIcon slug={lesson.subjectSlug} size={22} />}
+                  href={`/learn/${levelSlug}/${lesson.subjectSlug}/${topicSlug}/${lesson.slug}`}
+                  icon={<SubjectIcon slug={lesson.subjectSlug || "fisika"} size={22} />}
                   badge={<DifficultyBadge difficulty={lesson.difficulty} />}
                   title={lesson.title}
                   description={lesson.description}
@@ -189,13 +194,15 @@ export default function MyLearningPage() {
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {completedLessons.map((lesson) => {
               const subj = subjects.find((s) => s.slug === lesson.subjectSlug);
-              const theme = getSubjectTheme(lesson.subjectSlug);
+              const theme = getSubjectTheme(lesson.subjectSlug || "");
+              const levelSlug = lesson.levelSlug || "umum";
+              const topicSlug = lesson.topicSlug || "umum";
 
               return (
                 <Card
                   key={lesson.slug}
-                  href={`/learn/${lesson.levelSlug}/${lesson.subjectSlug}/${lesson.topicSlug}/${lesson.slug}`}
-                  icon={<SubjectIcon slug={lesson.subjectSlug} size={22} />}
+                  href={`/learn/${levelSlug}/${lesson.subjectSlug}/${topicSlug}/${lesson.slug}`}
+                  icon={<SubjectIcon slug={lesson.subjectSlug || "fisika"} size={22} />}
                   badge={
                     <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
                       <CheckCircle2 className="h-3 w-3 text-emerald-600" />

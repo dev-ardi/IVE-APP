@@ -1,6 +1,7 @@
 import { PrismaClient, ContentStatus, Difficulty, Role } from "@prisma/client";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { hashPassword } from "../src/lib/password";
 
 // Ambil URL database dari file .env
 const connectionString = `${process.env.DATABASE_URL}`;
@@ -31,15 +32,36 @@ async function main() {
 
   // --- Users ---------------------------------------------------------
   const adminEmail = process.env.ADMIN_EMAIL || "admin@ive.example";
+  const defaultAdminPassword = process.env.ADMIN_PASSWORD || "admin123";
+  const defaultStudentPassword = process.env.STUDENT_PASSWORD || "siswa123";
+
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },
-    update: { name: "Admin IVE", role: Role.SUPER_ADMIN },
-    create: { email: adminEmail, name: "Admin IVE", role: Role.SUPER_ADMIN },
+    update: { 
+      name: "Admin IVE", 
+      role: Role.SUPER_ADMIN,
+      passwordHash: hashPassword(defaultAdminPassword),
+    },
+    create: { 
+      email: adminEmail, 
+      name: "Admin IVE", 
+      role: Role.SUPER_ADMIN,
+      passwordHash: hashPassword(defaultAdminPassword),
+    },
   });
   const student = await prisma.user.upsert({
     where: { email: "siswa@ive.example" },
-    update: { name: "Siswa Demo", role: Role.USER },
-    create: { email: "siswa@ive.example", name: "Siswa Demo", role: Role.USER },
+    update: { 
+      name: "Siswa Demo", 
+      role: Role.USER,
+      passwordHash: hashPassword(defaultStudentPassword),
+    },
+    create: { 
+      email: "siswa@ive.example", 
+      name: "Siswa Demo", 
+      role: Role.USER,
+      passwordHash: hashPassword(defaultStudentPassword),
+    },
   });
 
   // --- Education levels ----------------------------------------------
@@ -176,10 +198,15 @@ async function main() {
     },
   ];
 
-  for (const q of questions) {
-    await prisma.question.create({
-      data: { lessonId: gerakParabola.id, ...q },
-    });
+  const existingQuestions = await prisma.question.findMany({
+    where: { lessonId: gerakParabola.id },
+  });
+  if (existingQuestions.length === 0) {
+    for (const q of questions) {
+      await prisma.question.create({
+        data: { lessonId: gerakParabola.id, ...q },
+      });
+    }
   }
 
   // --- Subject: Matematika (SMA) with Trigonometri + trig visualizer ---

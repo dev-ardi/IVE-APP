@@ -1,22 +1,25 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { Search, RotateCcw, Compass } from "lucide-react";
-import { DUMMY_DATA } from "@/data/dummy-data";
 import { Card } from "@/components/products/card";
 import { DifficultyBadge } from "@/components/products/difficulty-badge";
 import { SubjectIcon, getSubjectTheme } from "@/components/ui/subject-theme";
+import type { SubjectSummary } from "@/modules/subjects/service";
+import type { LessonSummary } from "@/modules/lessons/service";
 
-export default function ExplorePage() {
+interface ExploreClientProps {
+  initialSubjects: SubjectSummary[];
+  initialLessons: LessonSummary[];
+}
+
+export function ExploreClient({ initialSubjects, initialLessons }: ExploreClientProps) {
   const [search, setSearch] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("all");
   const [selectedDifficulty, setSelectedDifficulty] = useState("all");
 
-  const subjects = DUMMY_DATA.subjects;
-  const allLessons = DUMMY_DATA.lessons;
-
   const filteredLessons = useMemo(() => {
-    return allLessons.filter((lesson) => {
+    return initialLessons.filter((lesson) => {
       const matchSubject =
         selectedSubject === "all" || lesson.subjectSlug === selectedSubject;
       const matchDiff =
@@ -25,11 +28,11 @@ export default function ExplorePage() {
       const matchSearch =
         !q ||
         lesson.title.toLowerCase().includes(q) ||
-        lesson.description.toLowerCase().includes(q) ||
-        lesson.keywords.some((k) => k.toLowerCase().includes(q));
+        (lesson.description && lesson.description.toLowerCase().includes(q)) ||
+        (lesson.keywords && lesson.keywords.some((k) => k.toLowerCase().includes(q)));
       return matchSubject && matchDiff && matchSearch;
     });
-  }, [allLessons, selectedSubject, selectedDifficulty, search]);
+  }, [initialLessons, selectedSubject, selectedDifficulty, search]);
 
   return (
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8 px-3 py-10 sm:px-6 sm:py-14">
@@ -86,10 +89,10 @@ export default function ExplorePage() {
                 : "border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-400 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
             }`}
           >
-            Semua ({allLessons.length})
+            Semua ({initialLessons.length})
           </button>
-          {subjects.map((sub) => {
-            const count = allLessons.filter((l) => l.subjectSlug === sub.slug).length;
+          {initialSubjects.map((sub) => {
+            const count = initialLessons.filter((l) => l.subjectSlug === sub.slug).length;
             const isSelected = selectedSubject === sub.slug;
 
             return (
@@ -180,14 +183,17 @@ export default function ExplorePage() {
       ) : (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {filteredLessons.map((lesson) => {
-            const subj = subjects.find((s) => s.slug === lesson.subjectSlug);
-            const theme = getSubjectTheme(lesson.subjectSlug);
+            const subj = initialSubjects.find((s) => s.slug === lesson.subjectSlug);
+            const subjectSlug = lesson.subjectSlug ?? "umum";
+            const theme = getSubjectTheme(subjectSlug);
+            const levelSlug = lesson.levelSlug || "umum";
+            const topicSlug = lesson.topicSlug || "umum";
 
             return (
               <Card
                 key={lesson.slug}
-                href={`/learn/${lesson.levelSlug}/${lesson.subjectSlug}/${lesson.topicSlug}/${lesson.slug}`}
-                icon={<SubjectIcon slug={lesson.subjectSlug} size={22} />}
+                href={`/learn/${levelSlug}/${lesson.subjectSlug}/${topicSlug}/${lesson.slug}`}
+                icon={<SubjectIcon slug={subjectSlug} size={22} />}
                 badge={
                   <div className="flex items-center gap-1.5">
                     <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
@@ -204,7 +210,7 @@ export default function ExplorePage() {
                     <span className={`rounded-md border px-2 py-0.5 ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder}`}>
                       {subj?.name ?? lesson.subjectSlug}
                     </span>
-                    <span>⏱️ {lesson.durationMinutes} menit</span>
+                    <span>⏱️ {lesson.durationMinutes || 10} menit</span>
                   </div>
                 }
               />

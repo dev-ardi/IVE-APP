@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 import { Geist_Mono, Figtree } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { SiteHeader } from "@/components/layout/site-header";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { SmoothScrollProvider } from "@/components/layout/smooth-scroll-provider";
 
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -36,11 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={cn("h-full", "antialiased", figtree.variable, geistMono.variable, "font-sans")}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased selection:bg-blue-600/20 selection:text-blue-700 dark:selection:bg-blue-400/20 dark:selection:text-blue-300">
-        <SmoothScrollProvider>
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-          <SiteFooter />
-        </SmoothScrollProvider>
+        {children}
       </body>
     </html>
   );

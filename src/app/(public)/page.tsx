@@ -13,8 +13,8 @@ import { HeroInteractivePreview } from "@/components/products/hero-interactive-p
 import { HeroShowcase } from "@/components/products/hero-showcase";
 import { Card } from "@/components/products/card";
 import { DifficultyBadge } from "@/components/products/difficulty-badge";
-import { DUMMY_DATA } from "@/data/dummy-data";
 import { listSubjectsByLevel } from "@/modules/subjects/service";
+import { listAllPublishedLessons } from "@/modules/lessons/service";
 import { SubjectIcon, getSubjectTheme } from "@/components/ui/subject-theme";
 import { ActiveLearningWhy } from "@/components/home/active-learning-why";
 import { LearningLoopPillars } from "@/components/home/learning-loop-pillars";
@@ -23,8 +23,10 @@ import { SubjectShowcaseSection } from "@/components/home/subject-showcase-secti
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const subjects = await listSubjectsByLevel("umum");
-  const featuredLessons = DUMMY_DATA.lessons;
+  const [subjects, featuredLessons] = await Promise.all([
+    listSubjectsByLevel("umum"),
+    listAllPublishedLessons(),
+  ]);
 
   return (
     <div className="flex flex-col">
@@ -172,13 +174,14 @@ export default async function HomePage() {
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               {featuredLessons.map((lesson) => {
                 const subj = subjects.find((s) => s.slug === lesson.subjectSlug);
-                const theme = getSubjectTheme(lesson.subjectSlug);
+                const subjectSlug = lesson.subjectSlug ?? "umum";
+                const theme = getSubjectTheme(subjectSlug);
 
                 return (
                   <Card
                     key={lesson.slug}
                     href={`/learn/${lesson.levelSlug}/${lesson.subjectSlug}/${lesson.topicSlug}/${lesson.slug}`}
-                    icon={<SubjectIcon slug={lesson.subjectSlug} size={22} />}
+                    icon={<SubjectIcon slug={subjectSlug} size={22} />}
                     badge={
                       <div className="flex items-center gap-1.5">
                         <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
