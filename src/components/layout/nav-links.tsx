@@ -86,11 +86,23 @@ export function NavLinks() {
       ref={containerRef}
       className="pointer-events-auto relative flex items-center gap-1 rounded-full border border-stone-900/10 bg-white/95 p-1 shadow-2xs backdrop-blur-md dark:border-stone-800 dark:bg-stone-900/95"
     >
-      {/* Sliding animated background indicator: strictly confined to navbar container coordinates */}
+      {/*
+        Sliding pill: key="nav-pill" keeps the element mounted across route changes
+        so Framer Motion can spring-animate it from one nav item position to another.
+        Setting `initial` equal to the current target rect prevents any jarring
+        "animate from nowhere" effect when the pill first mounts — it simply fades in.
+      */}
       {pillRect && (
         <motion.span
+          key="nav-pill"
           className="pointer-events-none absolute rounded-full border border-blue-700/60 bg-blue-600 shadow-[2px_2px_0px_0px_rgba(24,24,27,0.85)] dark:border-blue-400 dark:bg-blue-600 dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.6)]"
-          initial={false}
+          initial={{
+            left: pillRect.left,
+            width: pillRect.width,
+            top: pillRect.top,
+            height: pillRect.height,
+            opacity: 0,
+          }}
           animate={{
             left: pillRect.left,
             width: pillRect.width,
@@ -99,9 +111,11 @@ export function NavLinks() {
             opacity: 1,
           }}
           transition={{
-            type: "spring",
-            stiffness: 400,
-            damping: 32,
+            left: { type: "spring", stiffness: 400, damping: 32 },
+            width: { type: "spring", stiffness: 400, damping: 32 },
+            top: { type: "spring", stiffness: 400, damping: 32 },
+            height: { type: "spring", stiffness: 400, damping: 32 },
+            opacity: { duration: 0.15 },
           }}
         />
       )}
@@ -123,7 +137,7 @@ export function NavLinks() {
                 : "text-stone-700 hover:text-stone-950 dark:text-stone-300 dark:hover:text-white"
             } ${!isReady && isActive ? "bg-blue-600 text-white" : ""}`}
           >
-            {/* Icon and label placed above the moving pill */}
+            {/* Icon and label placed above the moving pill via z-index */}
             <span className="relative z-10 flex items-center gap-1.5">
               <Icon
                 className={`h-4 w-4 transition-transform duration-200 group-hover:scale-110 ${

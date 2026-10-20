@@ -23,23 +23,6 @@ export function ActiveLearningWhy() {
 
   return (
     <section className="relative overflow-hidden border-y-2 border-stone-900/10 bg-[#EEF7F2] py-20 dark:border-stone-800 dark:bg-[#122018]">
-      {/* Parallax Floating Formula Badges (Lightweight, pure CSS/Motion transforms) */}
-      <motion.div
-        style={{ y: yFloating1 }}
-        aria-hidden="true"
-        className="pointer-events-none absolute top-12 left-6 hidden rounded-xl border border-emerald-400/30 bg-white/80 px-3 py-1.5 font-mono text-xs font-bold text-emerald-800 shadow-sm backdrop-blur-sm lg:block dark:bg-stone-900/80 dark:text-emerald-300"
-      >
-        {"v² = v₀² + 2g·h"}
-      </motion.div>
-
-      <motion.div
-        style={{ y: yFloating2 }}
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-12 right-10 hidden rounded-xl border border-emerald-400/30 bg-white/80 px-3 py-1.5 font-mono text-xs font-bold text-emerald-800 shadow-sm backdrop-blur-sm lg:block dark:bg-stone-900/80 dark:text-emerald-300"
-      >
-        {"E = mc² · F = m·a"}
-      </motion.div>
-
       <div className="relative mx-auto w-full max-w-[1400px] px-3 sm:px-6 lg:px-8">
         {/* Section Header: Educational Marketing Why */}
         <div className="mx-auto flex max-w-3xl flex-col items-center gap-3 text-center">
@@ -64,33 +47,56 @@ export function ActiveLearningWhy() {
           </p>
         </div>
 
-        {/* Interactive Comparison Card Switcher */}
+        {/* Interactive Comparison Card Switcher — animated sliding pill */}
         <div className="mt-12 flex justify-center">
-          <div className="inline-flex rounded-2xl border-2 border-stone-900/15 bg-white p-1.5 shadow-sm dark:border-stone-700 dark:bg-stone-900">
+          {/* Outer tab rail — no overflow-hidden so the hard-offset shadow shows */}
+          <div className="relative inline-flex rounded-2xl border-2 border-stone-900/90 bg-white p-1.5 shadow-sm dark:border-stone-700 dark:bg-stone-900">
+
+            {/* Sliding background pill */}
+            <motion.div
+              initial={{ x: "0%", backgroundColor: "#16a34a" }}
+              animate={{
+                x: activeTab === "active" ? "0%" : "100%",
+                backgroundColor: activeTab === "active" ? "#16a34a" : "#dc2626",
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 380,
+                damping: 26,
+                mass: 0.75,
+              }}
+              className="absolute left-1.5 top-1.5 bottom-1.5 w-[calc(50%-6px)] rounded-xl border-2 border-stone-900 shadow-[2px_2px_0px_0px_rgba(24,24,27,0.9)] dark:border-white"
+            />
+
+            {/* Button: IVE-APP */}
             <button
               type="button"
               onClick={() => setActiveTab("active")}
-              className={`cursor-pointer rounded-xl px-5 py-2.5 text-xs font-black transition-all ${
+              className={`relative z-10 cursor-pointer rounded-xl px-5 py-2.5 text-xs font-black transition-colors duration-150 ${
                 activeTab === "active"
-                  ? "border-2 border-stone-900 bg-emerald-600 text-white shadow-[2px_2px_0px_0px_rgba(24,24,27,0.9)] dark:border-white"
-                  : "text-stone-600 hover:text-stone-900 dark:text-stone-300"
+                  ? "text-white"
+                  : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
               }`}
             >
               ✨ Pengalaman Belajar IVE-APP
             </button>
+
+            {/* Button: Traditional */}
             <button
               type="button"
               onClick={() => setActiveTab("passive")}
-              className={`cursor-pointer rounded-xl px-5 py-2.5 text-xs font-black transition-all ${
+              className={`relative z-10 cursor-pointer rounded-xl px-5 py-2.5 text-xs font-black transition-colors duration-150 ${
                 activeTab === "passive"
-                  ? "border-2 border-stone-900 bg-rose-600 text-white shadow-[2px_2px_0px_0px_rgba(24,24,27,0.9)] dark:border-white"
-                  : "text-stone-600 hover:text-stone-900 dark:text-stone-300"
+                  ? "text-white"
+                  : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
               }`}
             >
               ✕ Cara Tradisional / Buku Teks
             </button>
           </div>
         </div>
+
+
 
         {/* Dynamic Comparison Panel */}
         <div className="mx-auto mt-8 max-w-4xl">
@@ -138,7 +144,7 @@ export function ActiveLearningWhy() {
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3 }}
-              className="rounded-3xl border-2 border-stone-900/20 bg-stone-100 p-6 shadow-sm dark:border-stone-800 dark:bg-stone-900/60 sm:p-8"
+              className="rounded-3xl border-2 border-stone-900 bg-white p-6 shadow-[4px_4px_0px_0px_rgba(24,24,27,0.9)] dark:border-stone-100 dark:bg-stone-900 sm:p-8"
             >
               <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                 <div className="flex flex-col gap-3">
@@ -175,7 +181,7 @@ export function ActiveLearningWhy() {
 
         {/* Value Proof Badges (3 Pillars of Impact) */}
         <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-3">
-          <div className="flex flex-col gap-2 rounded-2xl border-2 border-stone-900/10 bg-white p-5.5 shadow-sm dark:border-stone-800 dark:bg-stone-900">
+          <div className="rounded-3xl border-2 border-stone-900 bg-white p-6 shadow-[4px_4px_0px_0px_rgba(24,24,27,0.9)] dark:border-stone-100 dark:bg-stone-900 sm:p-8">
             <div className="flex items-center gap-2 font-black text-emerald-700 dark:text-emerald-400">
               <TrendingUp className="h-5 w-5" />
               <span className="text-2xl">3.2×</span>
@@ -186,7 +192,7 @@ export function ActiveLearningWhy() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-2 rounded-2xl border-2 border-stone-900/10 bg-white p-5.5 shadow-sm dark:border-stone-800 dark:bg-stone-900">
+          <div className="rounded-3xl border-2 border-stone-900 bg-white p-6 shadow-[4px_4px_0px_0px_rgba(24,24,27,0.9)] dark:border-stone-100 dark:bg-stone-900 sm:p-8">
             <div className="flex items-center gap-2 font-black text-blue-700 dark:text-blue-400">
               <Sliders className="h-5 w-5" />
               <span className="text-2xl">100%</span>
@@ -197,7 +203,7 @@ export function ActiveLearningWhy() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-2 rounded-2xl border-2 border-stone-900/10 bg-white p-5.5 shadow-sm dark:border-stone-800 dark:bg-stone-900">
+          <div className="rounded-3xl border-2 border-stone-900 bg-white p-6 shadow-[4px_4px_0px_0px_rgba(24,24,27,0.9)] dark:border-stone-100 dark:bg-stone-900 sm:p-8">
             <div className="flex items-center gap-2 font-black text-amber-700 dark:text-amber-400">
               <Sparkles className="h-5 w-5" />
               <span className="text-2xl">Zero-Cost</span>

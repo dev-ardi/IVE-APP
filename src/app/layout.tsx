@@ -3,8 +3,6 @@ import { Geist_Mono, Figtree } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { SiteHeader } from "@/components/layout/site-header";
-import { SiteFooter } from "@/components/layout/site-footer";
 import { SmoothScrollProvider } from "@/components/layout/smooth-scroll-provider";
 import { PageTransitionProvider } from "@/components/layout/page-transition-provider";
 

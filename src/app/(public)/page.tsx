@@ -11,14 +11,15 @@ import {
 } from "lucide-react";
 import { HeroInteractivePreview } from "@/components/products/hero-interactive-preview";
 import { HeroShowcase } from "@/components/products/hero-showcase";
-import { Card } from "@/components/products/card";
 import { DifficultyBadge } from "@/components/products/difficulty-badge";
+import { HeroTextAnim, HeroSimulatorAnim } from "@/components/products/hero-anim-wrappers";
 import { listSubjectsByLevel } from "@/modules/subjects/service";
 import { listAllPublishedLessons } from "@/modules/lessons/service";
-import { SubjectIcon, getSubjectTheme } from "@/components/ui/subject-theme";
+import { getSubjectTheme } from "@/components/ui/subject-theme";
 import { ActiveLearningWhy } from "@/components/home/active-learning-why";
 import { LearningLoopPillars } from "@/components/home/learning-loop-pillars";
 import { SubjectShowcaseSection } from "@/components/home/subject-showcase-section";
+import { TopicInfiniteCarousel } from "@/components/home/topic-infinite-carousel";
 
 export const dynamic = "force-dynamic";
 
@@ -40,82 +41,84 @@ export default async function HomePage() {
 
         <div className="relative mx-auto w-full max-w-[1400px] px-3 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-10">
-            {/* Left Column: Authoritative EdTech Headline, Value Prop & Productive CTAs */}
-            <div className="flex flex-col items-start gap-6 lg:col-span-7">
-              {/* Product Badge */}
-              <div className="inline-flex items-center gap-2 rounded-full border-2 border-blue-600/30 bg-blue-100/70 px-3.5 py-1 text-xs font-black tracking-wide text-blue-900 shadow-[2px_2px_0px_0px_rgba(37,99,235,0.25)] dark:border-blue-500/40 dark:bg-blue-950/70 dark:text-blue-300">
-                <Sparkles className="h-3.5 w-3.5 text-blue-700 dark:text-blue-400" />
-                <span>IVE-APP · PLATFORM EDUKASI SAINS & MATEMATIKA</span>
-              </div>
+            {/* Left Column — col-span on the motion.div itself */}
+            <HeroTextAnim className="lg:col-span-7">
+              <div className="flex flex-col items-start gap-6">
+                {/* Product Badge */}
+                <div className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border-2 border-blue-600/30 bg-blue-100/70 px-3.5 py-1 text-xs font-black tracking-wide text-blue-900 shadow-[2px_2px_0px_0px_rgba(37,99,235,0.25)] dark:border-blue-500/40 dark:bg-blue-950/70 dark:text-blue-300">
+                  <Sparkles className="h-3.5 w-3.5 shrink-0 text-blue-700 dark:text-blue-400" />
+                  <span>IVE-APP · PLATFORM EDUKASI SAINS &amp; MATEMATIKA</span>
+                </div>
 
-              {/* High-Impact Left-Aligned Headline */}
-              <h1 className="text-4xl font-black tracking-tight text-stone-900 sm:text-5xl lg:text-[56px] lg:leading-[1.12] dark:text-white">
-                Bangun Intuisi Nyata.{" "}
-                <span className="relative inline-block text-blue-700 dark:text-blue-400">
-                  Eksplorasi Sains
-                  <svg
-                    className="absolute -bottom-1.5 left-0 w-full text-blue-500/30 dark:text-blue-400/30"
-                    height="8"
-                    viewBox="0 0 100 8"
-                    preserveAspectRatio="none"
-                    aria-hidden="true"
+                {/* High-Impact Left-Aligned Headline */}
+                <h1 className="text-4xl font-black tracking-tight text-stone-900 sm:text-5xl lg:text-[56px] lg:leading-[1.12] dark:text-white">
+                  Bangun Intuisi Nyata.{" "}
+                  <span className="relative inline-block text-blue-700 dark:text-blue-400">
+                    Eksplorasi Sains
+                    <svg
+                      className="absolute -bottom-1.5 left-0 w-full text-blue-500/30 dark:text-blue-400/30"
+                      height="8"
+                      viewBox="0 0 100 8"
+                      preserveAspectRatio="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M0 7 C 20 0, 40 8, 60 2 C 80 -4, 90 7, 100 3"
+                        stroke="currentColor"
+                        strokeWidth="3.5"
+                        fill="none"
+                      />
+                    </svg>
+                  </span>{" "}
+                  Tanpa Batas Teori.
+                </h1>
+
+                {/* Clear Value Proposition */}
+                <p className="max-w-xl text-[16px] font-medium leading-relaxed text-stone-700 sm:text-lg dark:text-stone-300">
+                  IVE-APP menolak hafalan rumus mati. Di sini, Anda menggeser parameter gerak parabola, mengendalikan reaksi fisi nuklir, atau memutar lingkaran trigonometri secara langsung — berbahasa Indonesia.
+                </p>
+
+                {/* Refined EdTech CTA Group */}
+                <div className="flex flex-wrap items-center gap-3.5 pt-2">
+                  <Link
+                    href="/explore"
+                    className="inline-flex cursor-pointer items-center gap-2.5 rounded-xl border-2 border-stone-900 bg-blue-600 px-6 py-3.5 text-sm font-black text-white shadow-[3px_3px_0px_0px_rgba(24,24,27,0.9)] transition-all hover:-translate-y-0.5 hover:bg-blue-700 active:translate-y-0.5 dark:border-white dark:bg-blue-500"
                   >
-                    <path
-                      d="M0 7 C 20 0, 40 8, 60 2 C 80 -4, 90 7, 100 3"
-                      stroke="currentColor"
-                      strokeWidth="3.5"
-                      fill="none"
-                    />
-                  </svg>
-                </span>{" "}
-                Tanpa Batas Teori.
-              </h1>
+                    <span>Mulai Eksplorasi Konsep</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
 
-              {/* Clear Value Proposition */}
-              <p className="max-w-2xl text-[16px] font-medium leading-relaxed text-stone-700 sm:text-lg dark:text-stone-300">
-                IVE-APP menolak hafalan rumus mati. Di sini, Anda menggeser parameter gerak parabola, mengendalikan reaksi fisi nuklir, atau memutar lingkaran trigonometri secara langsung dalam lingkungan interaktif berbahasa Indonesia.
-              </p>
-
-              {/* Refined EdTech CTA Group */}
-              <div className="flex flex-wrap items-center gap-3.5 pt-2">
-                <Link
-                  href="/explore"
-                  className="inline-flex cursor-pointer items-center gap-2.5 rounded-xl border-2 border-stone-900 bg-blue-600 px-6 py-3.5 text-sm font-black text-white shadow-[3px_3px_0px_0px_rgba(24,24,27,0.9)] transition-all hover:-translate-y-0.5 hover:bg-blue-700 active:translate-y-0.5 dark:border-white dark:bg-blue-500"
-                >
-                  <span>Mulai Eksplorasi Konsep</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-
-                <Link
-                  href="/lab"
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl border-2 border-stone-900 bg-white px-5 py-3.5 text-sm font-bold text-stone-900 shadow-[2.5px_2.5px_0px_0px_rgba(24,24,27,0.9)] transition-all hover:-translate-y-0.5 hover:bg-stone-50 dark:border-stone-200 dark:bg-stone-900 dark:text-white"
-                >
-                  <FlaskConical className="h-4 w-4 text-sky-600 dark:text-sky-400" />
-                  <span>Buka Lab Simulasi</span>
-                </Link>
-              </div>
-
-              {/* Productivity & Trust Indicators */}
-              <div className="flex flex-wrap items-center gap-y-2 gap-x-6 border-t border-stone-200/80 pt-5 text-xs font-bold text-stone-700 dark:border-stone-800 dark:text-stone-300">
-                <div className="flex items-center gap-1.5">
-                  <Zap className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                  <span>100% Interaktif Tanpa Login Wajib</span>
+                  <Link
+                    href="/lab"
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-xl border-2 border-stone-900 bg-white px-5 py-3.5 text-sm font-bold text-stone-900 shadow-[2.5px_2.5px_0px_0px_rgba(24,24,27,0.9)] transition-all hover:-translate-y-0.5 hover:bg-stone-50 dark:border-stone-200 dark:bg-stone-900 dark:text-white"
+                  >
+                    <FlaskConical className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                    <span>Buka Lab Simulasi</span>
+                  </Link>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <BookOpenCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                  <span>Sumber Terverifikasi & Terstruktur</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Bot className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                  <span>Tanya AI Kontekstual Per Materi</span>
+
+                {/* Trust Indicators */}
+                <div className="flex flex-wrap items-center gap-y-2 gap-x-6 border-t border-stone-200/80 pt-5 text-xs font-bold text-stone-700 dark:border-stone-800 dark:text-stone-300">
+                  <div className="flex items-center gap-1.5">
+                    <Zap className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                    <span>100% Interaktif Tanpa Login Wajib</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <BookOpenCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    <span>Sumber Terverifikasi &amp; Terstruktur</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Bot className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                    <span>Tanya AI Kontekstual Per Materi</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </HeroTextAnim>
 
-            {/* Right Column: Dynamic Concept Preview Card with Parallax */}
-            <div className="flex justify-center lg:col-span-5">
+            {/* Right Column: Interactive Simulator — col-span on the motion.div */}
+            <HeroSimulatorAnim className="flex justify-center lg:col-span-5">
               <HeroInteractivePreview />
-            </div>
+            </HeroSimulatorAnim>
           </div>
         </div>
       </section>
@@ -153,61 +156,31 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 6. Featured Interactive Lessons Grid (Warm Canvas) */}
+
+      {/* 6. Topic Infinite Carousel — Pilih Topik & Mulai Bereksperimen */}
       <section className="relative overflow-hidden border-b-2 border-stone-900/10 bg-[#FAF9F5] py-20 dark:border-stone-800 dark:bg-[#121316]">
         <div className="relative mx-auto w-full max-w-[1400px] px-3 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <span className="text-xs font-black uppercase tracking-wider text-blue-700 dark:text-blue-400">
-                  MATERI TERPOPULER
-                </span>
-                <h2 className="text-3xl font-black tracking-tight text-stone-900 sm:text-4xl dark:text-white">
-                  Pilih Topik & Mulai Bereksperimen
-                </h2>
-              </div>
-              <p className="max-w-md text-sm font-medium text-stone-600 dark:text-stone-300">
-                Setiap materi disusun lengkap dengan simulasi mandiri, video penjelasan konsep, rumus LaTeX, dan latihan berumpan balik.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {featuredLessons.map((lesson) => {
-                const subj = subjects.find((s) => s.slug === lesson.subjectSlug);
-                const subjectSlug = lesson.subjectSlug ?? "umum";
-                const theme = getSubjectTheme(subjectSlug);
-
-                return (
-                  <Card
-                    key={lesson.slug}
-                    href={`/learn/${lesson.levelSlug}/${lesson.subjectSlug}/${lesson.topicSlug}/${lesson.slug}`}
-                    icon={<SubjectIcon slug={subjectSlug} size={22} />}
-                    badge={
-                      <div className="flex items-center gap-1.5">
-                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                          Interaktif
-                        </span>
-                        <DifficultyBadge difficulty={lesson.difficulty} />
-                      </div>
-                    }
-                    title={lesson.title}
-                    description={lesson.description}
-                    footer={
-                      <div className="flex items-center justify-between text-xs font-semibold text-stone-600 dark:text-stone-400">
-                        <span className={`rounded-md border px-2 py-0.5 ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder}`}>
-                          {subj?.name ?? lesson.subjectSlug}
-                        </span>
-                        <span>⏱️ {lesson.durationMinutes} menit</span>
-                      </div>
-                    }
-                  />
-                );
-              })}
-            </div>
-          </div>
+          <TopicInfiniteCarousel
+            lessons={featuredLessons.map((lesson) => {
+              const subj = subjects.find((s) => s.slug === lesson.subjectSlug);
+              return {
+                slug: lesson.slug,
+                title: lesson.title,
+                description: lesson.description ?? "",
+                subjectSlug: lesson.subjectSlug ?? "umum",
+                subjectName: subj?.name ?? lesson.subjectSlug ?? "Umum",
+                topicSlug: lesson.topicSlug ?? "umum",
+                levelSlug: lesson.levelSlug ?? "umum",
+                difficulty: (lesson.difficulty ?? "BEGINNER") as "BEGINNER" | "INTERMEDIATE" | "ADVANCED",
+                durationMinutes: lesson.durationMinutes ?? 10,
+                kind: (lesson.kind ?? "LESSON") as "LESSON" | "EXPERIMENT",
+              };
+            })}
+          />
         </div>
       </section>
+
+
 
       {/* 7. Call to Action Banner (High contrast Neobrutalism) */}
       <section className="bg-[#FAF9F5] py-20 dark:bg-[#121316]">

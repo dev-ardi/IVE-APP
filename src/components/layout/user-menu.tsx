@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { LogIn, User, LogOut, ShieldCheck, GraduationCap, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { SessionUser } from "@/server/auth";
@@ -13,7 +14,9 @@ export function UserMenu({
   user: SessionUser | null;
   canAccessCms?: boolean;
 }) {
+  const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on click outside
@@ -162,14 +165,23 @@ export function UserMenu({
 
               <div className="my-1 border-t border-stone-100 dark:border-stone-800" />
 
-              <Link
-                href="/api/auth/logout"
-                onClick={() => setDropdownOpen(false)}
-                className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40 transition"
+              <button
+                type="button"
+                disabled={loggingOut}
+                onClick={async () => {
+                  setLoggingOut(true);
+                  setDropdownOpen(false);
+                  await fetch("/api/auth/logout", { method: "POST" });
+                  // Navigate to home first, then refresh to bust the RSC cache so
+                  // SiteHeader re-renders with the cleared session (guest state).
+                  router.push("/");
+                  router.refresh();
+                }}
+                className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40 transition cursor-pointer disabled:opacity-60"
               >
                 <LogOut className="h-4 w-4" />
-                <span>Keluar Akun</span>
-              </Link>
+                <span>{loggingOut ? "Keluar..." : "Keluar Akun"}</span>
+              </button>
             </div>
           </motion.div>
         )}
