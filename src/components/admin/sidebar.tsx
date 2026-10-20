@@ -58,9 +58,9 @@ export function AdminSidebar({
   ];
 
   const sidebarContent = (
-    <div className="flex h-full flex-col justify-between bg-card text-[#1E2024] dark:text-[#F4F1EA]">
+    <div className="flex h-full flex-col justify-between bg-card text-[#1E2024] dark:text-[#F4F1EA] overflow-hidden">
       {/* Brand Header */}
-      <div>
+      <div className="shrink-0">
         <div className="flex h-16 items-center justify-between border-b-[3px] border-[#1E2024] px-5 dark:border-[#F4F1EA]">
           <Link href="/admin" className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-[#1E2024] bg-primary text-xs font-black text-white shadow-[2px_2px_0px_0px_#1E2024] dark:border-[#F4F1EA]">
@@ -86,9 +86,10 @@ export function AdminSidebar({
             </button>
           )}
         </div>
+      </div>
 
-        {/* Nav Links */}
-        <nav className="flex flex-col gap-6 p-4">
+      {/* Nav Links (Scrollable independently if content exceeds height) */}
+      <nav className="flex flex-1 flex-col gap-6 overflow-y-auto p-4">
           {navGroups.map((group) => (
             <div key={group.group} className="flex flex-col gap-1.5">
               <span className="px-3 text-[11px] font-mono font-black uppercase tracking-wider text-muted-foreground">
@@ -123,7 +124,6 @@ export function AdminSidebar({
             </div>
           ))}
         </nav>
-      </div>
 
       {/* Footer Info */}
       <div className="border-t-2 border-[#1E2024]/10 p-4 text-[11px] font-mono text-muted-foreground dark:border-[#F4F1EA]/10">
@@ -136,7 +136,7 @@ export function AdminSidebar({
   return (
     <>
       {/* Desktop Fixed Sidebar */}
-      <aside className="hidden lg:block w-64 shrink-0 border-r-[3px] border-[#1E2024] bg-card dark:border-[#F4F1EA]">
+      <aside className="hidden lg:flex lg:flex-col w-64 h-full shrink-0 border-r-[3px] border-[#1E2024] bg-card dark:border-[#F4F1EA] overflow-hidden">
         {sidebarContent}
       </aside>
 
