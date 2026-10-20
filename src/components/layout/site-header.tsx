@@ -16,7 +16,7 @@ export async function SiteHeader() {
   return (
     <>
       <ScrollProgress />
-      <header className="sticky top-0 z-40 border-b-2 border-stone-900/10 bg-[#FAF9F5]/90 backdrop-blur-md dark:border-slate-800/80 dark:bg-[#121316]/90">
+      <header className="sticky top-0 z-40 bg-[#F4F1EA]/100 backdrop-blur-sm dark:border-slate-800/80 dark:bg-[#121316]/90">
         <div className="relative mx-auto flex h-16 w-full max-w-[1400px] items-center justify-between px-3 sm:px-6">
           {/* Left: Brand Logo (z-20 so it stays above absolute center container) */}
           <div className="flex shrink-0 items-center z-20">

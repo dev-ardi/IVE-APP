@@ -37,11 +37,6 @@ const NuclearFission = dynamic(() => import("@/components/interactive/nuclear-fi
   loading: () => <InteractiveLoading />,
 });
 
-const FormulaSandbox = dynamic(() => import("@/components/interactive/formula-sandbox"), {
-  ssr: false,
-  loading: () => <InteractiveLoading />,
-});
-
 /**
  * Client boundary resolving an interactive component key to a lazily-loaded
  * component (IVE_TAD_Phase_1.md §10). Unknown keys render a friendly fallback.
@@ -49,13 +44,9 @@ const FormulaSandbox = dynamic(() => import("@/components/interactive/formula-sa
  * NOTE: this intentionally duplicates the module-level registry so the dynamic
  * components are stable references resolved outside render (next/react lint).
  */
-<<<<<<< HEAD
-const COMPONENTS: Record<string, ComponentType<{ config?: Record<string, unknown> }>> = {
-=======
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Each component accepts a different config shape.
 // Runtime safety: keys are validated via isInteractiveKey(); config shapes are validated by Zod at the API boundary.
 const COMPONENTS: Record<string, ComponentType<any>> = {
->>>>>>> origin/main
   "formula-sandbox": FormulaSandbox,
   "projectile-simulator": ProjectileSimulator,
   "trigonometry-visualizer": TrigonometryVisualizer,

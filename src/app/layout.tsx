@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Figtree } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SmoothScrollProvider } from "@/components/layout/smooth-scroll-provider";
+import { PageTransitionProvider } from "@/components/layout/page-transition-provider";
 
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -37,11 +39,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased selection:bg-blue-600/20 selection:text-blue-700 dark:selection:bg-blue-400/20 dark:selection:text-blue-300">
         <SmoothScrollProvider>
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-          <SiteFooter />
+          {/* Suspense is required because PageTransitionProvider uses useSearchParams() */}
+          <Suspense fallback={null}>
+            <PageTransitionProvider>
+              <SiteHeader />
+              <main className="flex-1">{children}</main>
+              <SiteFooter />
+            </PageTransitionProvider>
+          </Suspense>
         </SmoothScrollProvider>
       </body>
     </html>
   );
 }
+
