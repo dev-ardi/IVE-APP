@@ -41,7 +41,11 @@ export async function SiteHeader() {
               <UserMenu user={user} canAccessCms={canAccessCms} />
             </div>
 
-            <MobileNav canAccessCms={canAccessCms} userName={user?.name ?? user?.email} />
+            <MobileNav
+              canAccessCms={canAccessCms}
+              userName={user?.name ?? user?.email}
+              userRole={user?.role}
+            />
           </div>
         </div>
       </header>

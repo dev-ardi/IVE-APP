@@ -12,7 +12,7 @@ interface MobileNavProps {
   canAccessCms?: boolean;
 }
 
-export function MobileNav({ userRole: _userRole, userName, canAccessCms }: MobileNavProps) {
+export function MobileNav({ userRole, userName, canAccessCms }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
@@ -23,6 +23,8 @@ export function MobileNav({ userRole: _userRole, userName, canAccessCms }: Mobil
     { href: "/my-learning", label: "Pembelajaran Saya", icon: BookMarked },
     { href: "/search", label: "Pencarian", icon: Search },
   ];
+
+  const isAdmin = userRole === "ADMIN" || userRole === "SUPER_ADMIN";
 
   return (
     <div className="flex items-center md:hidden">
@@ -68,8 +70,17 @@ export function MobileNav({ userRole: _userRole, userName, canAccessCms }: Mobil
                       onNavigate={() => setIsOpen(false)}
                     />
                   )}
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-semibold text-slate-500">Masuk sebagai:</span>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-500">Masuk sebagai:</span>
+                      <span className={`rounded-md border px-1.5 py-0.2 text-[10px] font-mono font-bold ${
+                        isAdmin
+                          ? "border-amber-600 bg-amber-50 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200"
+                          : "border-blue-300 bg-blue-50 text-blue-800 dark:bg-blue-950/60 dark:text-blue-200"
+                      }`}>
+                        {isAdmin ? (userRole === "SUPER_ADMIN" ? "SUPER ADMIN" : "ADMIN") : "SISWA"}
+                      </span>
+                    </div>
                     <span className="text-sm font-black text-slate-900 dark:text-white">{userName}</span>
                   </div>
                   <Link
