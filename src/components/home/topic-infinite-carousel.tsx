@@ -99,16 +99,16 @@ export function TopicInfiniteCarousel({ lessons, topViewedSlug }: TopicCarouselP
   return (
     <div className="flex flex-col gap-6">
       {/* Section header */}
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <span className="text-xs font-black uppercase tracking-wider text-blue-700 dark:text-blue-400">
             MATERI TERPOPULER
           </span>
-          <h2 className="text-3xl font-black tracking-tight text-stone-900 sm:text-4xl dark:text-white">
+          <h2 className="text-2xl font-black tracking-tight text-stone-900 sm:text-3xl lg:text-4xl dark:text-white">
             Pilih Topik &amp; Mulai Bereksperimen
           </h2>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 self-start sm:self-auto">
           {/* Scroll controls */}
           <div className="flex items-center gap-1.5">
             <button
@@ -165,7 +165,7 @@ export function TopicInfiniteCarousel({ lessons, topViewedSlug }: TopicCarouselP
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.35, delay: Math.min(idx * 0.06, 0.3) }}
-              className="relative shrink-0 w-[300px] sm:w-[320px]"
+              className="relative shrink-0 w-[260px] sm:w-[300px] md:w-[320px]"
               role="listitem"
             >
               {/* TOP VIEWED badge ribbon */}

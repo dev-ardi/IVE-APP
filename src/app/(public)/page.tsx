@@ -45,7 +45,7 @@ export default async function HomePage() {
             <HeroTextAnim className="lg:col-span-7">
               <div className="flex flex-col items-start gap-6">
                 {/* Product Badge */}
-                <div className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border-2 border-blue-600/30 bg-blue-100/70 px-3.5 py-1 text-xs font-black tracking-wide text-blue-900 shadow-[2px_2px_0px_0px_rgba(37,99,235,0.25)] dark:border-blue-500/40 dark:bg-blue-950/70 dark:text-blue-300">
+                <div className="inline-flex items-center gap-2 rounded-full border-2 border-blue-600/30 bg-blue-100/70 px-3.5 py-1 text-xs font-black tracking-wide text-blue-900 shadow-[2px_2px_0px_0px_rgba(37,99,235,0.25)] dark:border-blue-500/40 dark:bg-blue-950/70 dark:text-blue-300 sm:whitespace-nowrap">
                   <Sparkles className="h-3.5 w-3.5 shrink-0 text-blue-700 dark:text-blue-400" />
                   <span>IVE-APP · PLATFORM EDUKASI SAINS &amp; MATEMATIKA</span>
                 </div>

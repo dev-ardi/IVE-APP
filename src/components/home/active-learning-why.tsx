@@ -49,8 +49,8 @@ export function ActiveLearningWhy() {
 
         {/* Interactive Comparison Card Switcher — animated sliding pill */}
         <div className="mt-12 flex justify-center">
-          {/* Outer tab rail — no overflow-hidden so the hard-offset shadow shows */}
-          <div className="relative inline-flex rounded-2xl border-2 border-stone-900/90 bg-white p-1.5 shadow-sm dark:border-stone-700 dark:bg-stone-900">
+          {/* Outer tab rail */}
+          <div className="relative inline-flex max-w-full overflow-hidden rounded-2xl border-2 border-stone-900/90 bg-white p-1.5 shadow-sm dark:border-stone-700 dark:bg-stone-900">
 
             {/* Sliding background pill */}
             <motion.div
@@ -72,30 +72,29 @@ export function ActiveLearningWhy() {
             <button
               type="button"
               onClick={() => setActiveTab("active")}
-              className={`relative z-10 cursor-pointer rounded-xl px-5 py-2.5 text-xs font-black transition-colors duration-150 ${
+              className={`relative z-10 cursor-pointer whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-black transition-colors duration-150 sm:px-5 ${
                 activeTab === "active"
                   ? "text-white"
                   : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
               }`}
             >
-              ✨ Pengalaman Belajar IVE-APP
+              ✨ Belajar IVE-APP
             </button>
 
             {/* Button: Traditional */}
             <button
               type="button"
               onClick={() => setActiveTab("passive")}
-              className={`relative z-10 cursor-pointer rounded-xl px-5 py-2.5 text-xs font-black transition-colors duration-150 ${
+              className={`relative z-10 cursor-pointer whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-black transition-colors duration-150 sm:px-5 ${
                 activeTab === "passive"
                   ? "text-white"
                   : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
               }`}
             >
-              ✕ Cara Tradisional / Buku Teks
+              ✕ Cara Tradisional
             </button>
           </div>
         </div>
-
 
 
         {/* Dynamic Comparison Panel */}

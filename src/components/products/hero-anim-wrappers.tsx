@@ -21,14 +21,14 @@ export function HeroTextAnim({
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, scale: 1.07 }}
+      initial={{ opacity: 0, scale: 1.08 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{
         type: "spring",
         stiffness: 260,
         damping: 22,
         mass: 0.85,
-        delay: 0.15, // slight delay after navbar
+        delay: 0.35, // after navbar spring settles
       }}
       style={{ transformPerspective: 1200 }}
     >
@@ -54,14 +54,14 @@ export function HeroSimulatorAnim({
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, x: 80 }}
+      initial={{ opacity: 0, x: 90 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{
         type: "spring",
-        stiffness: 240,
+        stiffness: 220,
         damping: 20,
-        mass: 0.9,
-        delay: 0.42, // fires after text finishes landing
+        mass: 1.0,
+        delay: 0.65, // fires after text starts landing
       }}
     >
       {children}

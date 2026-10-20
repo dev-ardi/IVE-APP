@@ -14,10 +14,10 @@ export function NavEntranceWrapper({ children }: { children: React.ReactNode }) 
       animate={{ y: 0, opacity: 1 }}
       transition={{
         type: "spring",
-        stiffness: 280,
-        damping: 22,
-        mass: 0.9,
-        delay: 0.05,
+        stiffness: 300,
+        damping: 24,
+        mass: 0.8,
+        delay: 0, // fires immediately — navbar is always first
       }}
     >
       {children}
