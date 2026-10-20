@@ -885,8 +885,6 @@ Document before architectural drift.
 Scale when needed, not when imagined.
 ```
 
-# END OF AGENTS.md
-
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
@@ -899,3 +897,143 @@ Rules:
 - If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+## 13. ADDITIONAL AGENT RULES — GRAPHIFY, MINIMAL CODE, WORKLOOP, AND FINAL REPORT
+
+Aturan berikut wajib dipatuhi selama seluruh proses pengerjaan task.
+
+### 13.1 WORKLOOP — Read Existing Knowledge Before Coding
+
+Sebelum mengubah atau menambahkan kode:
+
+1. Baca `AGENTS.md` dan dokumen spesifikasi yang relevan.
+2. Cari dan baca knowledge graph yang sudah dihasilkan menggunakan Graphify atau Graphify Out.
+3. Periksa artefak Graphify yang benar-benar tersedia di working directory. Cari direktori, file indeks, graph output, ringkasan, dan referensi node/relasi yang relevan dengan task.
+4. Gunakan knowledge graph untuk memahami hubungan antarfile, modul, fungsi, service, model, route, dan dependensi yang terkait.
+5. Verifikasi informasi dari graph terhadap implementasi kode aktual. Knowledge graph membantu navigasi, tetapi tidak menggantikan pemeriksaan kode sumber.
+6. Jika artefak Graphify tidak ditemukan, laporkan kondisi tersebut di kesimpulan. Jangan mengarang isi knowledge graph atau mengklaim sudah membacanya.
+
+Jangan membuat ulang knowledge graph kecuali benar-benar diperlukan dan memang termasuk dalam ruang lingkup task.
+
+Ikuti urutan kerja:
+
+`READ DOCUMENTS → READ GRAPHIFY KNOWLEDGE → INSPECT CODE → IDENTIFY ROOT CAUSE → SEARCH EXISTING SOLUTIONS → PLAN MINIMAL CHANGE → IMPLEMENT → TEST → REVIEW DIFF → REPORT`
+
+Jangan melewati tahap inspeksi hanya karena solusi terlihat sederhana.
+
+### 13.2 No Assumptions and No Unrequested Features
+
+- Jangan mengasumsikan arsitektur, struktur database, library, variabel environment, route, atau perilaku fitur yang belum diverifikasi.
+- Jangan membuat fitur tambahan yang tidak diminta hanya karena dianggap berguna.
+- Jangan mengubah struktur project, mengganti dependency, membuat abstraksi baru, atau melakukan refactor di luar kebutuhan task.
+- Jangan mengganti implementasi yang sudah berfungsi tanpa bukti bahwa perubahan tersebut diperlukan.
+- Gunakan PRD, TAD, `AGENTS.md`, design brief, knowledge graph, dan kode aktual sebagai dasar keputusan.
+- Jika terdapat konflik, gunakan aturan resolusi konflik di `AGENTS.md`. Jangan mengambil keputusan arsitektural besar secara diam-diam.
+- Jika suatu kebutuhan dapat dipenuhi dengan memperbaiki implementasi yang sudah ada, prioritaskan perbaikan tersebut daripada membuat implementasi baru.
+- Jangan mengubah data atau status publikasi hanya untuk membuat UI terlihat benar. Verifikasi sumber masalahnya terlebih dahulu.
+
+### 13.3 Minimal Code Generation and No Repeated Fixing
+
+Setiap kode yang dibuat atau diubah harus memiliki alasan teknis yang jelas dan berhubungan langsung dengan task.
+
+Sebelum menulis kode:
+1. Cari implementasi, fungsi, komponen, schema, service, dan utility yang sudah tersedia.
+2. Identifikasi akar masalah secara spesifik.
+3. Tentukan perubahan minimum yang menyelesaikan masalah secara menyeluruh.
+4. Periksa apakah perubahan yang direncanakan akan menduplikasi fungsi yang sudah ada.
+
+Ketentuan implementasi:
+
+- Jangan membuat file, komponen, fungsi, hook, service, schema, tipe, atau variabel baru jika tidak diperlukan.
+- Jangan menghasilkan kode placeholder, dead code, fungsi kosong, atau fitur tambahan yang tidak diminta.
+- Jangan meninggalkan variabel, import, parameter, state, fungsi, atau dependency yang tidak digunakan.
+- Hindari `any`, type suppression, lint suppression, dan penghapusan validasi hanya untuk membuat build lolos. Gunakan hanya jika benar-benar beralasan dan sesuai konvensi project.
+- Jangan menyalin business logic yang sama ke beberapa tempat.
+- Gunakan service, repository, authorization helper, content renderer, dan komponen yang sudah tersedia jika sesuai.
+- Pertahankan kompatibilitas dengan kontrak data, Prisma schema, API, dan desain yang sudah ada.
+- Jangan mematikan test, mengabaikan error, atau menurunkan pemeriksaan TypeScript/ESLint untuk menyamarkan masalah.
+- Jangan melakukan perubahan berulang pada file yang sama tanpa memahami penyebab kegagalan sebelumnya.
+
+Jika implementasi pertama gagal:
+1. Baca error lengkap dan identifikasi penyebabnya.
+2. Periksa perubahan yang baru dilakukan dan dependensi terkait.
+3. Tentukan apakah masalah berasal dari kode baru, implementasi lama, konfigurasi, atau environment.
+4. Perbaiki akar masalah dengan perubahan sekecil mungkin.
+5. Jalankan kembali pemeriksaan yang relevan untuk membuktikan hasilnya.
+
+Jangan melakukan pola coba-coba, menambahkan workaround bertumpuk, atau mengulang perubahan yang sama tanpa diagnosis baru.
+
+Sebelum menyelesaikan task, review seluruh diff dan hapus perubahan yang tidak diperlukan, import/variabel yang tidak terpakai, serta debugging code yang tidak seharusnya dipertahankan.
+
+### 13.4 No Progress Narration
+
+Selama proses pengerjaan, jangan mengirimkan laporan progres, narasi aktivitas, atau penjelasan berulang seperti:
+
+- "Saya sedang memeriksa file."
+- "Saya akan mulai memperbaiki."
+- "Sekarang saya mengubah komponen."
+- "Saya sedang menjalankan test."
+
+Lakukan pekerjaan secara langsung menggunakan tool dan working directory yang tersedia.
+
+Komunikasi berbentuk teks kepada pengguna diberikan **pada akhir pengerjaan dalam satu laporan kesimpulan**, bukan melalui pembaruan progres berkala.
+
+Pengecualian hanya jika terdapat keputusan yang benar-benar menghalangi pengerjaan aman, misalnya membutuhkan persetujuan untuk operasi destruktif, perubahan arsitektur besar, atau akses environment yang tidak tersedia. Dalam kondisi tersebut, tanyakan hal yang diperlukan saja.
+
+### 13.5 Final Report — Required Format
+
+Setelah seluruh pekerjaan yang dapat dilakukan selesai, berikan satu laporan akhir yang ringkas, faktual, dan berdasarkan hasil verifikasi.
+
+Gunakan format berikut:
+
+#### 1. Kesimpulan
+Ringkasan hasil akhir pengerjaan dan kondisi implementasi saat ini.
+
+#### 2. Hasil Pengerjaan
+Tuliskan perbaikan yang benar-benar berhasil dilakukan dan diverifikasi.
+
+#### 3. File yang Diubah
+Daftar file yang benar-benar dibuat, diubah, atau dihapus, beserta alasan singkat perubahannya.
+
+Jika tidak ada file yang diubah, tulis `-`.
+
+#### 4. Fitur dari Plan yang Berhasil Diimplementasikan
+Daftar fitur atau acceptance criteria dari task yang sudah berhasil diimplementasikan dan diuji.
+
+Jika tidak ada, tulis `-`.
+
+#### 5. Fitur atau Pekerjaan yang Gagal / Belum Selesai
+Tuliskan hanya item yang memang gagal atau belum selesai, disertai alasan spesifik, dampak, dan langkah lanjutan yang diperlukan.
+
+Jika tidak ada, tulis `-`.
+
+#### 6. Hasil Verifikasi
+Cantumkan pemeriksaan yang benar-benar dijalankan beserta hasilnya, misalnya:
+- Prisma schema validation.
+- Status migration.
+- Prisma Client generation.
+- Seeder execution.
+- Lint dan TypeScript.
+- Unit/integration/E2E test yang relevan.
+- Build.
+- Pengujian autentikasi dan RBAC.
+- Pengujian data materi CMS ke frontend.
+- Review Git diff dan unused code.
+
+Jangan mencantumkan pemeriksaan yang tidak dijalankan. Jika suatu pemeriksaan tidak dapat dilakukan, jelaskan alasannya pada bagian pekerjaan yang belum selesai.
+
+#### 7. Graphify Knowledge
+Sebutkan apakah knowledge graph ditemukan dan dibaca. Jika ditemukan, sebutkan artefak relevan yang benar-benar digunakan. Jika tidak ditemukan, tulis alasan singkat.
+
+### 13.6 Reporting Integrity
+
+- Jangan mengklaim fitur berhasil hanya karena kode sudah ditulis.
+- Bedakan antara implementasi, test yang lulus, dan perilaku yang benar-benar diuji.
+- Jangan menyatakan migration berhasil jika hanya schema validation atau Prisma Client generation yang berhasil.
+- Jangan menyatakan integrasi CMS–frontend berhasil jika data belum diverifikasi dari database sampai ke tampilan publik.
+- Jangan menyembunyikan error, test gagal, keterbatasan environment, atau task yang belum selesai.
+- Jangan mencantumkan fitur yang tidak diminta sebagai keberhasilan task.
+- Gunakan tanda `-` untuk bagian yang memang tidak memiliki item, bukan membuat pekerjaan atau masalah fiktif.
+
+**Prioritas akhir: correctness, minimal changes, keamanan, konsistensi dengan arsitektur, dan hasil yang terverifikasi — bukan jumlah file atau banyaknya kode yang dihasilkan.**
+
+# END OF AGENTS.md
