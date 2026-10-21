@@ -19,6 +19,7 @@ import {
   type FissionStats,
 } from "./nuclear-fission-sim";
 import { FissionController } from "./nuclear-fission-renderer";
+import { RenderFormula } from "@/modules/content/render-formula";
 
 interface Props {
   config?: Record<string, unknown>;
@@ -379,8 +380,8 @@ export default function NuclearFission({ config = {} }: Props) {
           <strong className="text-foreground">Barium-141</strong> dan <strong className="text-foreground">Kripton-92</strong>, melepaskan 2 hingga 3 neutron bebas sekunder berenergi tinggi serta energi kinetik sekitar{" "}
           <strong className="text-foreground">~200 MeV</strong> per peristiwa pembelahan:
         </p>
-        <div className="font-mono text-center font-bold text-foreground bg-card py-1.5 px-3 rounded-lg border border-border text-[11px] sm:text-xs overflow-x-auto">
-          {"^{235}_{92}\\text{U} + ^{1}_{0}\\text{n} \\longrightarrow \\left[^{236}_{92}\\text{U}\\right]^* \\longrightarrow ^{141}_{56}\\text{Ba} + ^{92}_{36}\\text{Kr} + 3\\,^{1}_{0}\\text{n} + \\approx 200\\text{ MeV}"}
+        <div className="text-center font-bold text-foreground bg-card py-2.5 px-3 rounded-lg border border-border text-xs sm:text-sm overflow-x-auto flex justify-center items-center">
+          <RenderFormula formula="^{235}_{92}\text{U} + ^{1}_{0}\text{n} \longrightarrow \left[^{236}_{92}\text{U}\right]^* \longrightarrow ^{141}_{56}\text{Ba} + ^{92}_{36}\text{Kr} + 3\,^{1}_{0}\text{n} + \approx 200\text{ MeV}" />
         </div>
         <p className="text-[11px] text-muted-foreground/90 leading-relaxed">
           <strong>Penyederhanaan Model Edukasi:</strong> Simulasi ini menggunakan model 2D interaktif deterministik. Kecepatan neutron konstan, arah lontaran neutron sekunder isotropik acak, dan probabilitas fisi saat tumbukan adalah 85% (15% tangkapan radiatif). Batang kendali menyerap 100% neutron yang menyentuhnya. Energi dihitung tepat berdasarkan peristiwa fisi yang berhasil.
