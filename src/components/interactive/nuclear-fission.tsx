@@ -1,358 +1,390 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import {
+  Atom,
+  Flame,
+  Plus,
+  RotateCcw,
+  ShieldAlert,
+  Zap,
+  Activity,
+  Layers,
+  Info,
+} from "lucide-react";
+import {
+  ADD_INCREMENT,
+  MAX_NUCLEI,
+  MEV_TO_JOULE,
+  type FissionStats,
+} from "./nuclear-fission-sim";
+import { FissionController } from "./nuclear-fission-renderer";
 
 interface Props {
   config?: Record<string, unknown>;
 }
 
-interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  radius: number;
-  color: string;
-  label: string;
-  type: "neutron" | "fragment" | "uranium";
+function getStatusMessage(s: FissionStats): string {
+  if (s.phase === "ready") {
+    return s.intactNuclei > 1
+      ? `${s.intactNuclei} inti U-235 siap dalam kisi bahan bakar. Tembakkan neutron untuk memulai reaksi berantai.`
+      : "1 inti U-235 siap di posisi target. Klik 'Tembakkan Neutron' untuk memulai reaksi.";
+  }
+  if (s.phase === "fired") {
+    return "Neutron termal ditembakkan dari sumber menuju inti target...";
+  }
+  if (s.phase === "reacting") {
+    return `Reaksi berantai aktif! (${s.fissionEvents} fisi terjadi, ${s.activeNeutrons} neutron bergerak, generasi ke-${s.maxGeneration}).`;
+  }
+  if (s.phase === "stopped") {
+    if (s.fissionEvents === 0) {
+      return "Neutron lolos atau diserap tanpa memicu pembelahan. Tambah atom atau tembakkan kembali.";
+    }
+    return `Reaksi mereda. Total ${s.fissionEvents} pembelahan menghasilkan ${s.energyMeV} MeV energi.`;
+  }
+  if (s.phase === "reset") {
+    return "Simulasi di-reset ke kondisi awal (1 inti U-235, 0 MeV energi).";
+  }
+  return "Siap. Klik 'Tembakkan Neutron' untuk memicu reaksi fisi terinduksi.";
 }
 
 export default function NuclearFission({ config = {} }: Props) {
-  const [controlRodDepth, setControlRodDepth] = useState<number>(
-    Number(config.initialControlRods ?? 30)
-  );
-  const [fissionCount, setFissionCount] = useState<number>(0);
-  const [energyReleasedMev, setEnergyReleasedMev] = useState<number>(0);
-  const [statusText, setStatusText] = useState<string>("Siap. Klik 'Tembakkan Neutron' untuk memulai reaksi.");
+  const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const controllerRef = useRef<FissionController | null>(null);
 
-  const stateRef = useRef<{
-    particles: Particle[];
-    animId: number | null;
-    isSplitting: boolean;
-  }>({
-    particles: [],
-    animId: null,
-    isSplitting: false,
+  const initialRodDepth = Math.max(
+    0,
+    Math.min(100, Number(config.initialControlRods ?? 30))
+  );
+
+  const [controlRodDepth, setControlRodDepth] = useState<number>(initialRodDepth);
+  const [stats, setStats] = useState<FissionStats>({
+    totalNuclei: 1,
+    intactNuclei: 1,
+    fissionedNuclei: 0,
+    capturedNuclei: 0,
+    activeNeutrons: 0,
+    fissionEvents: 0,
+    energyMeV: 0,
+    absorbedByRods: 0,
+    capturedByU235: 0,
+    escapedNeutrons: 0,
+    neutronsFired: 0,
+    suppressedNeutrons: 0,
+    maxGeneration: 0,
+    phase: "ready",
+    seed: 42,
   });
 
-  const resetSimulation = () => {
-    if (stateRef.current.animId) {
-      cancelAnimationFrame(stateRef.current.animId);
-    }
-    stateRef.current.isSplitting = false;
-    stateRef.current.particles = [
-      {
-        x: 280,
-        y: 130,
-        vx: 0,
-        vy: 0,
-        radius: 36,
-        color: "#10b981", // Uranium 235
-        label: "U-235",
-        type: "uranium",
-      },
-    ];
-    setStatusText("Inti Uranium-235 stabil di posisi target. Siap menerima neutron termal.");
-    draw();
-  };
+  const [statusMessage, setStatusMessage] = useState<string>(
+    "Siap. Klik 'Tembakkan Neutron' untuk memicu reaksi fisi terinduksi."
+  );
 
-  const fireNeutron = () => {
-    // Add incoming neutron moving right
-    stateRef.current.particles = stateRef.current.particles.filter(p => p.type !== "neutron");
-    stateRef.current.particles.push({
-      x: 30,
-      y: 130,
-      vx: 3.5,
-      vy: 0,
-      radius: 6,
-      color: "#38bdf8", // Sky blue neutron
-      label: "n",
-      type: "neutron",
-    });
-    setStatusText("Neutron termal ditembakkan menuju inti Uranium-235...");
-    animate();
-  };
+  const sliderId = useId();
 
-  const draw = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const w = canvas.clientWidth;
-    const h = 260;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    ctx.scale(dpr, dpr);
-
-    ctx.clearRect(0, 0, w, h);
-
-    // Draw control rod guide zone
-    const rodX = w * 0.72;
-    const rodH = (controlRodDepth / 100) * 160;
-    ctx.fillStyle = "rgba(100, 116, 139, 0.2)";
-    ctx.fillRect(rodX - 14, 10, 28, 160);
-    // Control rod itself (Cadmium / Boron)
-    ctx.fillStyle = "rgba(71, 85, 105, 0.85)";
-    ctx.fillRect(rodX - 10, 10, 20, rodH);
-    ctx.fillStyle = "#94a3b8";
-    ctx.font = "10px sans-serif";
-    ctx.fillText("Batang Kendali", rodX - 32, 185);
-
-    // Draw particles
-    for (const p of stateRef.current.particles) {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fillStyle = p.color;
-      ctx.fill();
-      ctx.lineWidth = 1.5;
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
-      ctx.stroke();
-
-      // Label
-      ctx.fillStyle = "#ffffff";
-      ctx.font = p.radius > 20 ? "bold 12px sans-serif" : "bold 9px sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(p.label, p.x, p.y);
-    }
-  };
-
-  const animate = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const w = canvas.clientWidth;
-    const h = 260;
-
-    const particles = stateRef.current.particles;
-    const u = particles.find((p) => p.type === "uranium");
-
-    for (let i = 0; i < particles.length; i++) {
-      const p = particles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-
-      // Check collision between neutron and Uranium
-      if (p.type === "neutron" && u && !stateRef.current.isSplitting) {
-        const dx = p.x - u.x;
-        const dy = p.y - u.y;
-        const dist = Math.hypot(dx, dy);
-
-        if (dist < u.radius + p.radius) {
-          // Trigger Fission!
-          stateRef.current.isSplitting = true;
-          setStatusText("Tumbukan terjadi! Inti U-235 menyerap neutron menjadi U-236*, lalu membelah (fisi)!");
-          setFissionCount((prev) => prev + 1);
-          setEnergyReleasedMev((prev) => prev + 202.5);
-
-          // Remove original neutron & uranium
-          stateRef.current.particles = [
-            // Fragment 1: Barium-141
-            {
-              x: u.x,
-              y: u.y - 10,
-              vx: 1.6,
-              vy: -1.8,
-              radius: 22,
-              color: "#f59e0b",
-              label: "Ba-141",
-              type: "fragment",
-            },
-            // Fragment 2: Kripton-92
-            {
-              x: u.x,
-              y: u.y + 10,
-              vx: 1.4,
-              vy: 2.2,
-              radius: 18,
-              color: "#8b5cf6",
-              label: "Kr-92",
-              type: "fragment",
-            },
-            // 3 free fast neutrons released
-            {
-              x: u.x + 15,
-              y: u.y - 15,
-              vx: 3.2,
-              vy: -0.8,
-              radius: 5,
-              color: "#38bdf8",
-              label: "n",
-              type: "neutron",
-            },
-            {
-              x: u.x + 20,
-              y: u.y,
-              vx: 4.0,
-              vy: 0.4,
-              radius: 5,
-              color: "#38bdf8",
-              label: "n",
-              type: "neutron",
-            },
-            {
-              x: u.x + 15,
-              y: u.y + 15,
-              vx: 3.0,
-              vy: 1.5,
-              radius: 5,
-              color: "#38bdf8",
-              label: "n",
-              type: "neutron",
-            },
-          ];
-          break;
-        }
-      }
-
-      // Check if fast neutrons are absorbed by control rods
-      const rodX = w * 0.72;
-      const rodH = (controlRodDepth / 100) * 160;
-      if (
-        p.type === "neutron" &&
-        p.x >= rodX - 10 &&
-        p.x <= rodX + 10 &&
-        p.y >= 10 &&
-        p.y <= 10 + rodH
-      ) {
-        p.vx = 0;
-        p.vy = 0;
-        p.color = "#64748b";
-        p.label = "absorb";
-      }
-    }
-
-    draw();
-
-    // Check if particles still active within bounds
-    const active = particles.some(
-      (p) => p.x > 0 && p.x < w + 50 && p.y > 0 && p.y < h + 50 && (p.vx !== 0 || p.vy !== 0)
-    );
-
-    if (active) {
-      stateRef.current.animId = requestAnimationFrame(animate);
-    } else {
-      setStatusText(
-        "Reaksi pembelahan selesai. Fragmen fisi melepaskan energi kinetik dan radiasi, sedangkan neutron bebas diserap/bergerak keluar."
-      );
-    }
-  };
-
+  // Initialize canvas controller & lifecycle
   useEffect(() => {
-    stateRef.current.particles = [
-      {
-        x: 280,
-        y: 130,
-        vx: 0,
-        vy: 0,
-        radius: 36,
-        color: "#10b981",
-        label: "U-235",
-        type: "uranium",
-      },
-    ];
-    draw();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    const currentRef = stateRef.current;
-    return () => {
-      if (currentRef.animId) cancelAnimationFrame(currentRef.animId);
+    const controller = new FissionController(canvas, {
+      seed: Math.floor(Math.random() * 100000) + 1,
+      rodInsertion: initialRodDepth / 100,
+      onStats: (newStats) => {
+        setStats(newStats);
+        setStatusMessage(getStatusMessage(newStats));
+      },
+    });
+    controllerRef.current = controller;
+
+    const handleResize = () => {
+      controller.resize();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    const ro = new ResizeObserver(() => {
+      controller.resize();
+    });
+
+    if (containerRef.current) {
+      ro.observe(containerRef.current);
+    }
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", handleResize);
+      controller.destroy();
+      controllerRef.current = null;
+    };
+  }, [initialRodDepth]);
+
+  const handleFireNeutron = () => {
+    controllerRef.current?.fireNeutron();
+  };
+
+  const handleAddNuclei = () => {
+    controllerRef.current?.addNuclei();
+  };
+
+  const handleReset = () => {
+    const nextSeed = Math.floor(Math.random() * 100000) + 1;
+    controllerRef.current?.reset(nextSeed, controlRodDepth / 100);
+  };
+
+  const handleRodChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = Number(e.target.value);
+    setControlRodDepth(val);
+    controllerRef.current?.setRodInsertion(val / 100);
+  };
+
+  const isAtMaxNuclei = stats.totalNuclei >= MAX_NUCLEI;
+  const isReacting = stats.phase === "reacting" || stats.activeNeutrons > 0;
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-6 shadow-xs">
-      <div className="mb-5 flex flex-col gap-1 border-b border-border pb-4">
-        <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-500/10 text-base text-violet-600 dark:text-violet-400">
-            ⚛️
+    <div className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-sm">
+      {/* Simulation Header */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <Atom className="h-5 w-5 text-amber-500 animate-pulse" />
+            <h3 className="text-base sm:text-lg font-bold text-foreground">
+              Simulasi Reaktor Fisi Nuklir & Reaksi Berantai
+            </h3>
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Eksperimen pembelahan inti U-235, pelepasan neutron sekunder, serta kontrol reaktivitas reaktor.
+          </p>
+        </div>
+
+        {/* Status Badge */}
+        <div className="flex items-center gap-2 self-start sm:self-auto rounded-full border border-border bg-muted/40 px-3 py-1 text-xs">
+          <span
+            className={`h-2.5 w-2.5 rounded-full ${
+              isReacting
+                ? "bg-amber-500 animate-ping"
+                : stats.phase === "stopped"
+                ? "bg-sky-500"
+                : "bg-emerald-500"
+            }`}
+          />
+          <span className="font-medium text-foreground">
+            {isReacting
+              ? "Reaksi Berlangsung"
+              : stats.phase === "stopped"
+              ? "Reaksi Mereda"
+              : "Siap Uji"}
           </span>
-          <h3 className="text-lg font-semibold tracking-tight text-foreground">
-            Simulasi Reaksi Fisi Nuklir (U-235)
-          </h3>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Eksplorasi proses pemecahan inti atom Uranium ketika menangkap neutron, pelepasan energi kinetik, dan pengendalian reaksi melalui batang kendali.
-        </p>
-      </div>
-
-      {/* Canvas view */}
-      <div className="relative overflow-hidden rounded-xl border border-border bg-slate-950">
-        <canvas ref={canvasRef} className="h-64 w-full" />
-        <div className="absolute bottom-2 left-3 text-[11px] text-slate-400">
-          {statusText}
         </div>
       </div>
 
-      {/* Action buttons & controls */}
-      <div className="mt-5 grid grid-cols-1 gap-6 md:grid-cols-12">
+      {/* Main Canvas Container (Interior Reactor) */}
+      <div
+        ref={containerRef}
+        className="relative w-full overflow-hidden rounded-xl border-2 border-slate-800 bg-[#06121c] shadow-inner select-none"
+      >
+        <canvas
+          ref={canvasRef}
+          className="block w-full h-auto cursor-crosshair"
+          style={{ aspectRatio: "1000 / 600" }}
+          aria-label="Kanvas visualisasi interior reaktor fisi nuklir"
+          role="img"
+        />
+
+        {/* Live HUD Floating Indicators */}
+        <div className="pointer-events-none absolute left-3 top-3 flex flex-wrap gap-2 text-[11px] font-mono">
+          <div className="rounded-md bg-slate-950/80 px-2 py-1 text-amber-300 border border-slate-700/60 backdrop-blur-sm">
+            U-235: {stats.intactNuclei}/{stats.totalNuclei}
+          </div>
+          <div className="rounded-md bg-slate-950/80 px-2 py-1 text-cyan-300 border border-slate-700/60 backdrop-blur-sm">
+            Neutron: {stats.activeNeutrons}
+          </div>
+          {stats.fissionEvents > 0 && (
+            <div className="rounded-md bg-slate-950/80 px-2 py-1 text-rose-300 border border-slate-700/60 backdrop-blur-sm">
+              Fisi: {stats.fissionEvents}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Dynamic Status Notification */}
+      <div className="flex items-center gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 text-xs text-amber-900 dark:text-amber-200">
+        <Activity className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+        <span className="font-medium">{statusMessage}</span>
+      </div>
+
+      {/* Simulation Controls */}
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-12 items-start">
+        {/* Buttons Section */}
         <div className="flex flex-col gap-3 md:col-span-6">
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               type="button"
-              onClick={fireNeutron}
-              className="flex-1 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition hover:bg-violet-700 active:scale-95"
+              onClick={handleFireNeutron}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-cyan-600 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition hover:bg-cyan-500 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-cyan-400"
             >
-              🚀 Tembakkan Neutron
+              <Zap className="h-4 w-4" />
+              Tembakkan Neutron
             </button>
+
             <button
               type="button"
-              onClick={resetSimulation}
-              className="rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium transition hover:bg-muted"
+              onClick={handleAddNuclei}
+              disabled={isAtMaxNuclei}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-foreground shadow-sm transition hover:bg-muted active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none"
             >
+              <Plus className="h-4 w-4 text-amber-500" />
+              Tambah U-235 (+{ADD_INCREMENT})
+            </button>
+
+            <button
+              type="button"
+              onClick={handleReset}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5 text-xs sm:text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground active:scale-[0.98] focus:outline-none"
+              title="Reset simulasi ke kondisi awal"
+            >
+              <RotateCcw className="h-4 w-4" />
               Reset
             </button>
           </div>
 
-          <div className="flex flex-col gap-1.5 pt-2">
-            <div className="flex justify-between text-xs font-medium">
-              <span className="text-foreground">Kedalaman Batang Kendali:</span>
-              <span className="font-mono text-primary">{controlRodDepth}%</span>
+          {/* Control Rod Slider */}
+          <div className="flex flex-col gap-2 rounded-xl border border-border bg-muted/30 p-3.5">
+            <div className="flex items-center justify-between text-xs font-semibold">
+              <span className="flex items-center gap-1.5 text-foreground">
+                <ShieldAlert className="h-4 w-4 text-rose-500" />
+                Kedalaman Batang Kendali:
+              </span>
+              <span className="font-mono text-cyan-600 dark:text-cyan-400 font-bold">
+                {controlRodDepth}%
+              </span>
             </div>
+
             <input
+              id={sliderId}
               type="range"
               min={0}
               max={100}
               value={controlRodDepth}
-              onChange={(e) => {
-                setControlRodDepth(Number(e.target.value));
-                draw();
-              }}
-              className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-violet-600"
+              onChange={handleRodChange}
+              className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted-foreground/20 accent-cyan-600 focus:outline-none"
+              aria-label="Kedalaman batang kendali neutron"
             />
-            <span className="text-[11px] text-muted-foreground">
-              Batang kendali (boron/kadmium) menyerap kelebihan neutron bebas untuk mencegah reaksi tak terkendali.
-            </span>
+
+            <div className="flex justify-between text-[11px] text-muted-foreground">
+              <span>0% (Reaksi Maksimal)</span>
+              <span>100% (Pemadaman / SCRAM)</span>
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              Batang kendali (boron/kadmium) menyerap neutron bebas. Semakin dalam diturunkan, semakin cepat reaksi berantai dipadamkan.
+            </p>
           </div>
         </div>
 
-        {/* Energy Telemetry Dashboard */}
-        <div className="flex flex-col justify-between rounded-xl border border-border bg-muted/30 p-4 md:col-span-6">
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {/* Telemetry Dashboard */}
+        <div className="flex flex-col gap-2.5 rounded-xl border border-border bg-muted/20 p-4 md:col-span-6">
+          <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <Activity className="h-3.5 w-3.5 text-amber-500" />
             Telemetri Reaksi Nuklir
           </span>
-          <div className="mt-2 grid grid-cols-2 gap-3">
-            <div className="rounded-lg bg-background p-2.5 border border-border">
-              <span className="text-[11px] text-muted-foreground">Peristiwa Fisi</span>
-              <p className="text-xl font-bold text-foreground">{fissionCount} kali</p>
-            </div>
-            <div className="rounded-lg bg-background p-2.5 border border-border">
-              <span className="text-[11px] text-muted-foreground">Total Energi Dilepas</span>
-              <p className="text-xl font-bold text-violet-600 dark:text-violet-400">
-                {energyReleasedMev.toFixed(1)} MeV
+
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+            <div className="rounded-lg border border-border bg-card p-2.5">
+              <span className="text-[11px] text-muted-foreground block">Inti U-235</span>
+              <p className="text-lg font-bold text-foreground">
+                {stats.intactNuclei}
+                <span className="text-xs font-normal text-muted-foreground">/{stats.totalNuclei}</span>
               </p>
+              <span className="text-[10px] text-muted-foreground">
+                {stats.fissionedNuclei} terbelah
+              </span>
+            </div>
+
+            <div className="rounded-lg border border-border bg-card p-2.5">
+              <span className="text-[11px] text-muted-foreground block">Peristiwa Fisi</span>
+              <p className="text-lg font-bold text-amber-600 dark:text-amber-400">
+                {stats.fissionEvents} <span className="text-xs font-normal">kali</span>
+              </p>
+              <span className="text-[10px] text-muted-foreground">
+                Gen ke-{stats.maxGeneration}
+              </span>
+            </div>
+
+            <div className="rounded-lg border border-border bg-card p-2.5 col-span-2 sm:col-span-1">
+              <span className="text-[11px] text-muted-foreground block">Neutron Aktif</span>
+              <p className="text-lg font-bold text-cyan-600 dark:text-cyan-400">
+                {stats.activeNeutrons}
+              </p>
+              <span className="text-[10px] text-muted-foreground">
+                {stats.absorbedByRods} diserap batang
+              </span>
             </div>
           </div>
-          <p className="mt-2 text-[11px] text-muted-foreground">
-            Setara dengan {(energyReleasedMev * 1.602e-13).toExponential(2)} Joule per inti.
-          </p>
+
+          {/* Energy Telemetry Card */}
+          <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                <Flame className="h-3.5 w-3.5 text-amber-500" />
+                Total Energi Dilepas:
+              </span>
+              <span className="text-base sm:text-lg font-extrabold text-amber-600 dark:text-amber-400 font-mono">
+                {stats.energyMeV.toLocaleString()} MeV
+              </span>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Setara dengan {(stats.energyMeV * MEV_TO_JOULE).toExponential(3)} Joule (dihitung tepat 200 MeV per peristiwa fisi).
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Accessible textual fallback */}
-      <div className="mt-5 rounded-xl border border-border/60 bg-muted/20 px-4 py-3 text-xs text-muted-foreground">
-        <strong>Konsep Fisika:</strong> Pada reaksi fisi terinduksi, sebuah neutron lambat ditangkap oleh inti U-235 menghasilkan U-236 yang tidak stabil. Inti tersebut segera terbelah menjadi dua inti lebih ringan (misalnya Ba-141 dan Kr-92) serta melepaskan 2 hingga 3 neutron bebas baru berenergi tinggi yang berpotensi memicu reaksi berantai.
+      {/* Visual Legend */}
+      <div className="flex flex-wrap items-center gap-3 pt-1 border-t border-border/60 text-xs text-muted-foreground">
+        <span className="font-semibold text-foreground flex items-center gap-1">
+          <Layers className="h-3.5 w-3.5" />
+          Legenda Reaktor:
+        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="h-3 w-3 rounded-full bg-amber-400 border border-amber-600" />
+          <span>Inti U-235</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_6px_#22d3ee]" />
+          <span>Neutron Bebas (n)</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
+          <span>Barium-141</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-violet-400" />
+          <span>Kripton-92</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="h-3 w-1.5 rounded-sm bg-slate-400 border border-slate-600" />
+          <span>Batang Kendali (Kadmium/Boron)</span>
+        </div>
+      </div>
+
+      {/* Accessible Physics Fallback & Pedagogical Notes */}
+      <div className="rounded-xl border border-border/80 bg-muted/30 p-3.5 text-xs text-muted-foreground flex flex-col gap-2">
+        <div className="flex items-center gap-1.5 font-semibold text-foreground">
+          <Info className="h-4 w-4 text-cyan-500" />
+          <span>Konsep Fisika & Persamaan Reaksi Fisi:</span>
+        </div>
+        <p className="leading-relaxed">
+          Pada fisi nuklir terinduksi, neutron lambat (termal) ditangkap oleh inti Uranium-235 membentuk senyawa inti sementara{" "}
+          <strong className="text-foreground">U-236*</strong> yang sangat tidak stabil. Inti tersebut segera terbelah menjadi dua fragmen fisi utama seperti{" "}
+          <strong className="text-foreground">Barium-141</strong> dan <strong className="text-foreground">Kripton-92</strong>, melepaskan 2 hingga 3 neutron bebas sekunder berenergi tinggi serta energi kinetik sekitar{" "}
+          <strong className="text-foreground">~200 MeV</strong> per peristiwa pembelahan:
+        </p>
+        <div className="font-mono text-center font-bold text-foreground bg-card py-1.5 px-3 rounded-lg border border-border text-[11px] sm:text-xs overflow-x-auto">
+          {"^{235}_{92}\\text{U} + ^{1}_{0}\\text{n} \\longrightarrow \\left[^{236}_{92}\\text{U}\\right]^* \\longrightarrow ^{141}_{56}\\text{Ba} + ^{92}_{36}\\text{Kr} + 3\\,^{1}_{0}\\text{n} + \\approx 200\\text{ MeV}"}
+        </div>
+        <p className="text-[11px] text-muted-foreground/90 leading-relaxed">
+          <strong>Penyederhanaan Model Edukasi:</strong> Simulasi ini menggunakan model 2D interaktif deterministik. Kecepatan neutron konstan, arah lontaran neutron sekunder isotropik acak, dan probabilitas fisi saat tumbukan adalah 85% (15% tangkapan radiatif). Batang kendali menyerap 100% neutron yang menyentuhnya. Energi dihitung tepat berdasarkan peristiwa fisi yang berhasil.
+        </p>
       </div>
     </div>
   );
