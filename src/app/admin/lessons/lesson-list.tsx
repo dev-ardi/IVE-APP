@@ -3,21 +3,15 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { TablePagination, usePagination } from "@/components/admin/ui/pagination";
 import {
   Search,
   FlaskConical,
   Edit,
-  ExternalLink,
-  Layers,
-  AlertTriangle,
-  CheckCircle2,
-  Archive,
 } from "lucide-react";
 import { CmsInput, CmsSelect } from "@/components/admin/ui/input";
-import { CmsButton } from "@/components/admin/ui/button";
 import { CmsConfirmDialog } from "@/components/admin/ui/dialog";
 import { ContentStatusBadge, KindBadge, DifficultyBadge } from "@/components/admin/ui/badge";
-import { getSubjectTheme } from "@/components/ui/subject-theme";
 import type { Difficulty, ContentStatus, LessonKind } from "@prisma/client";
 
 export interface LessonRowItem {
@@ -83,6 +77,8 @@ export function LessonList({
     });
   }, [lessons, search, selectedSubject, selectedKind, selectedStatus]);
 
+  const pagination = usePagination(filteredLessons, 10);
+
   async function handleConfirmAction() {
     setIsActionPending(true);
     try {
@@ -127,7 +123,10 @@ export function LessonList({
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <CmsInput
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                pagination.resetPage();
+              }}
               placeholder="Cari materi..."
               className="pl-9"
             />
@@ -136,7 +135,10 @@ export function LessonList({
           {/* Subject Filter */}
           <CmsSelect
             value={selectedSubject}
-            onChange={(e) => setSelectedSubject(e.target.value)}
+            onChange={(e) => {
+              setSelectedSubject(e.target.value);
+              pagination.resetPage();
+            }}
           >
             <option value="">Semua Mata Pelajaran</option>
             {subjects.map((s) => (
@@ -149,7 +151,10 @@ export function LessonList({
           {/* Kind Filter */}
           <CmsSelect
             value={selectedKind}
-            onChange={(e) => setSelectedKind(e.target.value)}
+            onChange={(e) => {
+              setSelectedKind(e.target.value);
+              pagination.resetPage();
+            }}
           >
             <option value="">Semua Jenis (Materi & Lab)</option>
             <option value="LESSON">Hanya Materi (LESSON)</option>
@@ -159,7 +164,10 @@ export function LessonList({
           {/* Status Filter */}
           <CmsSelect
             value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
+            onChange={(e) => {
+              setSelectedStatus(e.target.value);
+              pagination.resetPage();
+            }}
           >
             <option value="">Semua Status</option>
             <option value="PUBLISHED">Dipublikasikan (PUBLISHED)</option>
@@ -190,11 +198,8 @@ export function LessonList({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1E2024]/10 dark:divide-[#F4F1EA]/10">
-                {filteredLessons.map((lesson) => {
-                  const theme = getSubjectTheme(lesson.subject.slug);
-
-                  return (
-                    <tr
+                {pagination.paginatedData.map((lesson) => (
+                  <tr
                       key={lesson.id}
                       className="hover:bg-muted/30 transition-colors"
                     >
@@ -314,11 +319,24 @@ export function LessonList({
                         </div>
                       </td>
                     </tr>
-                  );
-                })}
+                  ))}
               </tbody>
             </table>
           </div>
+        )}
+
+        {filteredLessons.length > 0 && (
+          <TablePagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.totalItems}
+            startIndex={pagination.startIndex}
+            endIndex={pagination.endIndex}
+            rowsPerPage={pagination.rowsPerPage}
+            onPageChange={pagination.goToPage}
+            onRowsPerPageChange={pagination.setRowsPerPage}
+            itemLabel="materi"
+          />
         )}
       </div>
 
