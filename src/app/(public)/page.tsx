@@ -11,11 +11,10 @@ import {
 } from "lucide-react";
 import { HeroInteractivePreview } from "@/components/products/hero-interactive-preview";
 import { HeroShowcase } from "@/components/products/hero-showcase";
-import { DifficultyBadge } from "@/components/products/difficulty-badge";
 import { HeroTextAnim, HeroSimulatorAnim } from "@/components/products/hero-anim-wrappers";
+import { HeroHeadlineMotion } from "@/components/home/hero-headline-motion";
 import { listSubjectsByLevel } from "@/modules/subjects/service";
 import { listAllPublishedLessons } from "@/modules/lessons/service";
-import { getSubjectTheme } from "@/components/ui/subject-theme";
 import { ActiveLearningWhy } from "@/components/home/active-learning-why";
 import { LearningLoopPillars } from "@/components/home/learning-loop-pillars";
 import { SubjectShowcaseSection } from "@/components/home/subject-showcase-section";
@@ -50,28 +49,8 @@ export default async function HomePage() {
                   <span>IVE-APP · PLATFORM EDUKASI SAINS &amp; MATEMATIKA</span>
                 </div>
 
-                {/* High-Impact Left-Aligned Headline */}
-                <h1 className="text-4xl font-black tracking-tight text-stone-900 sm:text-5xl lg:text-[56px] lg:leading-[1.12] dark:text-white">
-                  Bangun Intuisi Nyata.{" "}
-                  <span className="relative inline-block text-blue-700 dark:text-blue-400">
-                    Eksplorasi Sains
-                    <svg
-                      className="absolute -bottom-1.5 left-0 w-full text-blue-500/30 dark:text-blue-400/30"
-                      height="8"
-                      viewBox="0 0 100 8"
-                      preserveAspectRatio="none"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M0 7 C 20 0, 40 8, 60 2 C 80 -4, 90 7, 100 3"
-                        stroke="currentColor"
-                        strokeWidth="3.5"
-                        fill="none"
-                      />
-                    </svg>
-                  </span>{" "}
-                  Tanpa Batas Teori.
-                </h1>
+                {/* High-Impact Left-Aligned Headline with Jitter-style Motion */}
+                <HeroHeadlineMotion />
 
                 {/* Clear Value Proposition */}
                 <p className="max-w-xl text-[16px] font-medium leading-relaxed text-stone-700 sm:text-lg dark:text-stone-300">
