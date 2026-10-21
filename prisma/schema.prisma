@@ -1,12 +1,307 @@
-// IVE-APP — Interactive Visual Education Application
-// Phase 1 data model (source: IVE_TAD_Phase_1.md §8)
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id           String           @id @default(cuid())
+  name         String?
+  email        String           @unique
+  avatar       String?
+  role         Role             @default(USER)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  passwordHash String?
+  aiConvos     AIConversation[]
+  analytics    AnalyticsEvent[]
+  favorites    Favorite[]
+  attempts     QuizAttempt[]
+  progress     UserProgress[]
+
+  @@map("users")
+}
+
+model EducationLevel {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  isActive    Boolean   @default(true)
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lessons     Lesson[]
+  subjects    Subject[]
+
+  @@map("education_levels")
+}
+
+model Subject {
+  id               String         @id @default(cuid())
+  educationLevelId String
+  name             String
+  slug             String
+  description      String?
+  icon             String?
+  coverImage       String?
+  status           ContentStatus  @default(DRAFT)
+  order            Int            @default(0)
+  createdById      String?
+  updatedById      String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  lessons          Lesson[]
+  educationLevel   EducationLevel @relation(fields: [educationLevelId], references: [id], onDelete: Cascade)
+  topics           Topic[]
+
+  @@unique([educationLevelId, slug])
+  @@index([educationLevelId])
+  @@index([slug])
+  @@index([status])
+  @@map("subjects")
+}
+
+model Topic {
+  id          String        @id @default(cuid())
+  subjectId   String
+  name        String
+  slug        String
+  description String?
+  order       Int           @default(0)
+  status      ContentStatus @default(DRAFT)
+  createdById String?
+  updatedById String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  lessons     Lesson[]
+  questions   Question[]
+  subject     Subject       @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([subjectId, slug])
+  @@index([subjectId])
+  @@index([subjectId, order])
+  @@map("topics")
+}
+
+model Lesson {
+  id               String           @id @default(cuid())
+  educationLevelId String
+  subjectId        String
+  topicId          String?
+  kind             LessonKind       @default(LESSON)
+  title            String
+  slug             String
+  description      String?
+  content          Json?
+  contentBlocks    Json?
+  coverImage       String?
+  thumbnail        String?
+  durationMinutes  Int?             @default(0)
+  estimatedMinutes Int?             @default(0)
+  difficulty       Difficulty       @default(BEGINNER)
+  status           ContentStatus    @default(DRAFT)
+  order            Int              @default(0)
+  keywords         String[]         @default([])
+  publishedAt      DateTime?
+  createdById      String?
+  updatedById      String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  aiConvos         AIConversation[]
+  analytics        AnalyticsEvent[]
+  favorites        Favorite[]
+  sources          LessonSource[]
+  educationLevel   EducationLevel   @relation(fields: [educationLevelId], references: [id], onDelete: Cascade)
+  subject          Subject          @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  topic            Topic?           @relation(fields: [topicId], references: [id])
+  questions        Question[]
+  attempts         QuizAttempt[]
+  progress         UserProgress[]
+
+  @@unique([subjectId, slug])
+  @@index([educationLevelId])
+  @@index([subjectId])
+  @@index([topicId])
+  @@index([status])
+  @@index([kind, status])
+  @@index([topicId, order])
+  @@index([subjectId, status])
+  @@map("lessons")
+}
+
+model Source {
+  id          String         @id @default(cuid())
+  title       String
+  author      String?
+  publisher   String?
+  url         String?
+  type        SourceType     @default(WEBSITE)
+  year        Int?
+  licenseNote String?
+  createdById String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  lessons     LessonSource[]
+
+  @@map("sources")
+}
+
+model LessonSource {
+  lessonId     String
+  sourceId     String
+  citationNote String?
+  order        Int     @default(0)
+  lesson       Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  source       Source  @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@id([lessonId, sourceId])
+  @@index([lessonId])
+  @@index([sourceId])
+  @@map("lesson_sources")
+}
+
+model Question {
+  id              String              @id @default(cuid())
+  topicId         String?
+  lessonId        String?
+  type            QuestionType        @default(MULTIPLE_CHOICE)
+  question        String
+  options         Json
+  correctAnswer   String
+  correctOptionId String?
+  explanation     String?
+  difficulty      Difficulty          @default(BEGINNER)
+  order           Int                 @default(0)
+  status          ContentStatus       @default(DRAFT)
+  createdById     String?
+  updatedById     String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  lesson          Lesson?             @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  topic           Topic?              @relation(fields: [topicId], references: [id])
+  attempts        QuizAttemptAnswer[]
+
+  @@index([lessonId])
+  @@index([topicId])
+  @@index([status])
+  @@map("questions")
+}
+
+model UserProgress {
+  id           String   @id @default(cuid())
+  userId       String
+  lessonId     String
+  progress     Int      @default(0)
+  completed    Boolean  @default(false)
+  lastPosition Int?
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  lesson       Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@index([userId, updatedAt])
+  @@map("user_progress")
+}
+
+model QuizAttempt {
+  id              String              @id @default(cuid())
+  userId          String
+  scopeType       QuizScope           @default(LESSON)
+  lessonId        String?
+  topicId         String?
+  mode            QuizMode            @default(QUIZ)
+  score           Int
+  totalQuestions  Int
+  correctAnswers  Int
+  durationSeconds Int?
+  createdAt       DateTime            @default(now())
+  answers         QuizAttemptAnswer[]
+  lesson          Lesson?             @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([lessonId])
+  @@index([topicId])
+  @@index([userId, createdAt])
+  @@map("quiz_attempts")
+}
+
+model QuizAttemptAnswer {
+  id               String      @id @default(cuid())
+  attemptId        String
+  questionId       String
+  selectedOptionId String
+  isCorrect        Boolean
+  createdAt        DateTime    @default(now())
+  attempt          QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question         Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+  @@index([questionId])
+  @@map("quiz_attempt_answers")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  lessonId  String
+  createdAt DateTime @default(now())
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@map("favorites")
+}
+
+model AIConversation {
+  id        String      @id @default(cuid())
+  userId    String
+  lessonId  String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  lesson    Lesson?     @relation(fields: [lessonId], references: [id])
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  AIMessage[]
+
+  @@index([userId, lessonId])
+  @@map("ai_conversations")
+}
+
+model AIMessage {
+  id             String         @id @default(cuid())
+  conversationId String
+  role           AIMessageRole
+  content        String
+  createdAt      DateTime       @default(now())
+  conversation   AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@map("ai_messages")
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  eventName String
+  lessonId  String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  lesson    Lesson?  @relation(fields: [lessonId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([lessonId])
+  @@index([eventName, createdAt])
+  @@map("analytics_events")
 }
 
 enum Role {
@@ -58,319 +353,4 @@ enum QuizMode {
 enum AIMessageRole {
   USER
   ASSISTANT
-}
-
-model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email        String           @unique
-  passwordHash String?
-  avatar       String?
-  role         Role             @default(USER)
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-
-  progress  UserProgress[]
-  attempts  QuizAttempt[]
-  favorites Favorite[]
-  aiConvos  AIConversation[]
-  analytics AnalyticsEvent[]
-
-  @@map("users")
-}
-
-model EducationLevel {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  description String?
-  isActive    Boolean  @default(true)
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  subjects Subject[]
-  lessons  Lesson[]
-
-  @@map("education_levels")
-}
-
-model Subject {
-  id               String        @id @default(cuid())
-  educationLevelId String
-  name             String
-  slug             String
-  description      String?
-  icon             String?
-  coverImage       String?
-  status           ContentStatus @default(DRAFT)
-  order            Int           @default(0)
-  createdById      String?
-  updatedById      String?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-
-  educationLevel EducationLevel @relation(fields: [educationLevelId], references: [id], onDelete: Cascade)
-  topics         Topic[]
-  lessons        Lesson[]
-
-  @@unique([educationLevelId, slug])
-  @@index([educationLevelId])
-  @@index([slug])
-  @@index([status])
-  @@map("subjects")
-}
-
-model Topic {
-  id          String        @id @default(cuid())
-  subjectId   String
-  name        String
-  slug        String
-  description String?
-  order       Int           @default(0)
-  status      ContentStatus @default(DRAFT)
-  createdById String?
-  updatedById String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  subject   Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  lessons   Lesson[]
-  questions Question[]
-
-  @@unique([subjectId, slug])
-  @@index([subjectId])
-  @@index([subjectId, order])
-  @@map("topics")
-}
-
-model Lesson {
-  id               String        @id @default(cuid())
-  educationLevelId String
-  subjectId        String
-  topicId          String?
-  kind             LessonKind    @default(LESSON)
-  title            String
-  slug             String
-  description      String?
-  content          Json?
-  contentBlocks    Json?
-  coverImage       String?
-  thumbnail        String?
-  durationMinutes  Int?          @default(0)
-  estimatedMinutes Int?          @default(0)
-  difficulty       Difficulty    @default(BEGINNER)
-  status           ContentStatus @default(DRAFT)
-  order            Int           @default(0)
-  keywords         String[]      @default([])
-  publishedAt      DateTime?
-  createdById      String?
-  updatedById      String?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-
-  educationLevel EducationLevel @relation(fields: [educationLevelId], references: [id], onDelete: Cascade)
-  subject        Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  topic          Topic?         @relation(fields: [topicId], references: [id], onDelete: SetNull)
-
-  questions Question[]
-  sources   LessonSource[]
-  progress  UserProgress[]
-  attempts  QuizAttempt[]
-  favorites Favorite[]
-  aiConvos  AIConversation[]
-  analytics AnalyticsEvent[]
-
-  @@unique([subjectId, slug])
-  @@index([educationLevelId])
-  @@index([subjectId])
-  @@index([topicId])
-  @@index([status])
-  @@index([kind, status])
-  @@index([topicId, order])
-  @@index([subjectId, status])
-  @@map("lessons")
-}
-
-model Source {
-  id          String     @id @default(cuid())
-  title       String
-  author      String?
-  publisher   String?
-  url         String?
-  type        SourceType @default(WEBSITE)
-  year        Int?
-  licenseNote String?
-  createdById String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  lessons LessonSource[]
-
-  @@map("sources")
-}
-
-model LessonSource {
-  lessonId     String
-  sourceId     String
-  citationNote String?
-  order        Int     @default(0)
-
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  source Source @relation(fields: [sourceId], references: [id], onDelete: Cascade)
-
-  @@id([lessonId, sourceId])
-  @@index([lessonId])
-  @@index([sourceId])
-  @@map("lesson_sources")
-}
-
-model Question {
-  id              String        @id @default(cuid())
-  topicId         String?
-  lessonId        String?
-  type            QuestionType  @default(MULTIPLE_CHOICE)
-  question        String
-  options         Json
-  correctAnswer   String
-  correctOptionId String?
-  explanation     String?
-  difficulty      Difficulty    @default(BEGINNER)
-  order           Int           @default(0)
-  status          ContentStatus @default(DRAFT)
-  createdById     String?
-  updatedById     String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  lesson Lesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  topic  Topic?  @relation(fields: [topicId], references: [id], onDelete: SetNull)
-
-  attempts QuizAttemptAnswer[]
-
-  @@index([lessonId])
-  @@index([topicId])
-  @@index([status])
-  @@map("questions")
-}
-
-model UserProgress {
-  id           String   @id @default(cuid())
-  userId       String
-  lessonId     String
-  progress     Int      @default(0)
-  completed    Boolean  @default(false)
-  lastPosition Int?
-  updatedAt    DateTime @updatedAt
-  createdAt    DateTime @default(now())
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, lessonId])
-  @@index([userId])
-  @@index([lessonId])
-  @@index([userId, updatedAt])
-  @@map("user_progress")
-}
-
-model QuizAttempt {
-  id              String      @id @default(cuid())
-  userId          String
-  scopeType       QuizScope   @default(LESSON)
-  lessonId        String?
-  topicId         String?
-  mode            QuizMode    @default(QUIZ)
-  score           Int
-  totalQuestions  Int
-  correctAnswers  Int
-  durationSeconds Int?
-  createdAt       DateTime    @default(now())
-
-  user    User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson  Lesson?             @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  answers QuizAttemptAnswer[]
-
-  @@index([userId])
-  @@index([lessonId])
-  @@index([topicId])
-  @@index([userId, createdAt])
-  @@map("quiz_attempts")
-}
-
-model QuizAttemptAnswer {
-  id               String   @id @default(cuid())
-  attemptId        String
-  questionId       String
-  selectedOptionId String
-  isCorrect        Boolean
-  createdAt        DateTime @default(now())
-
-  attempt  QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  question Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
-
-  @@unique([attemptId, questionId])
-  @@index([attemptId])
-  @@index([questionId])
-  @@map("quiz_attempt_answers")
-}
-
-model Favorite {
-  id        String   @id @default(cuid())
-  userId    String
-  lessonId  String
-  createdAt DateTime @default(now())
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, lessonId])
-  @@index([userId])
-  @@index([lessonId])
-  @@map("favorites")
-}
-
-model AIConversation {
-  id        String   @id @default(cuid())
-  userId    String
-  lessonId  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson   Lesson?     @relation(fields: [lessonId], references: [id], onDelete: SetNull)
-  messages AIMessage[]
-
-  @@index([userId, lessonId])
-  @@map("ai_conversations")
-}
-
-model AIMessage {
-  id             String        @id @default(cuid())
-  conversationId String
-  role           AIMessageRole
-  content        String
-  createdAt      DateTime      @default(now())
-
-  conversation AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-
-  @@index([conversationId])
-  @@map("ai_messages")
-}
-
-model AnalyticsEvent {
-  id        String   @id @default(cuid())
-  userId    String?
-  eventName String
-  lessonId  String?
-  metadata  Json?
-  createdAt DateTime @default(now())
-
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
-  lesson Lesson? @relation(fields: [lessonId], references: [id], onDelete: SetNull)
-
-  @@index([userId])
-  @@index([lessonId])
-  @@index([eventName, createdAt])
-  @@map("analytics_events")
 }

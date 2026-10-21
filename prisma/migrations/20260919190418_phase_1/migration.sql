@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
+CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN','SUPER_ADMIN');
 
 -- CreateEnum
 CREATE TYPE "ContentStatus" AS ENUM ('DRAFT', 'PUBLISHED', 'ARCHIVED');
