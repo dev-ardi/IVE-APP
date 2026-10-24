@@ -3,10 +3,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import {
   FlaskConical,
-  Atom,
-  Sigma,
-  Globe2,
-  Dna,
   ArrowRight,
   BookOpen,
 } from "lucide-react";
@@ -29,7 +25,7 @@ export default async function LabPage() {
       educationLevel: { isActive: true },
       OR: [
         { kind: "EXPERIMENT" },
-        { slug: { in: ["gerak-parabola", "konversi-suhu", "trigonometri", "fisi-nuklir", "siklus-krebs", "struktur-atom-dan-tabel-periodik"] } },
+        { slug: { in: ["gerak-parabola", "gravitasi-newton", "konversi-suhu", "trigonometri", "fisi-nuklir", "siklus-krebs", "struktur-atom-dan-tabel-periodik"] } },
       ],
     },
     include: {
