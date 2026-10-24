@@ -209,6 +209,48 @@ async function main() {
     }
   }
 
+  // --- Gravitasi Newton Lesson in Fisika ---
+  const gravitasiContent = [
+    { id: "g1", type: "heading", content: "Kisah Apel dan Hukum Gravitasi Universal", level: 2 },
+    {
+      id: "g2",
+      type: "text",
+      content:
+        "Pengamatan jatuhnya buah apel di hadapan Isaac Newton pada tahun 1665 memicu pemikiran mendalam mengapa benda selalu jatuh tegak lurus menuju pusat bumi. Newton merumuskan bahwa gaya tarik yang sama juga mengikat Bulan tetap pada orbitnya.",
+    },
+    { id: "g3", type: "formula", content: "F = G \\frac{m_1 \\cdot m_2}{r^2}", display: true },
+    { id: "g4", type: "formula", content: "g = \\frac{G M_{\\text{bumi}}}{R_{\\text{bumi}}^2} \\approx 9.81\\text{ m/s}^2", display: true },
+    {
+      id: "g5",
+      type: "callout",
+      content:
+        "Di ruang hampa tanpa hambatan udara, semua benda jatuh bebas dengan percepatan yang sama persis (g ≈ 9.81 m/s²), terlepas dari berapapun massanya!",
+      variant: "info",
+    },
+    { id: "g6", type: "heading", content: "Simulasi Interaktif: Apel Jatuh & Ruang Hampa Galileo", level: 3 },
+    { id: "g7", type: "interactive", component: "newtonian-gravity", config: { defaultObject: "apple", initialHeight: 5.0, airResistance: false } },
+    { id: "g8", type: "divider" },
+  ];
+
+  await prisma.lesson.upsert({
+    where: { subjectId_slug: { subjectId: fisika.id, slug: "gravitasi-newton" } },
+    update: {},
+    create: {
+      educationLevelId: sma.id,
+      subjectId: fisika.id,
+      topicId: kinematika.id,
+      title: "Hukum Gravitasi Newton & Gerak Jatuh Bebas",
+      slug: "gravitasi-newton",
+      description: "Pelajari hukum gravitasi universal Newton, gerak jatuh bebas apel di bawah pohon, dan perbandingan ruang hampa vs udara.",
+      content: gravitasiContent as object,
+      difficulty: Difficulty.BEGINNER,
+      status: ContentStatus.PUBLISHED,
+      order: 2,
+      durationMinutes: 15,
+      publishedAt: new Date(),
+    },
+  });
+
   // --- Subject: Matematika (SMA) with Trigonometri + trig visualizer ---
   const matematika = await prisma.subject.upsert({
     where: { educationLevelId_slug: { educationLevelId: sma.id, slug: "matematika" } },

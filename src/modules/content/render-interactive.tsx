@@ -36,6 +36,10 @@ const NuclearFission = dynamic(() => import("@/components/interactive/nuclear-fi
   ssr: false,
   loading: () => <InteractiveLoading />,
 });
+const NewtonianGravity = dynamic(() => import("@/components/interactive/newtonian-gravity"), {
+  ssr: false,
+  loading: () => <InteractiveLoading />,
+});
 
 /**
  * Client boundary resolving an interactive component key to a lazily-loaded
@@ -44,8 +48,8 @@ const NuclearFission = dynamic(() => import("@/components/interactive/nuclear-fi
  * NOTE: this intentionally duplicates the module-level registry so the dynamic
  * components are stable references resolved outside render (next/react lint).
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Each component accepts a different config shape.
 // Runtime safety: keys are validated via isInteractiveKey(); config shapes are validated by Zod at the API boundary.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Each component accepts a different config shape.
 const COMPONENTS: Record<string, ComponentType<any>> = {
   "formula-sandbox": FormulaSandbox,
   "projectile-simulator": ProjectileSimulator,
@@ -55,6 +59,7 @@ const COMPONENTS: Record<string, ComponentType<any>> = {
   "history-timeline": HistoryTimeline,
   "temperature-converter": TemperatureConverter,
   "nuclear-fission": NuclearFission,
+  "newtonian-gravity": NewtonianGravity,
 };
 
 export function RenderInteractive({
