@@ -28,7 +28,7 @@ export function HeroTextAnim({
         stiffness: 260,
         damping: 22,
         mass: 0.85,
-        delay: 0.35, // after navbar spring settles
+        delay: 0.55, // after navbar spring settles
       }}
       style={{ transformPerspective: 1200 }}
     >
@@ -61,7 +61,7 @@ export function HeroSimulatorAnim({
         stiffness: 220,
         damping: 20,
         mass: 1.0,
-        delay: 0.65, // fires after text starts landing
+        delay: 1.25, // fires after text starts landing
       }}
     >
       {children}

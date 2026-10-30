@@ -17,7 +17,7 @@ export function NavEntranceWrapper({ children }: { children: React.ReactNode }) 
         stiffness: 300,
         damping: 24,
         mass: 0.8,
-        delay: 0, // fires immediately — navbar is always first
+        delay: 0.10, // fires immediately — navbar is always first
       }}
     >
       {children}
