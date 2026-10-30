@@ -796,6 +796,154 @@
           "difficulty": "BEGINNER"
         }
       ]
+    },
+    {
+      "id": "les-gravitasi-newton",
+      "levelSlug": "umum",
+      "subjectSlug": "fisika",
+      "topicSlug": "kinematika-gerak",
+      "slug": "gravitasi-newton",
+      "title": "Hukum Gravitasi Newton & Gerak Jatuh Bebas",
+      "description": "Pelajari bagaimana Isaac Newton merumuskan hukum gravitasi universal melalui pengamatan buah apel jatuh, hubungan percepatan gravitasi bumi g ≈ 9.81 m/s², dan pembuktian ruang hampa Galileo.",
+      "difficulty": "BEGINNER",
+      "durationMinutes": 15,
+      "kind": "LESSON",
+      "interactiveKey": "newtonian-gravity",
+      "thumbnail": null,
+      "keywords": ["fisika", "gravitasi", "newton", "jatuh bebas", "hukum newton", "galileo", "ruang hampa"],
+      "sources": [
+        {
+          "title": "Fundamentals of Physics (11th Edition)",
+          "author": "David Halliday, Robert Resnick, Jearl Walker",
+          "publisher": "John Wiley & Sons",
+          "year": 2018,
+          "citationNote": "Bab 13: Gravitation (hlm. 358-379)",
+          "url": "https://www.wiley.com"
+        },
+        {
+          "title": "Physics: Principles with Applications (7th Edition)",
+          "author": "Douglas C. Giancoli",
+          "publisher": "Pearson Education",
+          "year": 2014,
+          "citationNote": "Bab 5: Circular Motion and Gravitation (hlm. 115-135)",
+          "url": "https://www.pearson.com"
+        }
+      ],
+      "content": [
+        {
+          "id": "b-grav-1",
+          "type": "heading",
+          "level": 2,
+          "content": "Kisah Apel dan Hukum Gravitasi Universal"
+        },
+        {
+          "id": "b-grav-2",
+          "type": "text",
+          "content": "Kisah jatuhnya buah apel di hadapan Isaac Newton pada tahun 1665 di Woolsthorpe Manor memicu revolusi besar dalam sejarah sains: Mengapa buah apel selalu jatuh tegak lurus menuju pusat Bumi, bukan menyamping atau melayang ke atas? Newton menyimpulkan bahwa ada suatu gaya tarik tak kasat mata yang berasal dari Bumi, dan gaya tarik yang sama itulah yang mempertahankan Bulan tetap berada dalam orbit mengelilingi Bumi."
+        },
+        {
+          "id": "b-grav-3",
+          "type": "formula",
+          "content": "F = G \\frac{m_1 \\cdot m_2}{r^2}",
+          "display": true
+        },
+        {
+          "id": "b-grav-4",
+          "type": "text",
+          "content": "Hukum Gravitasi Universal Newton menyatakan bahwa setiap partikel bermassa di alam semesta saling menarik dengan gaya (F) yang berbanding lurus dengan hasil kali kedua massa benda (m₁ × m₂) dan berbanding terbalik dengan kuadrat jarak antar pusat massanya (r²). Konstanta gravitasi universal bernilai G ≈ 6.674 × 10⁻¹¹ N·m²/kg²."
+        },
+        {
+          "id": "b-grav-5",
+          "type": "heading",
+          "level": 3,
+          "content": "Mengapa Semua Benda Jatuh dengan Percepatan yang Sama?"
+        },
+        {
+          "id": "b-grav-6",
+          "type": "formula",
+          "content": "g = \\frac{G M_{\\text{bumi}}}{R_{\\text{bumi}}^2} \\approx 9.81\\text{ m/s}^2",
+          "display": true
+        },
+        {
+          "id": "b-grav-7",
+          "type": "callout",
+          "variant": "info",
+          "content": "Gaya Berat vs Percepatan Gravitasi: Gaya berat (F = m·g) memang lebih besar untuk benda bermassa berat (misalnya bola besi dibandingkan bulu). Namun, benda bermassa berat juga memiliki inersia (keengganan untuk dipercepat) yang sama besarnya sesuai hukum II Newton (a = F/m = (m·g)/m = g). Akibatnya, nilai percepatan gravitasi (g) di permukaan Bumi bernilai konstan sekitar 9.81 m/s² untuk semua benda tanpa memandang massanya!"
+        },
+        {
+          "id": "b-grav-8",
+          "type": "heading",
+          "level": 3,
+          "content": "Simulasi Interaktif: Apel Jatuh & Ruang Hampa Galileo"
+        },
+        {
+          "id": "b-grav-9",
+          "type": "text",
+          "content": "Uji fenomena gravitasi dengan simulasi di bawah ini. Anda dapat memilih objek (Apel, Durian, Bulu, Bola Besi), mengatur massa dan ketinggian cabang pohon, serta membandingkan gerak jatuh di ruang hampa (vakum) vs udara berhambatan (atmosfer)."
+        },
+        {
+          "id": "b-grav-10",
+          "type": "interactive",
+          "component": "newtonian-gravity",
+          "config": {
+            "defaultObject": "apple",
+            "initialHeight": 5.0,
+            "airResistance": false
+          }
+        },
+        {
+          "id": "b-grav-11",
+          "type": "example",
+          "content": "Pembuktian Apollo 15 di Bulan (1971): Di Bulan yang tidak memiliki atmosfer (ruang hampa), astronot David Scott menjatuhkan palu geologi (1.32 kg) dan bulu elang (0.03 kg) secara bersamaan dari ketinggian 1.6 meter. Keduanya menyentuh permukaan Bulan pada detik yang persis sama, membuktikan kebenaran postulat Galileo dan Newton!"
+        },
+        {
+          "id": "b-grav-12",
+          "type": "realworld",
+          "title": "Orbit Satelit dan Stasiun Luar Angkasa (ISS)",
+          "content": "Banyak orang mengira astronot di stasiun luar angkasa tidak memiliki gravitasi (zero-g). Faktanya, di ketinggian 400 km tempat ISS mengorbit, gravitasi Bumi masih mencapai sekitar 8.7 m/s² (hampir 90% dari permukaan Bumi!). Astronot tampak melayang karena ISS dan seluruh isinya sedang dalam kondisi jatuh bebas mengelilingi lengkungan Bumi pada kecepatan sekitar 27.600 km/jam."
+        }
+      ],
+      "questions": [
+        {
+          "id": "q-grav-1",
+          "question": "Jika sebuah bola besi 10 kg dan bulu ayam 1 gram dijatuhkan bersamaan dari ketinggian 5 meter di dalam tabung hampa udara (vakum), manakah yang mendarat terlebih dahulu?",
+          "options": [
+            { "id": "A", "text": "Bola besi mendarat lebih dahulu karena massanya 10.000 kali lebih besar" },
+            { "id": "B", "text": "Keduanya mendarat pada waktu yang persis bersamaan" },
+            { "id": "C", "text": "Bulu ayam mendarat lebih dahulu karena hambatan udaranya nol" },
+            { "id": "D", "text": "Bola besi berhenti di udara karena inersia tinggi" }
+          ],
+          "correctAnswer": "B",
+          "explanation": "Di ruang hampa tanpa hambatan udara, semua benda mengalami percepatan gravitasi yang persis sama (g ≈ 9.81 m/s²), sehingga waktu jatuhnya t = √(2h/g) identik terlepas dari perbedaan massa benda.",
+          "difficulty": "BEGINNER"
+        },
+        {
+          "id": "q-grav-2",
+          "question": "Apakah yang terjadi pada gaya tarik gravitasi universal antara dua benda jika jarak antar pusat massanya dijadikan dua kali lipat lebih jauh (2r)?",
+          "options": [
+            { "id": "A", "text": "Gaya gravitasi menjadi 2 kali lebih besar" },
+            { "id": "B", "text": "Gaya gravitasi berkurang menjadi 1/2 kali semula" },
+            { "id": "C", "text": "Gaya gravitasi berkurang menjadi 1/4 kali semula" },
+            { "id": "D", "text": "Gaya gravitasi tetap sama karena massa benda tidak berubah" }
+          ],
+          "correctAnswer": "C",
+          "explanation": "Sesuai Hukum Gravitasi Universal Newton F ∝ 1/r², gaya gravitasi berbanding terbalik dengan kuadrat jarak. Jika r menjadi 2r, maka gaya gravitasi menjadi 1/(2)² = 1/4 kali nilai semula.",
+          "difficulty": "INTERMEDIATE"
+        },
+        {
+          "id": "q-grav-3",
+          "question": "Mengapa bulu burung jatuh jauh lebih lambat daripada buah apel jika dijatuhkan di udara terbuka (atmosfer Bumi)?",
+          "options": [
+            { "id": "A", "text": "Percepatan gravitasi bumi g lebih kecil untuk benda ringan" },
+            { "id": "B", "text": "Bulu mengalami gaya gesek udara (drag force) yang signifikan terhadap bobotnya sehingga cepat mencapai kecepatan terminal" },
+            { "id": "C", "text": "Bumi menolak benda yang memiliki densitas rendah" },
+            { "id": "D", "text": "Massa apel menarik udara di sekitarnya sehingga udara menghilang" }
+          ],
+          "correctAnswer": "B",
+          "explanation": "Bulu memiliki rasio luas permukaan terhadap massa yang sangat besar. Gaya gesek udara (drag force) segera mengimbangi gaya berat bulu yang kecil, sehingga bulu mencapai kecepatan terminal yang rendah (± 2 m/s) dan melayang santai.",
+          "difficulty": "BEGINNER"
+        }
+      ]
     }
   ]
 }

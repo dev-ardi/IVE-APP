@@ -13,6 +13,7 @@ export const INTERACTIVE_KEYS = [
   "history-timeline",
   "temperature-converter",
   "nuclear-fission",
+  "newtonian-gravity",
 ] as const;
 
 export type InteractiveKey = (typeof INTERACTIVE_KEYS)[number];
@@ -120,6 +121,18 @@ export const INTERACTIVE_REGISTRY: Record<InteractiveKey, InteractiveMeta> = {
     defaultConfig: {
       uraniumCount: 15,
       textFallback: "Simulasi reaksi fisi berantai pada inti atom uranium.",
+    },
+  },
+  "newtonian-gravity": {
+    key: "newtonian-gravity",
+    title: "Simulasi Gravitasi Newton",
+    description: "Visualisasi hukum gravitasi universal Newton, gerak jatuh bebas, dan ruang hampa Galileo.",
+    subjectHints: ["fisika", "general-knowledge"],
+    defaultConfig: {
+      defaultObject: "apple",
+      initialHeight: 5.0,
+      airResistance: false,
+      textFallback: "Simulasi gerak jatuh bebas apel menuju Isaac Newton di bawah pohon apel setinggi 5 meter.",
     },
   },
 };
