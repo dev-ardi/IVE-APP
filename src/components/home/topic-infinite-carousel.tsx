@@ -149,7 +149,7 @@ export function TopicInfiniteCarousel({ lessons, topViewedSlug }: TopicCarouselP
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={() => setIsPaused(true)}
         onTouchEnd={() => setIsPaused(false)}
-        className="flex gap-5 overflow-x-auto scroll-smooth pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex gap-5 overflow-x-auto scroll-smooth py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         role="list"
         aria-label="Daftar topik materi"
       >

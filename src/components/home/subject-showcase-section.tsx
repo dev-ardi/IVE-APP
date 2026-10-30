@@ -41,10 +41,6 @@ export function SubjectShowcaseSection({ subjects }: { subjects: SubjectSummary[
         {/* Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col gap-2">
-            <div className="inline-flex items-center gap-1.5 self-start rounded-full border border-amber-600/30 bg-amber-100/90 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-amber-900 dark:bg-amber-950/70 dark:text-amber-300">
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>BENTO SHOWCASE · KARAKTER ILMIAH</span>
-            </div>
             <h2 className="text-3xl font-black tracking-tight text-stone-900 sm:text-4xl lg:text-5xl dark:text-white">
               Identitas Visual & Keilmuan Tiap Subjek
             </h2>

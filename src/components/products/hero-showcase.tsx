@@ -16,7 +16,7 @@ const TABS = [
     slug: "fisika",
     icon: Atom,
     badgeBg: "bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800",
-    buttonActive: "bg-sky-600 text-white shadow-[2px_2px_0px_0px_rgba(15,23,42,0.9)]",
+    buttonActive: "bg-sky-600 text-white -translate-y-0.5 shadow-[2px_2px_0px_0px_rgba(15,23,42,0.9)]",
     url: "/learn/umum/fisika/kinematika-gerak/gerak-parabola",
     desc: "Ubah sudut elevasi dan kecepatan awal proyektil. Amati bagaimana gravitasi membentuk lintasan lengkung kuadratik secara instan.",
   },
@@ -27,7 +27,7 @@ const TABS = [
     slug: "kimia",
     icon: FlaskConical,
     badgeBg: "bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800",
-    buttonActive: "bg-purple-600 text-white shadow-[2px_2px_0px_0px_rgba(15,23,42,0.9)]",
+    buttonActive: "bg-purple-600 text-white -translate-y-0.5 shadow-[2px_2px_0px_0px_rgba(15,23,42,0.9)]",
     url: "/learn/umum/kimia/termodinamika/konversi-suhu",
     desc: "Geser suhu Celsius dan amati respon linear skala Fahrenheit, titik nol mutlak Kelvin, dan skala Reamur dalam tabung termometer visual.",
   },
@@ -38,7 +38,7 @@ const TABS = [
     slug: "matematika",
     icon: Sigma,
     badgeBg: "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800",
-    buttonActive: "bg-blue-600 text-white shadow-[2px_2px_0px_0px_rgba(15,23,42,0.9)]",
+    buttonActive: "bg-blue-600 text-white -translate-y-0.5 shadow-[2px_2px_0px_0px_rgba(15,23,42,0.9)]",
     url: "/learn/umum/matematika/trigonometri-dasar/trigonometri",
     desc: "Putar jarum sudut derajat pada lingkaran satuan trigonometri untuk melihat proyeksi visual sinus (vertikal) dan kosinus (horizontal).",
   },
@@ -49,7 +49,7 @@ const TABS = [
     slug: "general-knowledge",
     icon: Globe2,
     badgeBg: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800",
-    buttonActive: "bg-amber-600 text-white shadow-[2px_2px_0px_0px_rgba(15,23,42,0.9)]",
+    buttonActive: "bg-amber-600 text-white -translate-y-0.5 shadow-[2px_2px_0px_0px_rgba(15,23,42,0.9)]",
     url: "/learn/umum/general-knowledge/energi-dan-sains/fisi-nuklir",
     desc: "Tembakkan neutron berkecepatan tinggi ke inti Uranium-235. Atur kedalaman batang kendali untuk mencegah reaksi berantai tak terkendali.",
   },
@@ -64,8 +64,8 @@ export function HeroShowcase() {
   return (
     <div className="flex flex-col rounded-3xl border-2 border-slate-900 bg-white p-5 shadow-[4px_4px_0px_0px_rgba(15,23,42,0.9)] dark:border-slate-100 dark:bg-slate-900 dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.7)] sm:p-7">
       {/* Tab Switchers */}
-      <div className="flex flex-col gap-4 border-b-2 border-slate-100 pb-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0" role="tablist" aria-label="Pilihan laboratorium interaktif">
+      <div className="flex flex-col gap-4 border-b-2 border-slate-100 py-1 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 overflow-x-auto py-2 pr-1 sm:py-1 sm:pr-1" role="tablist" aria-label="Pilihan laboratorium interaktif">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -112,7 +112,7 @@ export function HeroShowcase() {
       </div>
 
       {/* Active Interactive Component */}
-      <div className="mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/50 p-2 dark:border-slate-800 dark:bg-slate-950/40 sm:p-4">
+      <div className="mt-2 overflow-hidden rounded-2xl bg-slate-50/50 p-2 dark:bg-slate-950/40 sm:p-4">
         {activeTab === "parabola" && (
           <div className="transition-all">
             <ProjectileSimulator config={{ initialSpeed: 24, angle: 45 }} />
