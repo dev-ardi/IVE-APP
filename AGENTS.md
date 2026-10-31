@@ -493,6 +493,33 @@ The authority is `design-frontend.md`. This part states the rules that apply to 
 
 If a new visual pattern repeats, add it to the design system instead of styling ad hoc. Avoid random colors, spacing, radii, typography, excessive shadows, and inconsistent buttons.
 
+### 28.1 MODULAR UI ARCHITECTURE & DRY PRINCIPLE (MANDATORY)
+
+Every agent MUST strictly adhere to the DRY (Don't Repeat Yourself) principle for UI components across views and pages:
+
+1. **Never Write Hardcoded Repetitive Card or Section Markup:**
+   - Do NOT construct ad-hoc `<div className="rounded-3xl border-2 ...">` or duplicate heading/text/badge layouts inline.
+   - Always compose views using the core UI primitives in `src/components/ui/`:
+     - **`ModularCard` (`src/components/ui/modular-card.tsx`)**: The primary polymorphic card for any content block, feature card, bento item, or result item. Supports `heading`, `subheading`, `text`, `metric`, `metricColor`, `icon`, `iconBg`, `badge`, `features` (checklist), `checklistClassName`, `contentClassName`, `sideContent`, `footer`, `action`, `href` (renders Next.js `<Link>`), and `variant` (`default` | `lg` | `soft` | `flat` | `elevated` | `none`).
+       - *Layout Rule:* In `layout="horizontal"`, `subheading`, `heading`, and `text` are strictly grouped in an internal `flex-col` wrapper (`contentClassName`) so they never fragment horizontally across columns. `features` / `sideContent` sits in the right column.
+       - *Strict Conditional Rendering:* HTML tags (`<h3>`, `<p>`, `<ul>`, metric row, etc.) MUST only be rendered if their corresponding prop holds a truthy value.
+     - **`SectionHeader` (`src/components/ui/section-header.tsx`)**: Mandatory semantic header for sections and pages. Props: `badge`, `badgeIcon`, `badgeVariant`, `heading`, `subheading`, `text`, `align: "left" | "center" | "between"`, `action`. Renders tags conditionally only when props exist.
+     - **`TabSwitcher` (`src/components/ui/tab-switcher.tsx`)**: Accessible, generic tab selector (`role="tablist"`, `role="tab"`).
+     - **`NeoCard` (`src/components/ui/neo-card.tsx`)** & Neobrutalism tokens: Use `@layer utilities` (`.neo-card`, `.neo-card-lg`, `.neo-card-soft`, `.neo-btn-primary`, `.neo-btn-ghost`, `.neo-badge`, `.neo-badge-top`).
+2. **Component Customization:**
+   - Customize typography, max-width, or spacing via explicit slot props (`headingClassName`, `textClassName`, `contentClassName`, `checklistClassName`) or pass `variant="none"` when custom card background or border is required.
+
+### 28.2 DATA EXTRACTION & SEPARATION OF CONCERNS (SoC)
+
+1. **No Inline Repetitive Data in JSX:**
+   - Any repeated UI elements (feature lists, pricing/pillar tiers, bento cards, tab items, filter options, stat counters) MUST be decoupled from the view/JSX.
+   - Extract data into strongly-typed datasets inside `src/data/<domain>/` (e.g., `src/data/home/active-learning.data.ts`, `learning-loop.data.ts`, `subject-showcase.data.ts`, `hero-lab-tabs.data.ts`).
+2. **Mandatory Unique `id` Property:**
+   - Every object inside an extracted data array MUST have a unique `id: string` property.
+3. **Dynamic Iteration:**
+   - Render lists via `.map()` passing properties dynamically into modular components.
+   - CRITICAL: Always pass `key={item.id}` from the data object to the React key prop to guarantee optimal hydration and prevent rendering anomalies.
+
 ## 29. NAVIGATION AND PAGE COMPOSITION
 
 Navigation behavior (TAD §14, PRD FR-18):
@@ -557,6 +584,9 @@ Never show raw exceptions, stack traces, `undefined`, `null`, or raw slugs.
 Before creating a component, hook, utility, API endpoint, service, repository, Prisma model, validation schema, CSS utility, modal, card, or form — **search the codebase first**:
 
 ```bash
+rg "ModularCard" src/components/ui
+rg "SectionHeader" src/components/ui
+rg "TabSwitcher" src/components/ui
 rg "LessonCard" src
 rg "ProgressBar" src
 rg "useProgress" src
@@ -566,7 +596,7 @@ rg "InteractiveDefinition" src
 rg "favorite" src
 ```
 
-Reusable → **reuse**. Almost reusable → **generalize carefully**. Genuinely different → **create new**. Do not duplicate; do not keep two components with different names that do the same thing.
+Reusable → **reuse**. Almost reusable → **generalize carefully**. Genuinely different → **create new**. Do not duplicate; do not keep two components with different names that do the same thing. Always prefer the core UI primitives (`ModularCard`, `SectionHeader`, `TabSwitcher`) and typed datasets in `src/data/<domain>/` (see Section 28.1 & 28.2).
 
 ## 34. PAGE-TO-SPEC MAP
 

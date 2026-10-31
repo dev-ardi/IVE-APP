@@ -219,3 +219,71 @@ Setiap agen AI yang bekerja pada frontend IVE-APP wajib mematuhi aturan berikut:
 2. **Konsistensi Token:** Selalu gunakan variabel dari `globals.css` dan `SUBJECT_THEMES` dari `subject-theme.tsx`. Jangan membuat skema warna ad-hoc baru.
 3. **Pertahankan Validasi:** Setelah melakukan perubahan frontend, selalu jalankan `npm run typecheck`, `npm run lint`, dan pastikan `npm run build` berhasil dengan 0 error sebelum melaporkan pekerjaan selesai.
 4. **Keaslian Identitas:** Pertahankan karakter orisinal IVE-APP; pelajari metodologi pembelajaran dari platform global tanpa meniru aset, branding, atau salinan visual mereka.
+5. **Wajib Menggunakan Komponen Modular (DRY) & Ekstraksi Data (SoC):** Dilarang keras menulis kartu atau seksi berulang dengan styling hardcoded inline. Gunakan komponen fondasi di `src/components/ui/` (`ModularCard`, `SectionHeader`, `TabSwitcher`) dan pisahkan data tampilan ke `src/data/<domain>/` dengan `id` unik.
+
+---
+
+## 9. Arsitektur Komponen Modular & Standar Ekstraksi Data (DRY & SoC)
+
+### 9.1 Prinsip Desain Modular & Anti-Redundansi (DRY)
+Setiap tampilan atau halaman dilarang keras membuat kontainer kartu ad-hoc berulang dengan markup inline seperti `<div className="rounded-3xl border-2 ...">` dan menyusun judul, teks, badge, atau checklist secara manual. Seluruh kartu dan seksi wajib dibangun di atas fondasi komponen modular di `src/components/ui/`:
+
+1. **`ModularCard` (`src/components/ui/modular-card.tsx`)**:
+   - Komponen polimorfik universal untuk kartu materi, kartu fitur, perbandingan, hasil pencarian, bento grid, maupun item carousel.
+   - **Properti Semantik:**
+     - `heading` (`string | ReactNode`): Judul kartu.
+     - `subheading` (`string | ReactNode`): Subjudul/kategori kecil di atas judul.
+     - `text` (`string | ReactNode`): Deskripsi atau penjelasan kartu.
+     - `metric` & `metricColor`: Angka/statistik kunci (misal: "60 FPS", "+36 ATP", "0 K").
+     - `badge` & `badgeVariant`: Label penanda status/kategori.
+     - `icon` & `iconBg`: Ikon visual dengan latar belakang bergaya neobrutalism.
+     - `features` (`string[]`): Checklist poin fitur dengan tanda centang otomatis.
+     - `sideContent`: Elemen visual/grafik/preview di sisi kanan (khusus layout horizontal).
+     - `footer`: Slot kustom di bagian dasar kartu.
+     - `action`: Tombol CTA atau aksi interaktif.
+     - `href`: Jika disediakan, kartu otomatis di-render sebagai Next.js `<Link>` yang interaktif.
+     - `layout`: `"vertical"` (default) atau `"horizontal"`.
+     - `variant`: `"default"` | `"lg"` | `"soft"` | `"flat"` | `"elevated"` | `"none"`.
+   - **Aturan Tata Letak Horizontal (`layout="horizontal"`):**
+     - Elemen teks (`subheading`, `heading`, dan `text`) wajib dibungkus bersama dalam satu kontainer vertikal (`flex-col gap-2.5`, dapat dikustomisasi via `contentClassName`).
+     - `features` / `sideContent` berada di kolom sebelah kanan.
+     - *Dilarang membongkar kontainer teks* agar judul dan deskripsi tidak terpecah menjadi kolom horizontal berdampingan.
+   - **Render Kondisional Ketat (Strict Conditional Rendering):**
+     - Tag HTML semantik (`<h3>`, `<p>`, `<ul>`, baris metrik) **hanya dirender jika prop bernilai truthy**. Jangan merender tag kosong.
+   - **Slot Kustomisasi:**
+     - Gunakan `headingClassName`, `textClassName`, `contentClassName`, `checklistClassName`, atau `variant="none"` untuk variasi gaya spesifik tanpa merusak struktur internal.
+
+2. **`SectionHeader` (`src/components/ui/section-header.tsx`)**:
+   - Komponen standar untuk header setiap seksi atau halaman.
+   - **Properti:** `badge`, `badgeIcon`, `badgeVariant`, `heading`, `subheading`, `text`, `align: "left" | "center" | "between"`, `action`.
+   - Menjamin hierarki tipografi seragam (`text-3xl sm:text-4xl lg:text-5xl font-black`) di seluruh halaman publik tanpa duplikasi kelas Tailwind manual.
+
+3. **`TabSwitcher` (`src/components/ui/tab-switcher.tsx`)**:
+   - Komponen tab interaktif yang sepenuhnya aksesibel (`role="tablist"`, `role="tab"`, `aria-selected`).
+
+4. **`NeoCard` (`src/components/ui/neo-card.tsx`) & Utilitas Neobrutalisme:**
+   - Gunakan kelas utilitas `@layer utilities` di `src/app/globals.css`: `.neo-card`, `.neo-card-lg`, `.neo-card-soft`, `.neo-badge`, `.neo-badge-top`, `.neo-btn-primary`, `.neo-btn-ghost`.
+
+### 9.2 Standar Ekstraksi Data (Separation of Concerns - SoC)
+1. **Dilarang Menulis Data Statis Repetitif di dalam JSX:**
+   - Seluruh daftar data (pilar pembelajaran, kartu perbandingan mengapa interaktif, item showcase mata pelajaran, tab simulasi hero) wajib dipisahkan ke dalam folder `src/data/<domain>/`.
+   - Contoh file yang telah distandarkan:
+     - `src/data/home/active-learning.data.ts`: Data perbandingan metode belajar & pilar dampak.
+     - `src/data/home/learning-loop.data.ts`: Data tahapan 4 langkah siklus belajar.
+     - `src/data/home/subject-showcase.data.ts`: Data showcase bento tiap mata pelajaran.
+     - `src/data/home/hero-lab-tabs.data.ts`: Data tab simulasi langsung di Hero section.
+2. **Wajib Memiliki Properti `id: string` yang Unik:**
+   - Setiap objek data dalam array wajib memiliki properti `id` unik (misal: `"step-observe"`, `"subject-physics"`, `"tab-parabola"`).
+3. **Iterasi Dinamis dengan Key Stabil:**
+   - Tampilan wajib me-render dataset menggunakan `.map()` dan memberikan `key={item.id}` dari properti data tersebut:
+     ```tsx
+     {DATA_ITEMS.map((item) => (
+       <ModularCard
+         key={item.id}
+         heading={item.title}
+         text={item.description}
+         // ...
+       />
+     ))}
+     ```
+   - Dilarang keras menggunakan index array (`key={idx}`) jika item memiliki id unik.

@@ -311,7 +311,8 @@ src/
 │       ├── ai/      admin/
 │
 ├── components/
-│   ├── ui/  layout/  navigation/  learning/  lesson/  quiz/  ai/  search/
+│   ├── ui/                                # foundational primitives (modular-card, section-header, tab-switcher, neo-card)
+│   ├── layout/  navigation/  learning/  lesson/  quiz/  ai/  search/
 │   └── interactive/
 │       ├── registry.ts
 │       ├── projectile-simulator/
@@ -320,6 +321,9 @@ src/
 │       ├── atom-explorer/
 │       ├── history-timeline/
 │       └── formula-sandbox/               # P1
+│
+├── data/                                  # typed view datasets (Separation of Concerns, DRY)
+│   └── home/                              # active-learning, learning-loop, subject-showcase, hero-lab-tabs
 │
 ├── modules/
 │   ├── levels/  subjects/  topics/  lessons/
@@ -330,7 +334,7 @@ src/
 │   ├── progress/  favorites/  search/  ai/
 │   ├── navigation/     # menu tree, outline, breadcrumbs
 │   ├── recommendations/  analytics/  authz/
-│
+│   │
 ├── lib/       (db, auth, cache, storage, validation, rate-limit, utils)
 ├── server/    (auth, services, adapters)
 ├── prisma/    (schema.prisma, migrations/, seed.ts)
@@ -625,7 +629,23 @@ Eksplorasi interaktif → Contoh praktik dunia nyata → Latihan → Sumber
 
 The CMS may show a non-blocking checklist ("belum ada ilustrasi", "belum ada contoh dunia nyata") but MUST NOT force every lesson to contain every block type. Formula blocks are only expected for formula-based material.
 
+## 10.2 Modular UI Component Primitives & View Data Layer (DRY & SoC)
+
+To eliminate visual inconsistency, bloated markup, and repetitive styling across views, all pages and components MUST adhere to the DRY component hierarchy:
+
+1. **Foundational UI Primitives (`src/components/ui/`):**
+   - `ModularCard` (`src/components/ui/modular-card.tsx`): Primary polymorphic card for features, lessons, bento grids, search results, and carousels. Supports semantic slots (`heading`, `subheading`, `text`, `metric`, `badge`, `icon`, `features`, `action`, `href`), strict conditional rendering of HTML tags, layout modes (`vertical` | `horizontal`), and slot overrides (`contentClassName`, `headingClassName`, `textClassName`).
+     - *Layout Rule:* In `horizontal` mode, `subheading`, `heading`, and `text` are strictly grouped inside an internal `flex-col` wrapper (`contentClassName`) to prevent column fragmentation.
+   - `SectionHeader` (`src/components/ui/section-header.tsx`): Standardized semantic section and page header (`badge`, `heading`, `subheading`, `text`, `action`).
+   - `TabSwitcher` (`src/components/ui/tab-switcher.tsx`): Generic, accessible tab selector (`role="tablist"`, `role="tab"`).
+   - `NeoCard` (`src/components/ui/neo-card.tsx`) & Design Utilities: `.neo-card`, `.neo-card-lg`, `.neo-card-soft`, `.neo-badge`, `.neo-btn-primary`.
+2. **Separation of Concerns (SoC) for View Datasets (`src/data/<domain>/`):**
+   - Repetitive display data (comparison points, process steps, subject bento showcases, interactive hero tabs) MUST NOT be inlined in JSX.
+   - Extract data to typed structures under `src/data/<domain>/` with a guaranteed unique `id: string` property on every record.
+   - Always iterate with `.map((item) => <ModularCard key={item.id} ... />)` using stable IDs as React keys.
+
 ---
+
 
 # 11. INTERACTIVE ENGINE
 
@@ -1362,6 +1382,7 @@ All coding agents MUST follow these rules.
 17. **Do not build Phase 2/3 features** (teacher role, classrooms, access codes, active SD/SMP/SMA content). Keep only the extension points in Section 34.
 18. **Do not hardcode "umum" in business logic;** read the active level(s) from the database so Phase 3 needs no refactor.
 19. **Every interactive component must register a `configSchema` and a `textFallback`.**
+20. **Modular UI & DRY component composition:** Never write ad-hoc repetitive card or section markup inline. Always compose views using foundational primitives in `src/components/ui/` (`ModularCard`, `SectionHeader`, `TabSwitcher`). Decouple repetitive display data into strongly-typed datasets in `src/data/<domain>/` with a mandatory unique `id: string` on every item for list keys.
 
 ---
 
