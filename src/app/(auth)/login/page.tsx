@@ -57,7 +57,7 @@ function LoginFormInner() {
   }
 
   return (
-    <div className="rounded-3xl border-2 border-stone-900 bg-white p-6 shadow-[4px_4px_0px_0px_rgba(24,24,27,0.9)] sm:p-8 dark:border-stone-100 dark:bg-stone-900 dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.85)]">
+    <div className="neo-card p-6 sm:p-8">
       {/* Brand Header */}
       <div className="mb-6 flex flex-col items-center text-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-stone-900 bg-blue-600 text-white shadow-[2px_2px_0px_0px_rgba(24,24,27,0.9)] dark:border-white">

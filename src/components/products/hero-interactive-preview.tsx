@@ -52,7 +52,7 @@ export function HeroInteractivePreview() {
       <div className="absolute inset-0 translate-x-3 translate-y-3 rounded-3xl bg-stone-900 dark:bg-blue-700/40" />
 
       {/* Main Card */}
-      <div className="relative rounded-3xl border-2 border-stone-900 bg-white p-5 shadow-sm dark:border-stone-100 dark:bg-stone-900 sm:p-6">
+      <div className="neo-card relative p-5 shadow-sm sm:p-6">
         {/* Header Bar */}
         <div className="flex items-center justify-between border-b border-stone-100 pb-3 dark:border-stone-800">
           <div className="flex items-center gap-2.5">

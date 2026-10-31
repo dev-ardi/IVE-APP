@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { Search, Lightbulb } from "lucide-react";
 import { searchContent, type SearchResultItem } from "@/modules/search/service";
 import { SearchInput } from "@/components/products/search-input";
+import { SectionHeader } from "@/components/ui/section-header";
+import { ModularCard } from "@/components/ui/modular-card";
 
 export const dynamic = "force-dynamic";
 
@@ -54,29 +56,28 @@ async function SearchResultsInner({ q }: { q: string }) {
       <ul className="flex flex-col gap-3">
         {results.map((item) => (
           <li key={`${item.kind}-${item.id}`}>
-            <Link
+            <ModularCard
+              id={`${item.kind}-${item.id}`}
+              variant="soft"
               href={item.url}
-              className="group flex flex-col gap-2 rounded-2xl border-2 border-slate-900/10 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-900 hover:shadow-[3px_3px_0px_0px_rgba(15,23,42,0.9)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-200 dark:hover:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.7)]"
-            >
-              <div className="flex items-center gap-2">
-                <span className="rounded-md border border-blue-600/30 bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold text-blue-800 dark:border-blue-400/30 dark:bg-blue-950/60 dark:text-blue-300">
-                  {KIND_LABELS[item.kind]}
-                </span>
-                {item.subjectName && (
-                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                    • {item.subjectName}
+              className="p-5"
+              subheading={
+                <div className="flex items-center gap-2">
+                  <span className="rounded-md border border-blue-600/30 bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold text-blue-800 dark:border-blue-400/30 dark:bg-blue-950/60 dark:text-blue-300">
+                    {KIND_LABELS[item.kind]}
                   </span>
-                )}
-              </div>
-              <span className="text-base font-extrabold text-slate-900 transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-                {item.title}
-              </span>
-              {item.description && (
-                <p className="line-clamp-2 text-xs font-medium leading-relaxed text-slate-600 dark:text-slate-300">
-                  {item.description}
-                </p>
-              )}
-            </Link>
+                  {item.subjectName && (
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                      • {item.subjectName}
+                    </span>
+                  )}
+                </div>
+              }
+              heading={item.title}
+              text={item.description}
+              headingClassName="text-base font-extrabold transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400"
+              textClassName="line-clamp-2 text-xs"
+            />
           </li>
         ))}
       </ul>
@@ -95,18 +96,13 @@ export default async function SearchPage({
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-3 py-10 sm:px-6 sm:py-14">
       {/* Header */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-blue-700 dark:text-blue-400">
-          <Search className="h-4 w-4" />
-          <span>Pusat Pencarian Sains & Matematika</span>
-        </div>
-        <h1 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl dark:text-white">
-          Telusuri Konsep & Simulasi
-        </h1>
-        <p className="text-base font-medium text-slate-600 dark:text-slate-300">
-          Ketik topik fisika, kimia, biologi, matematika, atau wawasan umum yang ingin Anda pelajari.
-        </p>
-      </div>
+      <SectionHeader
+        badge="PUSAT PENCARIAN SAINS & MATEMATIKA"
+        badgeIcon={Search}
+        badgeVariant="blue"
+        heading="Telusuri Konsep & Simulasi"
+        text="Ketik topik fisika, kimia, biologi, matematika, atau wawasan umum yang ingin Anda pelajari."
+      />
 
       {/* Input */}
       <div className="flex flex-col gap-3">

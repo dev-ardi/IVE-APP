@@ -3,76 +3,23 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Eye,
-  Sliders,
-  CheckCircle2,
-  Bot,
   ArrowRight,
   Sparkles,
   Send,
 } from "lucide-react";
 import { RenderFormula } from "@/modules/content/render-formula";
-
-interface StepDetail {
-  step: string;
-  title: string;
-  shortDesc: string;
-  badge: string;
-  icon: React.ComponentType<{ className?: string }>;
-  accentColor: string;
-  pillColor: string;
-  borderColor: string;
-}
-
-const STEPS: StepDetail[] = [
-  {
-    step: "01",
-    title: "Amati Visual & Konsep Intuitif",
-    shortDesc: "Setiap materi dibuka dengan visualisasi terstruktur, diagram berlabel, dan analogi dunia nyata tanpa rumus kaku.",
-    badge: "Eksplorasi Konseptual",
-    icon: Eye,
-    accentColor: "bg-purple-600 text-white",
-    pillColor: "bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800",
-    borderColor: "border-purple-300 dark:border-purple-800",
-  },
-  {
-    step: "02",
-    title: "Ubah Parameter di Sandbox Interaktif",
-    shortDesc: "Geser slider variabel fisika, putar sudut trigonometri, atau atur batang kendali nuklir secara langsung.",
-    badge: "Laboratorium Langsung",
-    icon: Sliders,
-    accentColor: "bg-blue-600 text-white",
-    pillColor: "bg-blue-100 text-blue-900 border-blue-300 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800",
-    borderColor: "border-blue-300 dark:border-blue-800",
-  },
-  {
-    step: "03",
-    title: "Uji Pemahaman dengan Kuis Terstruktur",
-    shortDesc: "Pilihan salah tidak menghukum, melainkan membimbing dengan penjelasan logis di mana letak kekeliruan konsep.",
-    badge: "Evaluasi Konstruktif",
-    icon: CheckCircle2,
-    accentColor: "bg-emerald-600 text-white",
-    pillColor: "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800",
-    borderColor: "border-emerald-300 dark:border-emerald-800",
-  },
-  {
-    step: "04",
-    title: "Tanya AI Sesuai Konteks Materi",
-    shortDesc: "AI Tutor membaca teks dan rumus di halaman Anda, siap menjawab keraguan spesifik dengan bahasa Indonesia yang santun.",
-    badge: "Tutor Kontekstual",
-    icon: Bot,
-    accentColor: "bg-amber-600 text-white",
-    pillColor: "bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800",
-    borderColor: "border-amber-300 dark:border-amber-800",
-  },
-];
+import { SectionHeader } from "@/components/ui/section-header";
+import {
+  LEARNING_STEPS,
+  type LearningStepItem,
+} from "@/data/home/learning-loop.data";
 
 export function LearningLoopPillars() {
   const [activeStep, setActiveStep] = useState(0);
   const [interactiveSliderVal, setInteractiveSliderVal] = useState(45);
   const [selectedQuizOption, setSelectedQuizOption] = useState<number | null>(null);
 
-  const current = STEPS[activeStep];
+  const current = LEARNING_STEPS[activeStep];
 
   return (
     <section className="relative overflow-hidden border-b-2 border-stone-900/10 bg-[#F4EFFB] py-20 dark:border-stone-800 dark:bg-[#181324] sm:py-24">
@@ -88,32 +35,33 @@ export function LearningLoopPillars() {
 
       <div className="relative mx-auto w-full max-w-[1400px] px-3 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="flex flex-col items-center gap-3 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border-2 border-purple-600/30 bg-purple-100/90 px-3.5 py-1 text-xs font-black tracking-wide text-purple-900 shadow-2xs dark:border-purple-500/40 dark:bg-purple-950/70 dark:text-purple-300">
-            <Sparkles className="h-4 w-4 text-purple-700 dark:text-purple-400" />
-            <span>METODOLOGI & ALUR BELAJAR IVE-APP</span>
-          </div>
-
-          <h2 className="text-3xl font-black tracking-tight text-stone-900 sm:text-4xl lg:text-5xl dark:text-white">
-            Empat Langkah Menuju <span className="text-purple-700 dark:text-purple-400">Pemahaman Mandiri</span>
-          </h2>
-
-          <p className="max-w-2xl text-[15.5px] font-medium leading-relaxed text-stone-700 sm:text-base dark:text-stone-300">
-            Kami menolak metode hafalan pasif. Setiap modul dirancang untuk membawa pemikiran Anda bergerak aktif dari pengamatan visual hingga verifikasi matematis.
-          </p>
-        </div>
+        <SectionHeader
+          align="center"
+          badge="METODOLOGI & ALUR BELAJAR IVE-APP"
+          badgeIcon={Sparkles}
+          badgeVariant="purple"
+          heading={
+            <>
+              Empat Langkah Menuju{" "}
+              <span className="text-purple-700 dark:text-purple-400">
+                Pemahaman Mandiri
+              </span>
+            </>
+          }
+          text="Kami menolak metode hafalan pasif. Setiap modul dirancang untuk membawa pemikiran Anda bergerak aktif dari pengamatan visual hingga verifikasi matematis."
+        />
 
         {/* Asymmetric 2-Column Stepped Interactive Experience */}
         <div className="mt-14 grid grid-cols-1 items-stretch gap-8 lg:grid-cols-12">
           {/* Left Column (5 Cols): Stepped Timeline Selector */}
           <div className="flex flex-col justify-between gap-3 lg:col-span-5">
-            {STEPS.map((s, idx) => {
+            {LEARNING_STEPS.map((s: LearningStepItem, idx: number) => {
               const isActive = activeStep === idx;
               const Icon = s.icon;
 
               return (
                 <button
-                  key={s.step}
+                  key={s.id}
                   type="button"
                   onClick={() => setActiveStep(idx)}
                   className={`group relative flex cursor-pointer items-start gap-4 rounded-3xl border-2 p-5 text-left transition-all duration-300 ${
@@ -136,19 +84,19 @@ export function LearningLoopPillars() {
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-xs font-black tracking-wider text-stone-600 dark:text-stone-400">
-                        LANGKAH {s.step}
+                        LANGKAH {s.stepNumber}
                       </span>
                       <span className={`rounded-full border px-2 py-0.2 text-[10px] font-bold ${s.pillColor}`}>
-                        {s.badge}
+                        {s.subheading}
                       </span>
                     </div>
 
                     <h3 className="text-base font-black tracking-tight text-stone-900 dark:text-white">
-                      {s.title}
+                      {s.heading}
                     </h3>
 
                     <p className="text-xs font-medium leading-relaxed text-stone-600 dark:text-stone-400">
-                      {s.shortDesc}
+                      {s.text}
                     </p>
                   </div>
 
@@ -163,7 +111,7 @@ export function LearningLoopPillars() {
           </div>
 
           {/* Right Column (7 Cols): Live Interactive Sandbox Demonstration Stage */}
-          <div className="relative flex flex-col justify-between overflow-hidden rounded-3xl border-2 border-stone-900 bg-white p-6 shadow-[5px_5px_0px_0px_rgba(24,24,27,0.9)] dark:border-white dark:bg-stone-900 dark:shadow-[5px_5px_0px_0px_rgba(255,255,255,0.7)] sm:p-8 lg:col-span-7">
+          <div className="neo-card-lg relative flex flex-col justify-between overflow-hidden p-6 sm:p-8 lg:col-span-7">
             {/* Stage Header */}
             <div className="flex items-center justify-between border-b border-stone-900/10 pb-4 dark:border-stone-800">
               <div className="flex items-center gap-2">
@@ -171,7 +119,7 @@ export function LearningLoopPillars() {
                 <span className="flex h-3 w-3 rounded-full bg-amber-500" />
                 <span className="flex h-3 w-3 rounded-full bg-emerald-500" />
                 <span className="ml-2 font-mono text-xs font-bold text-stone-700 dark:text-stone-300">
-                  IVE_STAGE // {current.step}_{current.badge.toUpperCase().replace(/\s+/g, "_")}
+                  IVE_STAGE // {current.stepNumber}_{current.subheading.toUpperCase().replace(/\s+/g, "_")}
                 </span>
               </div>
 

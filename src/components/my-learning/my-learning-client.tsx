@@ -6,6 +6,8 @@ import { Cloud, Heart, CheckCircle2, ArrowRight, BookOpen, GraduationCap } from 
 import { Card } from "@/components/products/card";
 import { DifficultyBadge } from "@/components/products/difficulty-badge";
 import { SubjectIcon, getSubjectTheme } from "@/components/ui/subject-theme";
+import { SectionHeader } from "@/components/ui/section-header";
+import { ModularCard } from "@/components/ui/modular-card";
 import type { SubjectSummary } from "@/modules/subjects/service";
 import type { LessonSummary } from "@/modules/lessons/service";
 
@@ -41,23 +43,44 @@ export function MyLearningClient({ subjects, allLessons }: MyLearningClientProps
     (l) => completedIds.includes(l.id) || completedIds.includes(l.slug)
   );
 
+  const stats = [
+    {
+      id: "completed",
+      label: "Materi Selesai",
+      count: completedLessons.length,
+      icon: CheckCircle2,
+      color: "text-emerald-600 dark:text-emerald-400",
+    },
+    {
+      id: "favorites",
+      label: "Materi Favorit",
+      count: favoriteLessons.length,
+      icon: Heart,
+      color: "text-rose-600 dark:text-rose-400",
+    },
+    {
+      id: "total",
+      label: "Total Katalog",
+      count: allLessons.length,
+      icon: BookOpen,
+      color: "text-blue-600 dark:text-blue-400",
+    },
+  ];
+
   return (
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-10 px-3 py-10 sm:px-6 sm:py-14">
       {/* Header */}
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-blue-700 dark:text-blue-400">
-          <GraduationCap className="h-4 w-4" />
-          <span>Area Belajar Pribadi</span>
-        </div>
-        <h1 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl dark:text-white">
-          Pembelajaran Saya
-        </h1>
-        <p className="max-w-2xl text-base font-medium leading-relaxed text-slate-600 dark:text-slate-300">
-          Pantau materi yang telah Anda selesaikan dan akses materi favorit yang disimpan untuk dipelajari kembali kapan saja.
-        </p>
+      <div className="flex flex-col gap-6">
+        <SectionHeader
+          badge="AREA BELAJAR PRIBADI"
+          badgeIcon={GraduationCap}
+          badgeVariant="blue"
+          heading="Pembelajaran Saya"
+          text="Pantau materi yang telah Anda selesaikan dan akses materi favorit yang disimpan untuk dipelajari kembali kapan saja."
+        />
 
         {/* Guest Sync Banner with Soft Neobrutalism border */}
-        <div className="mt-2 flex flex-col justify-between gap-4 rounded-2xl border-2 border-slate-900/15 bg-blue-50/70 p-5 shadow-[2px_2px_0px_0px_rgba(15,23,42,0.8)] dark:border-blue-900/60 dark:bg-blue-950/40 sm:flex-row sm:items-center">
+        <div className="flex flex-col justify-between gap-4 rounded-2xl border-2 border-slate-900/15 bg-blue-50/70 p-5 shadow-[2px_2px_0px_0px_rgba(15,23,42,0.8)] dark:border-blue-900/60 dark:bg-blue-950/40 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3.5">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-blue-200 bg-white text-blue-700 dark:border-blue-800 dark:bg-blue-900 dark:text-blue-200">
               <Cloud className="h-5 w-5" />
@@ -81,37 +104,20 @@ export function MyLearningClient({ subjects, allLessons }: MyLearningClientProps
         </div>
       </div>
 
-      {/* Progress Counters with Neobrutalism Cards */}
+      {/* Progress Counters mapped via ModularCard */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border-2 border-slate-900/10 bg-white p-5.5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-            <span className="text-xs font-extrabold text-slate-600 dark:text-slate-400">Materi Selesai</span>
-          </div>
-          <p className="mt-2 text-3xl font-black text-slate-900 dark:text-white">
-            {completedLessons.length}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border-2 border-slate-900/10 bg-white p-5.5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-center gap-2">
-            <Heart className="h-4 w-4 text-rose-600 dark:text-rose-400 fill-rose-500/20" />
-            <span className="text-xs font-extrabold text-slate-600 dark:text-slate-400">Materi Favorit</span>
-          </div>
-          <p className="mt-2 text-3xl font-black text-rose-600 dark:text-rose-400">
-            {favoriteLessons.length}
-          </p>
-        </div>
-
-        <div className="col-span-2 rounded-2xl border-2 border-slate-900/10 bg-white p-5.5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:col-span-1">
-          <div className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            <span className="text-xs font-extrabold text-slate-600 dark:text-slate-400">Total Katalog</span>
-          </div>
-          <p className="mt-2 text-3xl font-black text-blue-600 dark:text-blue-400">
-            {allLessons.length}
-          </p>
-        </div>
+        {stats.map((s, idx) => (
+          <ModularCard
+            key={s.id}
+            id={s.id}
+            variant="default"
+            className={idx === 2 ? "col-span-2 sm:col-span-1 p-5" : "p-5"}
+            icon={<s.icon className={`h-4 w-4 ${s.color}`} />}
+            subheading={s.label}
+            metric={s.count}
+            metricColor={s.color}
+          />
+        ))}
       </div>
 
       {/* Section: Favorit */}

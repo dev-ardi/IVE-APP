@@ -5,8 +5,16 @@ import { Search, RotateCcw, Compass } from "lucide-react";
 import { Card } from "@/components/products/card";
 import { DifficultyBadge } from "@/components/products/difficulty-badge";
 import { SubjectIcon, getSubjectTheme } from "@/components/ui/subject-theme";
+import { SectionHeader } from "@/components/ui/section-header";
 import type { SubjectSummary } from "@/modules/subjects/service";
 import type { LessonSummary } from "@/modules/lessons/service";
+
+const DIFFICULTY_OPTIONS = [
+  { id: "all", label: "Semua Tingkat" },
+  { id: "BEGINNER", label: "Pemula" },
+  { id: "INTERMEDIATE", label: "Menengah" },
+  { id: "ADVANCED", label: "Lanjutan" },
+];
 
 interface ExploreClientProps {
   initialSubjects: SubjectSummary[];
@@ -37,20 +45,13 @@ export function ExploreClient({ initialSubjects, initialLessons }: ExploreClient
   return (
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8 px-3 py-10 sm:px-6 sm:py-14">
       {/* Page Header */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-blue-700 dark:text-blue-400">
-          <Compass className="h-4 w-4" />
-          <span>Katalog Materi Belajar</span>
-          <span>•</span>
-          <span>Jenjang Umum</span>
-        </div>
-        <h1 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl dark:text-white">
-          Jelajahi Eksperimen & Konsep Sains
-        </h1>
-        <p className="max-w-2xl text-base font-medium leading-relaxed text-slate-600 dark:text-slate-300">
-          Temukan topik fisika, kimia, biologi, matematika, hingga sains umum mutakhir. Semua materi dilengkapi komponen simulasi interaktif dan penjelasan mandiri.
-        </p>
-      </div>
+      <SectionHeader
+        badge="KATALOG MATERI BELAJAR • JENJANG UMUM"
+        badgeIcon={Compass}
+        badgeVariant="blue"
+        heading="Jelajahi Eksperimen & Konsep Sains"
+        text="Temukan topik fisika, kimia, biologi, matematika, hingga sains umum mutakhir. Semua materi dilengkapi komponen simulasi interaktif dan penjelasan mandiri."
+      />
 
       {/* Search & Filter Toolbar with Neobrutalist design */}
       <div className="flex flex-col gap-5 rounded-2xl border-2 border-slate-900/10 bg-white p-5 shadow-[3px_3px_0px_0px_rgba(15,23,42,0.9)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.7)]">
@@ -117,12 +118,7 @@ export function ExploreClient({ initialSubjects, initialLessons }: ExploreClient
         {/* Difficulty pills */}
         <div className="flex flex-wrap items-center gap-2">
           <span className="mr-1 text-xs font-black text-slate-700 dark:text-slate-300">Tingkat Kesulitan:</span>
-          {[
-            { id: "all", label: "Semua Tingkat" },
-            { id: "BEGINNER", label: "Pemula" },
-            { id: "INTERMEDIATE", label: "Menengah" },
-            { id: "ADVANCED", label: "Lanjutan" },
-          ].map((diff) => (
+          {DIFFICULTY_OPTIONS.map((diff) => (
             <button
               key={diff.id}
               type="button"

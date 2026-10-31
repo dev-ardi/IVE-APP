@@ -214,4 +214,91 @@ html.lenis body {
 .cms-focus:focus-visible {
   outline: 3px solid var(--ring);
   outline-offset: 2px;
-}
+}
+
+/* ==========================================================================
+   Student-facing Neobrutalism Design Tokens & Utilities
+   Use these @layer utilities to avoid repeating the same long Tailwind strings.
+   ========================================================================== */
+@layer utilities {
+  /* ── Card variants ──────────────────────────────────────────────── */
+
+  /* Standard content card: white bg, stone border, hard offset shadow */
+  .neo-card {
+    @apply rounded-3xl border-2 border-stone-900 bg-white
+           shadow-[4px_4px_0px_0px_rgba(24,24,27,0.9)]
+           dark:border-stone-100 dark:bg-stone-900
+           dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.7)];
+  }
+
+  /* Raised card: larger offset, typically for hero/featured use */
+  .neo-card-lg {
+    @apply rounded-3xl border-2 border-stone-900 bg-white
+           shadow-[5px_5px_0px_0px_rgba(24,24,27,0.9)]
+           dark:border-white dark:bg-stone-900
+           dark:shadow-[5px_5px_0px_0px_rgba(255,255,255,0.7)];
+  }
+
+  /* Subdued card: lower contrast border, no shadow — for list items, sidebars */
+  .neo-card-soft {
+    @apply rounded-2xl border-2 border-stone-200 bg-[#FCFAF6]
+           dark:border-stone-800 dark:bg-[#191B20];
+  }
+
+  /* ── Button variants ────────────────────────────────────────────── */
+
+  /* Primary CTA button (blue) */
+  .neo-btn-primary {
+    @apply inline-flex cursor-pointer items-center gap-2 rounded-xl
+           border-2 border-stone-900 bg-blue-600 px-5 py-3
+           text-sm font-black text-white
+           shadow-[3px_3px_0px_0px_rgba(24,24,27,0.9)]
+           transition-all hover:-translate-y-0.5 hover:bg-blue-700
+           active:translate-y-0.5
+           dark:border-white dark:bg-blue-500;
+  }
+
+  /* Ghost / secondary button */
+  .neo-btn-ghost {
+    @apply inline-flex cursor-pointer items-center gap-2 rounded-xl
+           border-2 border-stone-900 bg-white px-5 py-3
+           text-sm font-bold text-stone-900
+           shadow-[2.5px_2.5px_0px_0px_rgba(24,24,27,0.9)]
+           transition-all hover:-translate-y-0.5 hover:bg-stone-50
+           dark:border-stone-200 dark:bg-stone-900 dark:text-white;
+  }
+
+  /* Small icon/action button */
+  .neo-btn-icon {
+    @apply flex h-8 w-8 cursor-pointer items-center justify-center
+           rounded-xl border-2 border-stone-900 bg-white
+           shadow-[2px_2px_0px_0px_rgba(24,24,27,0.9)]
+           transition hover:bg-stone-50
+           disabled:cursor-not-allowed disabled:opacity-40
+           dark:border-stone-200 dark:bg-stone-900 dark:hover:bg-stone-800;
+  }
+
+  /* ── Badge variants ─────────────────────────────────────────────── */
+
+  /* Standard pill badge */
+  .neo-badge {
+    @apply inline-flex items-center gap-1.5 rounded-full
+           border-2 border-stone-900
+           px-3 py-1 text-xs font-black
+           shadow-[2px_2px_0px_0px_rgba(24,24,27,0.9)];
+  }
+
+  /* Top-viewed / featured amber badge */
+  .neo-badge-top {
+    @apply inline-flex items-center gap-1 rounded-full
+           border-2 border-stone-900 bg-amber-400
+           px-3 py-1 text-[11px] font-black text-stone-950
+           shadow-[2px_2px_0px_0px_rgba(24,24,27,0.9)];
+  }
+
+  /* ── Section label ──────────────────────────────────────────────── */
+  .neo-section-label {
+    @apply text-xs font-black uppercase tracking-wider;
+  }
+}
+

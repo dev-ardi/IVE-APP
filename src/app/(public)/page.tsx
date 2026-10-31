@@ -19,6 +19,7 @@ import { ActiveLearningWhy } from "@/components/home/active-learning-why";
 import { LearningLoopPillars } from "@/components/home/learning-loop-pillars";
 import { SubjectShowcaseSection } from "@/components/home/subject-showcase-section";
 import { TopicInfiniteCarousel } from "@/components/home/topic-infinite-carousel";
+import { SectionHeader } from "@/components/ui/section-header";
 
 export const dynamic = "force-dynamic";
 
@@ -115,20 +116,14 @@ export default async function HomePage() {
       <section className="relative overflow-hidden border-b-2 border-stone-900/10 bg-[#EDF2FA] py-20 dark:border-stone-800 dark:bg-[#121824]">
         <div className="relative mx-auto w-full max-w-[1400px] px-3 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div className="flex flex-col gap-1">
-                <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-blue-700 dark:text-blue-400">
-                  <FlaskConical className="h-4 w-4" />
-                  LABORATORIUM SIMULASI MANDIRI
-                </span>
-                <h2 className="text-3xl font-black tracking-tight text-stone-900 sm:text-4xl dark:text-white">
-                  Sentuh Variabel, Pahami Intuisi di Balik Rumus
-                </h2>
-              </div>
-              <p className="max-w-md text-sm font-medium text-stone-600 dark:text-stone-300">
-                Pilih laboratorium di bawah ini untuk menguji bagaimana perubahan satu variabel memicu respon fisik dan matematis secara instan.
-              </p>
-            </div>
+            <SectionHeader
+              align="between"
+              badge="LABORATORIUM SIMULASI MANDIRI"
+              badgeIcon={FlaskConical}
+              badgeVariant="blue"
+              heading="Sentuh Variabel, Pahami Intuisi di Balik Rumus"
+              text="Pilih laboratorium di bawah ini untuk menguji bagaimana perubahan satu variabel memicu respon fisik dan matematis secara instan."
+            />
 
             <HeroShowcase />
           </div>
@@ -165,29 +160,25 @@ export default async function HomePage() {
       <section className="bg-[#FAF9F5] py-20 dark:bg-[#121316]">
         <div className="mx-auto w-full max-w-[1400px] px-3 sm:px-6 lg:px-8">
           <div className="relative overflow-hidden rounded-3xl border-2 border-stone-900 bg-gradient-to-r from-blue-700 via-indigo-700 to-violet-800 p-8 text-white shadow-[4px_4px_0px_0px_rgba(24,24,27,0.9)] dark:border-white sm:p-12">
-            <div className="relative z-10 flex flex-col items-center justify-between gap-6 sm:flex-row">
-              <div className="flex flex-col gap-2 text-center sm:text-left">
-                <div className="inline-flex items-center gap-1.5 self-center rounded-full bg-white/10 px-3 py-1 text-xs font-bold tracking-wide text-white backdrop-blur-sm sm:self-start">
-                  <GraduationCap className="h-4 w-4" />
-                  <span>MULAI BELAJAR HARI INI</span>
-                </div>
-                <h2 className="text-2xl font-black tracking-tight sm:text-3xl">
-                  Siap Membangun Intuisi Sains & Matematika Anda?
-                </h2>
-                <p className="max-w-xl text-sm font-medium text-white/90">
-                  Semua materi jenjang Umum terbuka penuh dan bebas diakses. Eksplorasi konsep dari Gerak Parabola hingga Fisi Nuklir sekarang.
-                </p>
-              </div>
-
-              <Link
-                href="/explore"
-                className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border-2 border-stone-900 bg-white px-7 py-4 text-sm font-black text-stone-900 shadow-[3px_3px_0px_0px_rgba(24,24,27,0.9)] transition-all hover:-translate-y-0.5 hover:bg-stone-100 active:translate-y-0.5"
-              >
-                <Compass className="h-4 w-4 text-blue-600" />
-                <span>Buka Katalog Materi</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
+            <SectionHeader
+              align="between"
+              badge="MULAI BELAJAR HARI INI"
+              badgeIcon={GraduationCap}
+              heading="Siap Membangun Intuisi Sains & Matematika Anda?"
+              headingClassName="text-2xl sm:text-3xl text-white"
+              text="Semua materi jenjang Umum terbuka penuh dan bebas diakses. Eksplorasi konsep dari Gerak Parabola hingga Fisi Nuklir sekarang."
+              textClassName="text-white/90"
+              action={
+                <Link
+                  href="/explore"
+                  className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border-2 border-stone-900 bg-white px-7 py-4 text-sm font-black text-stone-900 shadow-[3px_3px_0px_0px_rgba(24,24,27,0.9)] transition-all hover:-translate-y-0.5 hover:bg-stone-100 active:translate-y-0.5"
+                >
+                  <Compass className="h-4 w-4 text-blue-600" />
+                  <span>Buka Katalog Materi</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              }
+            />
           </div>
         </div>
       </section>
